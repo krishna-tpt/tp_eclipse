@@ -1,0 +1,44 @@
+package com.jwt.refresh;
+
+/**
+ * Login response client return object.
+ * Access token  — 15 minutes
+ * Refresh token — 7 days
+ */
+public class TokenPair {
+
+	private final String accessToken;
+	private final String refreshToken;
+	private final long accessExpiresIn; // seconds
+	private final long refreshExpiresIn; // seconds
+
+	public TokenPair(String accessToken, String refreshToken) {
+		this.accessToken = accessToken;
+		this.refreshToken = refreshToken;
+		this.accessExpiresIn = 15 * 60; // 15 min
+		this.refreshExpiresIn = 7 * 24 * 60 * 60; // 7 days
+	}
+
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	public long getAccessExpiresIn() {
+		return accessExpiresIn;
+	}
+
+	public long getRefreshExpiresIn() {
+		return refreshExpiresIn;
+	}
+
+	@Override
+	public String toString() {
+		return "TokenPair{\n" + "  accessToken  = " + accessToken.substring(0, 20) + "...\n" + "  refreshToken = "
+				+ refreshToken.substring(0, 20) + "...\n" + "  accessTTL    = " + accessExpiresIn + "s\n"
+				+ "  refreshTTL   = " + refreshExpiresIn + "s\n}";
+	}
+}

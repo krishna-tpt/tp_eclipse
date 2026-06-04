@@ -1,0 +1,223 @@
+package org.smslite.sharepointetl.sharepoint;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import org.smslite.sharepointetl.model.SharePointFile;
+import org.smslite.sharepointetl.model.FolderConfig;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class SharePointClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(SharePointClient.class);
+    private static final Duration TOKEN_EXPIRY_BUFFER = Duration.ofMinutes(2); // 5 min buffer 
+    
+    private final String tenantId;
+    private final String clientId;
+    private final String clientSecret;
+    private final String driveId;
+    private final FolderConfig folderConfig;
+
+    private final HttpClient httpClient = HttpClient.newHttpClient();
+
+    private volatile String accessToken=null;
+    private volatile Instant tokenExpiryTime = Instant.MIN;
+    public SharePointClient(String tenantId, String clientId, String clientSecret,
+                            String driveId, FolderConfig folderConfig) {
+        this.tenantId = tenantId;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.driveId = driveId;
+        this.folderConfig = folderConfig;
+    }
+
+    private String getAccessToken() {
+    	if (accessToken!=null && Instant.now().isBefore(tokenExpiryTime)) { 
+    		logger.info("Access token fetched from cache");
+    		return accessToken;
+    	}
+        try {
+            String body = "client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
+                    + "&scope=" + URLEncoder.encode("https://graph.microsoft.com/.default", StandardCharsets.UTF_8)
+                    + "&client_secret=" + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8)
+                    + "&grant_type=client_credentials";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://login.microsoftonline.com/" + tenantId + "/oauth2/v2.0/token"))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Failed to get access token: " + response.body());
+            }
+
+            JSONObject json = new JSONObject(response.body());
+            accessToken = json.getString("access_token");
+            int expiresIn = json.optInt("expires_in",3600);
+            
+            tokenExpiryTime = Instant.now().plusSeconds(expiresIn).minus(TOKEN_EXPIRY_BUFFER);
+            logger.info("Access token fetched, expires in {}s", expiresIn);
+            
+            return accessToken;
+
+        } catch (Exception e) {
+            logger.error("Error fetching access token: {}", e.getMessage(), e);
+            throw new RuntimeException("Error fetching access token", e);
+        }
+    }
+
+    public List<SharePointFile> listFilesInFolder() {
+        List<SharePointFile> files = new ArrayList<>();
+        String token = getAccessToken();
+
+        String url = "https://graph.microsoft.com/v1.0/drives/" + driveId +
+                "/items/" + folderConfig.getReceivedFolderId() + "/children";
+        logger.info("Processing SharePoint folder: {}", folderConfig.getName());
+        logger.debug("URL to fetch files: {}", url);
+
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Authorization", "Bearer " + token)
+                    .GET()
+                    .build();
+
+            logger.info("URL Processing is " + url);
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                logger.error("Failed to fetch files for folder {}. HTTP error code: {}", folderConfig.getName(), response.statusCode());
+                throw new RuntimeException("Failed to fetch files. HTTP error code: " + response.statusCode());
+            }
+
+            JSONObject json = new JSONObject(response.body());
+            JSONArray value = json.getJSONArray("value");
+
+            logger.debug("Files JSON response for folder {}: {}", folderConfig.getName(), value);
+
+            for (int i = 0; i < value.length(); i++) {
+                JSONObject fileObj = value.getJSONObject(i);
+
+                if (!fileObj.has("file")) continue; // skip folders
+
+                String name = fileObj.getString("name");
+                String id = fileObj.getString("id");
+                String urlDownload = fileObj.optString("@microsoft.graph.downloadUrl", null);
+                if (urlDownload == null) {
+                    logger.warn("No download URL for file: {} in folder: {}", name, folderConfig.getName());
+                    continue;
+                }
+
+                long length = fileObj.optLong("size", 0L);
+                String createdDateTime = fileObj.optString("createdDateTime", null);
+                LocalDateTime createdTime = null;
+                if (createdDateTime != null) {
+                    createdTime = LocalDateTime.parse(createdDateTime.replace("Z", ""));
+                } else {
+                    createdTime = LocalDateTime.now(); // fallback to current time if not available
+                }
+                
+                SharePointFile file = new SharePointFile(name, urlDownload, length, id, createdTime);
+                files.add(file);
+                logger.info("Found file: {} ({} bytes) in folder: {}", name, length, folderConfig.getName());
+                logger.debug("Download URL for file {}: {}", name, urlDownload);
+            }
+
+        } catch (IOException | InterruptedException e) {
+            logger.error("Error listing files from SharePoint folder {}", folderConfig.getName(), e);
+            throw new RuntimeException("Error listing files from SharePoint", e);
+        }
+
+        return files;
+    }
+
+    public void moveFile(String fileId) {
+        moveFile(fileId, null);
+    }
+
+    public void moveFile(String fileId, String newFileName) {
+        try {
+            String url = String.format("https://graph.microsoft.com/v1.0/drives/%s/items/%s", driveId, fileId);
+            JSONObject body = new JSONObject();
+            JSONObject parentReference = new JSONObject();
+            parentReference.put("id", folderConfig.getProcessedFolderId());
+            body.put("parentReference", parentReference);
+            
+            if (newFileName != null && !newFileName.isEmpty()) {
+                body.put("name", newFileName);
+            }
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + getAccessToken())
+                .header("Content-Type", "application/json")
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(body.toString()))
+                .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Failed to move file: " + response.body());
+            }
+            logger.debug("Moved file {} to processed folder as {}", fileId, newFileName != null ? newFileName : "original name");
+        } catch (Exception e) {
+            logger.error("Error moving file: {}", e.getMessage(), e);
+            throw new RuntimeException("Error moving file", e);
+        }
+    }
+
+    public void moveFileToFolder(String fileId, String targetFolderId) {
+        moveFileToFolder(fileId, targetFolderId, null);
+    }
+
+    public void moveFileToFolder(String fileId, String targetFolderId, String newFileName) {
+        try {
+            String url = String.format("https://graph.microsoft.com/v1.0/drives/%s/items/%s", driveId, fileId);
+            JSONObject body = new JSONObject();
+            JSONObject parentReference = new JSONObject();
+            parentReference.put("id", targetFolderId);
+            body.put("parentReference", parentReference);
+            
+            if (newFileName != null && !newFileName.isEmpty()) {
+                body.put("name", newFileName);
+            }
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + getAccessToken())
+                .header("Content-Type", "application/json")
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(body.toString()))
+                .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Failed to move file: " + response.body());
+            }
+            logger.debug("Moved file {} to folder {} as {}", fileId, targetFolderId, newFileName != null ? newFileName : "original name");
+        } catch (Exception e) {
+            logger.error("Error moving file: {}", e.getMessage(), e);
+            throw new RuntimeException("Error moving file", e);
+        }
+    }
+
+    public String getTargetTable() {
+        return folderConfig.getTargetTable();
+    }
+}

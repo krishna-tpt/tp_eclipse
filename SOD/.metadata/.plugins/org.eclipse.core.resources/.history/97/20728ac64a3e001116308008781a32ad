@@ -1,0 +1,5 @@
+package com.workdrive.organizer.model;
+
+public class WorkDriveFile {
+
+}

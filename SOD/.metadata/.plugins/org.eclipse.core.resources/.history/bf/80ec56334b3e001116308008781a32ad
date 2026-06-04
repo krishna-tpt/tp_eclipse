@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="workdrive-organizer">
+        <property name="context-root" value="workdrive-organizer"/>
+        <property name="java-output-path" value="/workdrive-organizer/target/classes"/>
+    </wb-module>
+</project-modules>

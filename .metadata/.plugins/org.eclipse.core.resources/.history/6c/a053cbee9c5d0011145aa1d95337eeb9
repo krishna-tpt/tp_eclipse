@@ -1,0 +1,111 @@
+package com.jwt.refresh;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
+import java.util.Date;
+
+/**
+ * Access token + Refresh token- managing service.
+ * 
+ * Key design decisions:
+ *  - Access token: JWT (stateless, 15 min)
+ *  - Refresh token: opaque UUID (stateful, 7 days, stored in DB)
+ *  - Token Rotation: when refresh old refresh token will revoke 
+ */
+public class TokenService {
+
+    private static final String SECRET =
+        "SuperSecretKey9999SuperSecretKey9999!!!!";
+    private static final long ACCESS_TTL_MS = 15 * 60 * 1000L; // 15 min
+    
+    private final SecretKey          secretKey;
+    private final RefreshTokenStore  refreshStore;
+    
+    public TokenService() {
+        this.secretKey    = Keys.hmacShaKeyFor(SECRET.getBytes());
+        this.refreshStore = new RefreshTokenStore();
+    }
+    
+    // ============================================
+    // LOGIN — access + refresh token issue 
+    // ============================================
+    public TokenPair login(String userId, String role) {
+        String accessToken  = createAccessToken(userId, role);
+        String refreshToken = refreshStore.save(userId);
+        
+        System.out.println("\n[LOGIN] Tokens issued for: " + userId);
+        return new TokenPair(accessToken, refreshToken);
+    }
+    
+    // ============================================
+    // REFRESH — old refresh token using new tokens
+    // TOKEN ROTATION: old refresh revoke, new issue
+    // ============================================
+    public TokenPair refresh(String oldRefreshToken) {
+        System.out.println("\n[REFRESH] Attempting token refresh...");
+        
+        // 1. Validate old refresh token
+        String userId = refreshStore.validate(oldRefreshToken);
+        
+        // 2. TOKEN ROTATION — revoke old toke
+        //    its security best practice!
+        //    Same refresh token reuse = stolen token detect
+        refreshStore.revoke(oldRefreshToken);
+        
+        // 3. New access + refresh token issue
+        String newAccessToken  = createAccessToken(userId, "USER");
+        String newRefreshToken = refreshStore.save(userId);
+        
+        System.out.println("[REFRESH] Success! New tokens issued for: " + userId);
+        return new TokenPair(newAccessToken, newRefreshToken);
+    }
+    
+    // ============================================
+    // LOGOUT — refresh token revoke 
+    // ============================================
+    public void logout(String refreshToken) {
+        System.out.println("\n[LOGOUT] Revoking refresh token...");
+        refreshStore.revoke(refreshToken);
+    }
+    
+    // ============================================
+    // LOGOUT ALL — all devices logout for user
+    // ============================================
+    public void logoutAll(String userId) {
+        System.out.println("\n[LOGOUT ALL] Revoking all sessions for: " + userId);
+        refreshStore.revokeAllForUser(userId);
+    }
+    
+    // ============================================
+    // VALIDATE ACCESS TOKEN — API call use
+    // ============================================
+    public Claims validateAccessToken(String accessToken) {
+        return Jwts.parser()
+                   .verifyWith(secretKey)
+                   .build()
+                   .parseSignedClaims(accessToken)
+                   .getPayload();
+    }
+    
+    // ============================================
+    // Private: Access JWT create 
+    // ============================================
+    private String createAccessToken(String userId, String role) {
+        return Jwts.builder()
+                   .subject(userId)
+                   .issuer("myapp")
+                   .claim("role", role)
+                   .claim("type", "access")     // token type mark
+                   .issuedAt(new Date())
+                   .expiration(new Date(System.currentTimeMillis() + ACCESS_TTL_MS))
+                   .signWith(secretKey)
+                   .compact();
+    }
+    
+    public RefreshTokenStore getRefreshStore() {
+        return refreshStore;
+    }
+}

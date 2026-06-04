@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item key="hasShownOverlayPopupBefore" value="true"/>
+	<section name="java.lang.Class">
+		<item key="selection" value="indexesCreate"/>
+		<item key="replaceBarOpen" value="true"/>
+		<list key="findhistory">
+			<item value="accessToken"/>
+			<item value="isvi"/>
+			<item value="Excel file writing started"/>
+			<item value="dateformat"/>
+			<item value="addLog"/>
+			<item value="Workbook"/>
+			<item value="processingFiles"/>
+			<item value="Exception"/>
+			<item value="maven"/>
+			<item value="m"/>
+			<item value="resultset"/>
+			<item value="result"/>
+			<item value="indexesCreate"/>
+			<item value="tableCreate"/>
+			<item value="logger"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.GotoLineAction$GotoLineDialog_dialogBounds">
+		<item key="DIALOG_X_ORIGIN" value="651"/>
+		<item key="DIALOG_Y_ORIGIN" value="375"/>
+	</section>
+</section>

@@ -1,0 +1,129 @@
+package com.workdrive.organizer.service;
+
+import com.workdrive.organizer.model.WorkDriveFile;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Direct Zoho WorkDrive REST API calls — no SDK, no Spring.
+ * Docs: https://workdrive.zoho.com/apidocs/v1
+ */
+public class WorkDriveApiService {
+
+    private static final Logger log = LoggerFactory.getLogger(WorkDriveApiService.class);
+    private static final String BASE_URL = "https://workdrive.zoho.com/api/v1";
+
+    private final ZohoTokenService tokenService;
+
+    public WorkDriveApiService(ZohoTokenService tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    // ── List Files ─────────────────────────────────────────────────────────
+
+    /**
+     * Lists all files (non-folders) inside a given folder.
+     */
+    public List<WorkDriveFile> listFiles(String folderId) throws IOException {
+        String url = BASE_URL + "/files/" + folderId + "/files";
+        String response = get(url);
+
+        JSONObject json = new JSONObject(response);
+        JSONArray data  = json.optJSONArray("data");
+        List<WorkDriveFile> files = new ArrayList<>();
+
+        if (data == null) return files;
+
+        for (int i = 0; i < data.length(); i++) {
+            JSONObject item  = data.getJSONObject(i);
+            JSONObject attrs = item.optJSONObject("attributes");
+            if (attrs == null) continue;
+
+            boolean isFolder = attrs.optBoolean("is_folder", false);
+            if (isFolder) continue; // skip sub-folders
+
+            WorkDriveFile f = new WorkDriveFile();
+            f.setId(item.optString("id"));
+            f.setName(attrs.optString("name"));
+            f.setExtension(attrs.optString("extn"));
+            f.setType(attrs.optString("type"));
+            f.setFolder(false);
+            f.setModifiedTime(attrs.optString("modified_time"));
+            f.setParentId(attrs.optString("parent_id"));
+            f.setPermalink(attrs.optString("permalink"));
+
+            JSONObject storage = attrs.optJSONObject("storage_info");
+            if (storage != null) {
+                f.setSizeInBytes(storage.optLong("size_in_bytes", 0));
+            }
+
+            files.add(f);
+        }
+
+        log.info("Listed {} files in folder {}", files.size(), folderId);
+        return files;
+    }
+
+    // ── Move File ──────────────────────────────────────────────────────────
+
+    /**
+     * Moves a file to the given destination folder.
+     * Uses PATCH /files/{resource_id} with parent_id in body.
+     */
+    public boolean moveFile(String fileId, String destinationFolderId) throws IOException {
+        String url = BASE_URL + "/files/" + fileId;
+
+        JSONObject body = new JSONObject();
+        body.put("data", new JSONObject()
+                .put("attributes", new JSONObject()
+                        .put("parent_id", destinationFolderId))
+                .put("type", "files"));
+
+        int status = patch(url, body.toString());
+        boolean success = (status == 200 || status == 204);
+        log.info("Move file {} → folder {} : HTTP {}", fileId, destinationFolderId, status);
+        return success;
+    }
+
+    // ── HTTP helpers ───────────────────────────────────────────────────────
+
+    private String get(String urlStr) throws IOException {
+        HttpURLConnection conn = openConnection(urlStr, "GET");
+        int status = conn.getResponseCode();
+        if (status != 200) {
+            throw new IOException("GET " + urlStr + " failed [HTTP " + status + "]");
+        }
+        return new String(conn.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    private int patch(String urlStr, String jsonBody) throws IOException {
+        HttpURLConnection conn = openConnection(urlStr, "PATCH");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Content-Type", "application/json");
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(jsonBody.getBytes(StandardCharsets.UTF_8));
+        }
+        return conn.getResponseCode();
+    }
+
+    private HttpURLConnection openConnection(String urlStr, String method) throws IOException {
+        String token = tokenService.getAccessToken();
+        HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+        conn.setRequestMethod(method);
+        conn.setRequestProperty("Authorization", "Zoho-oauthtoken " + token);
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setConnectTimeout(15_000);
+        conn.setReadTimeout(15_000);
+        return conn;
+    }
+}

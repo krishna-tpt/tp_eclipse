@@ -1,0 +1,158 @@
+package com.sodreport.excel;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class Main {
+    public static String dateformat = "ddMMyyyy";
+    static DateTimeFormatter formater = DateTimeFormatter.ofPattern(dateformat);
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    static int[] org_ids = { 1000000, 1000001, 1000002, 1000004 };
+
+    public static void main(String[] args) throws FileNotFoundException, IOException, SQLException {
+        logger.info("Starting SOD Audit Report application");
+        DBUtil dbutil = new DBUtil();
+        String startdate = "2025-01-01"; // default date
+        String enddate = "2025-03-31";
+        Instant start = Instant.now();
+        logger.debug("Default dates set: startDate={}, endDate={}", startdate, enddate);
+
+        if (args.length >= 2) {
+            try {
+                validateDate(args[0]);
+                validateDate(args[1]);
+                startdate = args[0];
+                enddate = args[1];
+                logger.info("Using provided dates: startDate={}, endDate={}", startdate, enddate);
+                System.out.println("Using provided dates:");
+                System.out.println("Start Date: " + startdate);
+                System.out.println("End Date: " + enddate);
+            } catch (IllegalArgumentException e) {
+                logger.error("Invalid date input: {}", e.getMessage());
+                System.err.println("Error: " + e.getMessage());
+                System.err.println("Using default dates instead.");
+                System.err.println("Default Start Date: " + startdate);
+                System.err.println("Default End Date: " + enddate);
+            }
+        } else {
+            logger.warn("No date parameters provided. Using default dates: startDate={}, endDate={}", startdate, enddate);
+            System.out.println("No date parameters provided. Using default dates:");
+            System.out.println("Start Date: " + startdate);
+            System.out.println("End Date: " + enddate);
+            System.out.println("\nUsage: java -jar sodreport-1.0-SNAPSHOT.jar <start_date> <end_date>");
+            System.out.println("Date format: DDMMYYYY (e.g., 01012024)");
+        }
+
+        try {
+            validateDateRange(startdate, enddate);
+            logger.debug("Date range validated successfully: startDate={}, endDate={}", startdate, enddate);
+        } catch (IllegalArgumentException e) {
+            logger.error("Date range validation failed: {}", e.getMessage());
+            System.err.println("Error: " + e.getMessage());
+            System.exit(1);
+        }
+
+        boolean hasError = false;
+        ZipFolders zip = null;
+        try {
+            for (int ad_org_id : org_ids) {
+                logger.info("Processing organization: ad_org_id={}", ad_org_id);
+                try {
+                    List<Integer> ad_user_ids = dbutil.getUsers(ad_org_id);
+                    logger.debug("Retrieved {} users for organization: ad_org_id={}", ad_user_ids.size(), ad_org_id);
+                    dbutil.truncateTable();
+                    logger.debug("Table z_sod_transactions truncated for organization: ad_org_id={}", ad_org_id);
+                    for (int ad_user_id : ad_user_ids) {
+                        logger.info("Processing user: ad_user_id={} for organization: ad_org_id={}", ad_user_id, ad_org_id);
+                        String userName = dbutil.getUserName(ad_org_id, ad_user_id);
+                        System.out.println("Processing user: " + userName);
+                        LocalDateTime startTime = LocalDateTime.now();
+                        dbutil.callProcedure("Z_SOD_TRANSACTIONDETAIL", ad_org_id, ad_user_id, startdate, enddate);
+                        logger.debug("Executed procedure Z_SOD_TRANSACTIONDETAIL for user: ad_user_id={}", ad_user_id);
+                        dbutil.callProcedure("Z_SOD_TRANSACTION_COUNT", ad_org_id, ad_user_id);
+                        logger.debug("Executed procedure Z_SOD_TRANSACTION_COUNT for user: ad_user_id={}", ad_user_id);
+                        dbutil.callProcedure("Z_SOD_VALIDATE_BY_THIRDPARTY", ad_org_id, ad_user_id);
+                        logger.debug("Executed procedure Z_SOD_VALIDATE_BY_THIRDPARTY for user: ad_user_id={}", ad_user_id);
+                        dbutil.addLog(ad_org_id, ad_user_id, userName, startTime);
+                        logger.debug("Logged processing time for user: ad_user_id={}", ad_user_id);
+                    }
+                    dbutil.deleteDuplicateTransactions();
+                    dbutil.getFinalQueryResult(ad_org_id);
+                    logger.info("Generated final query result for organization: ad_org_id={}", ad_org_id);
+                } catch (SQLException e) {
+                    logger.error("SQLException occurred for organization: ad_org_id={}, error: {}", ad_org_id, e.getMessage(), e);
+                    System.out.println("getFinalQueryResult msg: " + e.getMessage());
+                    e.printStackTrace();
+                    System.out.println("getFinalQueryResult getting error for Org: " + ad_org_id);
+                    hasError = true;
+                } catch (IOException e) {
+                    logger.error("IOException occurred for organization: ad_org_id={}, error: {}", ad_org_id, e.getMessage(), e);
+                    System.out.println("getFinalQueryResult msg: " + e.getMessage());
+                    e.printStackTrace();
+                    System.out.println("getFinalQueryResult getting error for Org: " + ad_org_id);
+                    hasError = true;
+                }
+            }
+            if (!hasError) {
+                zip = new ZipFolders(dbutil);
+                zip.convertExcelToZipFile();
+                logger.info("ZIP file creation process completed");
+                dbutil.sendEmail(zip);
+                logger.info("Email sending process completed");
+            } else {
+                logger.warn("Skipping ZIP file creation and email sending due to previous errors");
+                System.out.println("Skipping ZIP file creation and email sending due to previous errors");
+            }
+        } finally {
+            Instant end = Instant.now();
+            Duration duration = Duration.between(start, end);
+            long minutes=duration.toMinutes();
+            long seconds=duration.minusMinutes(minutes).getSeconds();
+            logger.info("Application execution completed. Start time: {}, End time: {}, Duration: {} ms", start, end, duration.toMillis());
+            System.out.println("Start time: " + start);
+            System.out.println("End time: " + end);
+            System.out.println("Duration: " + minutes + " minutes " + seconds + " seconds");
+            dbutil.closeConnection();
+            logger.debug("Database connection closed");
+            if (hasError) {
+                System.exit(1);
+            }
+        }
+    }
+
+    private static void validateDate(String date) {
+        try {
+            LocalDate.parse(date, formater);
+            logger.trace("Validated date: {}", date);
+        } catch (DateTimeParseException dt) {
+            logger.error("Invalid date format: {}, expected format: DDMMYYYY", date, dt);
+            throw new IllegalArgumentException("Invalid date format: " + date + ". Expected format: DDMMYYYY");
+        }
+    }
+
+    private static void validateDateRange(String start, String end) {
+        try {
+            LocalDate startDate = LocalDate.parse(start, formater);
+            LocalDate endDate = LocalDate.parse(end, formater);
+            if (startDate.isAfter(endDate)) {
+                logger.error("Start date {} is after end date {}", startDate, endDate);
+                throw new IllegalArgumentException(
+                        "Start date (" + startDate + ") cannot be after end date (" + endDate + ")");
+            }
+            logger.trace("Date range validated: startDate={}, endDate={}", startDate, endDate);
+        } catch (DateTimeParseException e) {
+            logger.error("Error parsing dates for range validation: {}", e.getMessage(), e);
+            throw new IllegalArgumentException("Error parsing dates for range validation");
+        }
+    }
+}

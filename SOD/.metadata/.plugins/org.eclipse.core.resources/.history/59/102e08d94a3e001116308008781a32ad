@@ -1,0 +1,80 @@
+package com.workdrive.organizer.service;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+
+/**
+ * Manages Zoho OAuth2 access tokens.
+ * Uses refresh_token grant to auto-renew expired tokens.
+ */
+public class ZohoTokenService {
+
+    private static final Logger log = LoggerFactory.getLogger(ZohoTokenService.class);
+    private static final String TOKEN_URL = "https://accounts.zoho.com/oauth/v2/token";
+    private static final long EXPIRY_BUFFER_SECONDS = 60; // refresh 1 min early
+
+    private final String clientId;
+    private final String clientSecret;
+    private final String refreshToken;
+
+    private volatile String accessToken;
+    private volatile Instant expiresAt = Instant.EPOCH;
+
+    public ZohoTokenService(String clientId, String clientSecret, String refreshToken) {
+        this.clientId     = clientId;
+        this.clientSecret = clientSecret;
+        this.refreshToken = refreshToken;
+    }
+
+    /**
+     * Returns a valid access token, refreshing if needed.
+     * Thread-safe via synchronized block.
+     */
+    public synchronized String getAccessToken() throws IOException {
+        if (accessToken == null || Instant.now().isAfter(expiresAt.minusSeconds(EXPIRY_BUFFER_SECONDS))) {
+            log.info("Refreshing Zoho access token...");
+            refreshAccessToken();
+        }
+        return accessToken;
+    }
+
+    private void refreshAccessToken() throws IOException {
+        String body = "grant_type=refresh_token"
+                + "&client_id=" + clientId
+                + "&client_secret=" + clientSecret
+                + "&refresh_token=" + refreshToken;
+
+        HttpURLConnection conn = (HttpURLConnection) new URL(TOKEN_URL).openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        conn.setConnectTimeout(10_000);
+        conn.setReadTimeout(10_000);
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(body.getBytes(StandardCharsets.UTF_8));
+        }
+
+        int status = conn.getResponseCode();
+        String response = new String(conn.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+        if (status != 200) {
+            throw new IOException("Token refresh failed [HTTP " + status + "]: " + response);
+        }
+
+        JSONObject json = new JSONObject(response);
+        this.accessToken = json.getString("access_token");
+        int expiresIn    = json.optInt("expires_in", 3600);
+        this.expiresAt   = Instant.now().plusSeconds(expiresIn);
+
+        log.info("Token refreshed. Expires at: {}", expiresAt);
+    }
+}

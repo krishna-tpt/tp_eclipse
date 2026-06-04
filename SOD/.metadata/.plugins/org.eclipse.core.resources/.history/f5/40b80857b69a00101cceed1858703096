@@ -1,0 +1,425 @@
+package com.sodreport.excel;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class DBUtil {
+	private static final Logger logger = LoggerFactory.getLogger(DBUtil.class);
+	Connection conn = null;
+	Properties prop = new Properties();
+
+	{
+		try (FileInputStream fs = new FileInputStream("DB_config.Properties")) {
+			prop.load(fs);
+			logger.debug("Loaded DB configuration from DB_config.Properties");
+		} catch (IOException e) {
+			logger.error("Failed to load DB_config.Properties: {}", e.getMessage(), e);
+			System.out.println("File not found to load: Missing DB_config.Properties");
+		}
+		String url = prop.getProperty("db.url");
+		String username = prop.getProperty("db.username");
+		String password = prop.getProperty("db.password");
+		logger.debug("Attempting to connect to database: url={}", url);
+		try {
+			conn = DriverManager.getConnection(url, username, password);
+			logger.info("Database connection established successfully");
+		} catch (SQLException e) {
+			logger.error("Failed to establish database connection: {}", e.getMessage(), e);
+			System.out.println("Database connection not established");
+			e.printStackTrace();
+		}
+	}
+
+	public Properties getProperties() {
+		return prop;
+	}
+
+	public List<Integer> getUsers(int ad_org_id) throws SQLException {
+		logger.debug("Fetching users for organization: ad_org_id={}", ad_org_id);
+		List<Integer> ad_user_ids = new ArrayList<>();
+		String query = "SELECT distinct au.ad_user_id FROM ad_user au "
+				+ "INNER JOIN ad_user_roles ur ON au.ad_user_id = ur.ad_user_id "
+				+ "WHERE au.ad_org_id = ? AND au.isactive = 'Y' AND ur.isactive = 'Y' ";
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(1, ad_org_id);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				ad_user_ids.add(rs.getInt(1));
+			}
+			logger.debug("Retrieved {} users for organization: ad_org_id={}", ad_user_ids.size(), ad_org_id);
+		} catch (SQLException e) {
+			logger.error("Error fetching users for organization: ad_org_id={}, error: {}", ad_org_id, e.getMessage(),
+					e);
+			throw e;
+		}
+		return ad_user_ids;
+	}
+
+	public void truncateTable() throws SQLException {
+		logger.debug("Truncating table z_sod_transactions");
+		try (Statement st = conn.createStatement()) {
+			st.execute("TRUNCATE TABLE z_sod_transactions");
+			logger.debug("Table z_sod_transactions truncated successfully");
+		} catch (SQLException e) {
+			logger.error("Error truncating table z_sod_transactions: {}", e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public void callProcedure(String procName, int orgId, int userId) throws SQLException {
+		callProcedure(procName, orgId, userId, null, null);
+	}
+
+	public void callProcedure(String procName, int orgId, int userId, String startDate, String endDate)
+			throws SQLException {
+		logger.debug("Calling procedure {} for orgId={}, userId={}, startDate={}, endDate={}", procName, orgId, userId,
+				startDate, endDate);
+		String sql;
+		CallableStatement cs = null;
+		try {
+			if (startDate != null && endDate != null) {
+				sql = "{call " + procName + "(?,?,TO_DATE(?, '" + Main.dateformat + "'),TO_DATE(?,'" + Main.dateformat
+						+ "'))}";
+				cs = conn.prepareCall(sql);
+				cs.setInt(1, orgId);
+				cs.setInt(2, userId);
+				cs.setString(3, startDate);
+				cs.setString(4, endDate);
+			} else {
+				sql = "{call " + procName + "(?, ?)}";
+				cs = conn.prepareCall(sql);
+				cs.setInt(1, orgId);
+				cs.setInt(2, userId);
+			}
+			cs.execute();
+			logger.debug("Procedure {} executed successfully", procName);
+			if (!conn.getAutoCommit()) {
+				conn.commit();
+				logger.debug("Transaction committed for procedure {}", procName);
+			}
+		} catch (SQLException e) {
+			logger.error("Error executing procedure {}: {}", procName, e.getMessage(), e);
+			if (conn != null) {
+				try {
+					conn.rollback();
+					logger.debug("Transaction rolled back due to error in procedure {}", procName);
+					System.out.println("Transaction rolled back due to error");
+				} catch (SQLException rollbackEx) {
+					logger.error("Error during rollback: {}", rollbackEx.getMessage(), rollbackEx);
+					System.err.println("Error during rollback: " + rollbackEx.getMessage());
+				}
+			}
+			throw e;
+		} finally {
+			if (cs != null) {
+				try {
+					cs.close();
+					logger.trace("CallableStatement closed for procedure {}", procName);
+				} catch (SQLException e) {
+					logger.error("Error closing CallableStatement: {}", e.getMessage(), e);
+					System.err.println("Error closing CallableStatement: " + e.getMessage());
+				}
+			}
+		}
+	}
+
+	public void getFinalQueryResult(int ad_org_id) throws SQLException, IOException {
+		logger.info("Generating final query result for organization: ad_org_id={}", ad_org_id);
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		String filePath = getFileName(ad_org_id);
+		logger.debug("Preparing to write Excel file: {}", filePath);
+
+		// Ensure the directory exists
+		Path fileDir = Paths.get(filePath).getParent();
+		try {
+			Files.createDirectories(fileDir);
+			logger.debug("Ensured directory exists: {}", fileDir);
+		} catch (IOException e) {
+			logger.error("Failed to create directory {}: {}", fileDir, e.getMessage(), e);
+			throw e;
+		}
+
+		ResultSet rs = getfinalQueryResultSet(ad_org_id);
+		if (!rs.next()) {
+			logger.warn("No results found for organization: ad_org_id={}", ad_org_id);
+			return;
+		}
+
+		String orgName = getOrgName(ad_org_id);
+		if (orgName == null) {
+			logger.error("Organization name not found for ad_org_id={}", ad_org_id);
+			throw new SQLException("Organization name not found for ad_org_id=" + ad_org_id);
+		}
+
+		try (Workbook workbook = new XSSFWorkbook()) {
+			logger.debug("Excel file writing started...");
+			org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Audit Report");
+			String[] headers = { "ORGANIZATION", "SOURCE", "SOD_MATRIX_FUNCTION", "DOCUMENTNO", "CREATION/UPDATION",
+					"CURRENCY_CODE", "DESCRIPTION", "QUANTITY", "UNIT_PRICE", "TOTAL_PRICE", "DEBIT_AMOUNT",
+					"CREDIT_AMOUNT", "LOCAL_ACCOUNT", "THIRD_PARTY", "THIRD_PARTY_NUMBER", "USER_ID", "USER_NAME","RECORD_ID"};
+			Row headerRow = sheet.createRow(0);
+			for (int i = 0; i < headers.length; i++) {
+				Cell cell=headerRow.createCell(i);
+				cell.setCellValue(headers[i]);
+			}
+			int rowIndex = 1;
+			do {
+				Row row = sheet.createRow(rowIndex++);
+				int col = 0;
+				row.createCell(col++).setCellValue(orgName);
+				for (int i = 2; i <= 17; i++) {
+					Object value = rs.getObject(i);
+					if (value != null) {
+						if (value instanceof java.sql.Timestamp) {
+							String formattedDate = ((java.sql.Timestamp) value).toLocalDateTime().toLocalDate()
+									.format(dateFormatter);
+							row.createCell(col++).setCellValue(formattedDate);
+						} else if (value instanceof java.sql.Date) {
+							String formattedDate = ((java.sql.Date) value).toLocalDate().format(dateFormatter);
+							row.createCell(col++).setCellValue(formattedDate);
+						} else {
+							row.createCell(col++).setCellValue(value.toString());
+						}
+					} else {
+						row.createCell(col++).setCellValue("");
+					}
+				}
+			} while (rs.next());
+			for (int i = 0; i < headers.length; i++) {
+				sheet.autoSizeColumn(i);
+			}
+			try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+				workbook.write(fileOut);
+				logger.info("Excel file created successfully: {}", filePath);
+				System.out.println("Excel file created: " + filePath);
+			}
+		} catch (IOException e) {
+			logger.error("Error writing Excel file {}: {}", filePath, e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public String getFileName(int ad_org_id) throws SQLException {
+		String orgShortName = getOrgShortName(ad_org_id);
+		String directory = prop.getProperty(String.valueOf(ad_org_id));
+		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM_dd_yyyy"));
+		String fileName = String.format("SOD_AUDIT_REPORT_%s_%s.xlsx", orgShortName, timestamp);
+		String filePath = Paths.get(directory, fileName).toString();
+		return filePath;
+	}
+
+	public String getOrgName(int ad_org_id) throws SQLException {
+		logger.debug("Fetching organization name for ad_org_id={}", ad_org_id);
+		String query = "SELECT name FROM ad_org WHERE ad_org_id = ?";
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(1, ad_org_id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				String orgName = rs.getString(1);
+				logger.trace("Retrieved organization name: {} for ad_org_id={}", orgName, ad_org_id);
+				return orgName;
+			}
+		} catch (SQLException e) {
+			logger.error("Error fetching organization name for ad_org_id={}: {}", ad_org_id, e.getMessage(), e);
+			throw e;
+		}
+		return null;
+	}
+
+	public String getUserName(int ad_org_id, int ad_user_id) throws SQLException {
+		logger.debug("Fetching user name for ad_org_id={}, ad_user_id={}", ad_org_id, ad_user_id);
+		String query = "SELECT COALESCE(name, value) FROM ad_user WHERE ad_org_id = ? AND ad_user_id = ?";
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(1, ad_org_id);
+			ps.setInt(2, ad_user_id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				String userName = rs.getString(1);
+				logger.trace("Retrieved user name: {} for ad_user_id={}", userName, ad_user_id);
+				return userName;
+			}
+		} catch (SQLException e) {
+			logger.error("Error fetching user name for ad_user_id={}: {}", ad_user_id, e.getMessage(), e);
+			throw e;
+		}
+		return null;
+	}
+
+	public String getOrgShortName(int ad_org_id) throws SQLException {
+		logger.debug("Fetching short organization name for ad_org_id={}", ad_org_id);
+		String query = "SELECT REGEXP_SUBSTR(name, '\\S+', 1, 2) FROM ad_org WHERE ad_org_id = ?";
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(1, ad_org_id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				String shortName = rs.getString(1);
+				logger.trace("Retrieved short organization name: {} for ad_org_id={}", shortName, ad_org_id);
+				return shortName;
+			}
+		} catch (SQLException e) {
+			logger.error("Error fetching short organization name for ad_org_id={}: {}", ad_org_id, e.getMessage(), e);
+			throw e;
+		}
+		return null;
+	}
+
+	public ResultSet getfinalQueryResultSet(int ad_org_id) throws SQLException {
+		logger.debug("Executing final query for organization: ad_org_id={}", ad_org_id);
+		String sql = "SELECT AD_org_id, Source, Sod_Matrix_Function, Documentno, Creation_Date, Currency_Code, Description, Quantity, Unit_Price, Total_Price, Debit_Amount, Credit_Amount, LocalAccount, Third_Party, Third_Party_Number, User_Id, User_Name, Record_ID "
+				+ "FROM Z_Sod_Transactions WHERE AD_org_id=? AND isvalid='Y' AND isvalid2='Y' "
+				+ "ORDER BY User_Id, Creation_Date, Documentno, Total_Price,Z_SOD_TRANSACTIONS_ID";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(1, ad_org_id);
+			ResultSet rs = ps.executeQuery();
+			logger.debug("Final query executed successfully for ad_org_id={}", ad_org_id);
+			return rs;
+		} catch (SQLException e) {
+			logger.error("Error executing final query for ad_org_id={}: {}", ad_org_id, e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public void addLog(int ad_org_id, int ad_user_id, String user_name, LocalDateTime startTime) throws SQLException {
+		logger.debug("Adding log data: user_name={}, ad_user_id={}", user_name, ad_user_id);
+		String sql = "INSERT INTO Z_SOD_AUDIT_LOG (AD_ORG_ID, AD_USER_ID, USER_Name, START_TIME, END_TIME, DURATION_SECONDS) "
+				+ "Values (?,?,?,?,?,?)";
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			LocalDateTime endTime = LocalDateTime.now();
+			Duration duration = Duration.between(startTime, endTime);
+			ps.setInt(1, ad_org_id);
+			ps.setInt(2, ad_user_id);
+			ps.setString(3, user_name);
+			ps.setTimestamp(4, Timestamp.valueOf(startTime));
+			ps.setTimestamp(5, Timestamp.valueOf(endTime));
+			ps.setLong(6, duration.getSeconds());
+			int count = ps.executeUpdate();
+			logger.debug("Inserted {} row(s) into Z_SOD_AUDIT_LOG for ad_user_id={}", count, ad_user_id);
+			if (!conn.getAutoCommit()) {
+				conn.commit();
+				logger.debug("Transaction committed for add user log ad_user_id={}", ad_user_id);
+			}
+		} catch (SQLException e) {
+			logger.error("Error adding log for ad_user_id={}: {}", ad_user_id, e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	public void sendEmail(ZipFolders zipFolders) throws SQLException, IOException {
+		logger.debug("Preparing Email...");
+		String sql = "{call Z_SendEmail(?,?,?,?,?,?,?,?,?)}";
+		CallableStatement cs = null;
+
+		LocalDate today = LocalDate.now();
+		String monthName = today.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+		int year = today.getYear();
+		String message = "Please find attached the SOD Report for " + monthName + " " + year;
+
+		String zipFilePath = zipFolders.getZipFileName();
+		if (zipFilePath == null) {
+			logger.error("ZIP file name is null; cannot send email");
+			throw new IOException("ZIP file name is null; cannot send email");
+		}
+
+		File zipFile = new File(zipFilePath);
+		if (!zipFile.exists()) {
+			logger.error("ZIP file does not exist: {}", zipFilePath);
+			throw new IOException("ZIP file does not exist: " + zipFilePath);
+		}
+
+		String zipFileName = zipFile.getName();
+		String oracleDir =  "FR_SOD_REPORT";//"ZIP_DIR"; // Oracle directory alias
+
+		try {
+			cs = conn.prepareCall(sql);
+			cs.setString(1, "donotreply-invoice@camso.co"); // from
+			cs.setString(2, "krishnakumar.rangasamy@tenthplanet.co"); // to
+			cs.setString(3, null); // cc
+			cs.setString(4, null); // bcc
+			cs.setString(5, "donotreply-invoice@camso.co"); // replyto
+			cs.setString(6, "SOD Report for " + monthName + " " + year); // subject
+			cs.setString(7, message); // message
+			cs.setString(8, oracleDir); // Oracle directory alias
+			cs.setString(9, zipFileName); // ZIP file name only
+//            logger.debug("SQL Email Procedure : {}",cs.get);
+			cs.execute();
+			if (!conn.getAutoCommit()) {
+				conn.commit();
+				logger.debug("Email procedure committed successfully");
+			}
+			logger.info("Email sent successfully with attachment: {}", zipFileName);
+		} catch (SQLException e) {
+			logger.error("Failed to send email: {}", e.getMessage(), e);
+			throw e;
+		} finally {
+			if (cs != null) {
+				try {
+					cs.close();
+					logger.trace("CallableStatement closed for Z_SendEmail");
+				} catch (SQLException e) {
+					logger.error("Error closing CallableStatement for Z_SendEmail: {}", e.getMessage(), e);
+				}
+			}
+		}
+	}
+
+	public void closeConnection() {
+		if (conn != null) {
+			try {
+				conn.close();
+				logger.info("Database connection closed successfully");
+				System.out.println("Database connection closed");
+			} catch (SQLException e) {
+				logger.error("Error closing database connection: {}", e.getMessage(), e);
+				System.err.println("Error closing connection: " + e.getMessage());
+			}
+		}
+	}
+
+	public void deleteDuplicateTransactions() {
+		logger.debug("Call Delete Duplicate Trasnsactions Procedure");
+		String query = "{call Z_SOD_Delete_Duplicate_Transactions()}";
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(1, ad_org_id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				String orgName = rs.getString(1);
+				logger.trace("Retrieved organization name: {} for ad_org_id={}", orgName, ad_org_id);
+				return orgName;
+			}
+		} catch (SQLException e) {
+			logger.error("Error fetching organization name for ad_org_id={}: {}", ad_org_id, e.getMessage(), e);
+			throw e;
+		}
+		return null;
+	}
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;inboundfilesread/DB_Config.Properties&apos; to &apos;DB_config.Properties&apos;" description="Rename resource &apos;DB_Config.Properties&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="DB_Config.Properties" name="DB_config.Properties" stamp="1772083422832" updateReferences="true"/>
+</session>

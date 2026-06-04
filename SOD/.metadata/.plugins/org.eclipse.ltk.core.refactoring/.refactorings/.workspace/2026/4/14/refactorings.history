@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete 31 resources" deleteContents="true" description="Delete 31 resources" element1="/utils" element10="/xuom" element11="/CENTRA" element12="/doc" element13="/cmfg" element14="/webCM" element15="/ws" element16="/data" element17="/launch" element18="/client" element19="/gwtServer" element2="/cwms" element20="/cmrp" element21="/gwtLib" element22="/serverRoot" element23="/db" element24="/utils_dev" element25="/webservices" element26="/ad" element27="/gwt" element28="/lib" element29="/print" element3="/gwtServerAuth" element30="/install" element31="/common" element4="/ws-sdk" element5="/extend" element6="/tools" element7="/webStore" element8="/base" element9="/serverApps" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="31" stamp="1775026096322"/>
+</session>

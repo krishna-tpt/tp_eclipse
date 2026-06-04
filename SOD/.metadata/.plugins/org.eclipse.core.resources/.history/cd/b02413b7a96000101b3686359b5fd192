@@ -1,0 +1,136 @@
+package com.sodreport.excel.main;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sodreport.excel.model.DBUtil;
+
+public class Main {
+
+	public static String dateformat="ddMMyyyy";
+	static DateTimeFormatter formater = DateTimeFormatter.ofPattern(dateformat);
+	private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
+	public static void main(String[] args) {
+		DBUtil dbutil = new DBUtil();
+		int[] org_ids= {1000000, 1000001, 1000002, 1000004};
+		String startdate = "2025-01-01";
+		String enddate = "2025-03-31";
+		
+		Instant start=Instant.now();		
+
+		if (args.length >= 2) {
+			try {
+				validateDate(args[0]);
+				validateDate(args[1]);
+
+				startdate = args[0];
+				enddate = args[1];
+
+				System.out.println("Using provided dates:");
+				System.out.println("Start Date: " + startdate);
+				System.out.println("End Date: " + enddate);
+
+			} catch (IllegalArgumentException e) {
+				System.err.println("Error: " + e.getMessage());
+				System.err.println("Using default dates instead.");
+				System.err.println("Default Start Date: " + startdate);
+				System.err.println("Default End Date: " + enddate);
+			}
+		} else {
+			System.out.println("No date parameters provided. Using default dates:");
+			System.out.println("Start Date: " + startdate);
+			System.out.println("End Date: " + enddate);
+			System.out.println("\nUsage: java -jar sodreport-1.0-SNAPSHOT.jar <start_date> <end_date>");
+			System.out.println("Date format: DDMMYYYY (e.g., 01012024)");
+		}
+
+		try {
+			validateDateRange(startdate, enddate);
+		} catch (IllegalArgumentException e) {
+			System.err.println("Error: " + e.getMessage());
+			return;
+		}
+		
+
+		try {
+			for (int ad_org_id : org_ids) {
+				try {
+					List<Integer> ad_user_ids = dbutil.getUsers(ad_org_id);
+					for (int ad_user_id : ad_user_ids) {
+						System.out.println("Processing user: " + dbutil.getUserName(ad_org_id, ad_user_id));
+
+						dbutil.truncateTable();
+
+						dbutil.callProcedure("Z_SOD_TRANSACTIONDETAIL", ad_org_id, ad_user_id, startdate, enddate);
+						dbutil.callProcedure("Z_SOD_TRANSACTION_COUNT", ad_org_id, ad_user_id);
+						dbutil.callProcedure("Z_SOD_VALIDATE_BY_THIRDPARTY", ad_org_id, ad_user_id);
+						dbutil.getFinalQueryResult(ad_org_id, ad_user_id);
+					}
+
+				} catch (SQLException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		} finally {
+			Instant end=Instant.now();
+			Duration duration=Duration.between(start, end);
+			
+			System.out.println("Start time: " + start);
+			System.out.println("End time: " + end);
+			System.out.println("Duration: " + duration.toMillis() + " ms");
+			
+			dbutil.closeConnection();
+		}
+	}
+
+	public static String getDirectory(int orgId) {
+		switch (orgId) {
+		case 1000000:
+			return "\\\\Usatler01\\fr\\SOD Audit Report";
+		case 1000001:
+			return "\\\\Usatler01\\it\\SOD Audit Report";
+		case 1000002:
+			return "\\\\Usatler01\\pl\\SOD Audit Report";
+		case 1000004:
+			return "\\\\Usatler01\\nl\\SOD Audit Report";
+		default:
+			return null;
+		}
+	}
+
+	private static void validateDate(String date) {
+		try {
+			LocalDate.parse(date, formater);
+		} catch (DateTimeParseException dt) {
+			throw new IllegalArgumentException("Invalid date format: " + date + ". Expected format: DDMMYYYY");
+		}
+	}
+
+	private static void validateDateRange(String start, String end) {
+		try {
+			LocalDate startDate = LocalDate.parse(start, formater);
+			LocalDate endDate = LocalDate.parse(end, formater);
+
+			if (startDate.isAfter(endDate)) {
+				throw new IllegalArgumentException(
+						"Start date (" + startDate + ") cannot be after end date (" + endDate + ")");
+			}
+
+		} catch (DateTimeParseException e) {
+			throw new IllegalArgumentException("Error parsing dates for range validation");
+		}
+
+	}
+}

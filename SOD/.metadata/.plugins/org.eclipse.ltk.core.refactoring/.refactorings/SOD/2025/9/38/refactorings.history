@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 4 elements from project &apos;SOD&apos;&#x0A;- Original project: &apos;SOD&apos;&#x0A;- Original elements:&#x0A;     SOD/src/geeksforgeeksZoho&#x0A;     SOD/src/geeksforgeeksZoho_1&#x0A;     SOD/src/leetcode&#x0A;     SOD/src/leetcodeZoho" description="Delete elements" element1="/src&lt;leetcodeZoho" element2="/src&lt;leetcode" element3="/src&lt;geeksforgeeksZoho_1" element4="/src&lt;geeksforgeeksZoho" elements="4" flags="589830" id="org.eclipse.jdt.ui.delete" resources="0" stamp="1758093473682" subPackages="false" version="1.0"/>
+</session>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %M - %msg%n"/>
+        </Console>
+        <!--<File name="File" fileName="app.log"> -->
+        <!-- File appender with dynamic date + time -->        
+        <File name="File" fileName="logs/sod-audit-report_${date:dd-MMM-YYYY_HH-mm-ss}.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %M - %msg%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.sodreport.excel" level="debug" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="File" />
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="File" />
+        </Root>
+    </Loggers>
+</Configuration>

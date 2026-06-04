@@ -1,0 +1,9 @@
+INDEX VERSION 1.134
+/home/dev021/eclipse/.metadata/.plugins/org.eclipse.jst.jsp.core/jspsearch/1590528677.index
+/CENTRA/ad/src
+/home/dev021/eclipse/.metadata/.plugins/org.eclipse.jst.jsp.core/jspsearch/2594033915.index
+/CENTRA/ad/src
+/home/dev021/eclipse/.metadata/.plugins/org.eclipse.jst.jsp.core/jspsearch/3050709102.index
+/ws/src/main/java
+/home/dev021/eclipse/.metadata/.plugins/org.eclipse.jst.jsp.core/jspsearch/3695467686.index
+/webStore/src

@@ -1,0 +1,52 @@
+package com.jwt.demo;
+
+public class JwtDemo {
+
+    public static void main(String[] args) {
+        
+        JwtUtil util = new JwtUtil();
+        JwtVerifier verifier = new JwtVerifier(util);
+        JwtDecoder decoder = new JwtDecoder(util);
+        
+        System.out.println("========== JWT DEMO ==========\n");
+        
+        // ---- Step 1: Generate ----
+        System.out.println("--- 1. Generating JWT ---");
+        String token = util.generateToken("user123", "ADMIN");
+        System.out.println("Token: " + token);
+        System.out.println("Length: " + token.length() + " chars\n");
+        
+        // ---- Step 2: Decode without verify ----
+        System.out.println("--- 2. Decode (No Secret) ---");
+        decoder.decodeWithoutVerification(token);
+        
+        // ---- Step 3: Decode with verify ----
+        System.out.println("\n--- 3. Decode + Verify ---");
+        decoder.decodeWithVerification(token+1);
+        
+        // ---- Step 4: Verify signature ----
+        System.out.println("\n--- 4. Signature Verification ---");
+        verifier.verifySignature(token);
+        
+        // ---- Step 5: Validate claims ----
+        System.out.println("\n--- 5. Claims Validation ---");
+        verifier.validateClaims(token);
+        
+        // ---- Step 6: Tampered token test ----
+        System.out.println("\n--- 6. Tampered Token Test ---");
+        String tampered = token.substring(0, token.length() - 5) + "XXXXX";
+        System.out.println("Tampered token verify:");
+        verifier.verifySignature(tampered);
+        
+        // ---- Step 7: Wrong secret test ----
+        System.out.println("\n--- 7. Wrong Secret Test ---");
+        JwtUtil wrongUtil = new JwtUtil() {
+            // Different secret simulation
+        };
+        String tokenFromOther = wrongUtil.generateToken("hacker", "USER");
+        System.out.println("Token from different secret:");
+        verifier.verifySignature(tokenFromOther);
+        
+        System.out.println("\n========== DONE ==========");
+    }
+}

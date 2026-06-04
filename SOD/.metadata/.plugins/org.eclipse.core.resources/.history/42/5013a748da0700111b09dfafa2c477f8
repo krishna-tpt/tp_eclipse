@@ -1,0 +1,11 @@
+package tptTest;
+
+import java.io.File;
+
+public class FileReadTest {
+	public static void main(String[] args) {
+		String filename="/home/dev021/Downloads/SMS Autria/2026-02-06_0.log";
+		File file =new File(filename);
+	}
+
+}

@@ -1,0 +1,244 @@
+package com.sodreport.excel.model;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sodreport.excel.export.ExportAuditReport;
+import com.sodreport.excel.main.Main;
+
+public class DBUtil {
+
+	private static final Logger logger = LoggerFactory.getLogger(DBUtil.class);
+	Connection conn = null;
+	Properties prop = new Properties();
+
+	{
+		try (FileInputStream fs = new FileInputStream("DB.config")) {
+			prop.load(fs);
+		} catch (IOException e) {
+			System.out.println("File not found to load : Missing DB.config");
+		}
+
+		String url = prop.getProperty("db.url");
+		String username = prop.getProperty("db.username");
+		String password = prop.getProperty("db.password");
+
+		try {
+			conn = DriverManager.getConnection(url, username, password);
+		} catch (SQLException e) {
+			System.out.println("Database connection not established");
+			e.printStackTrace();
+		}
+	}
+
+	public List<Integer> getUsers(int ad_org_id) throws SQLException {
+
+		List<Integer> ad_user_ids = new ArrayList<Integer>();
+		String query = "SELECT distinct au.ad_user_id FROM ad_user au "
+				+ "INNER JOIN ad_user_roles ur ON au.ad_user_id = ur.ad_user_id " + "WHERE au.ad_org_id = ? "
+				+ "AND au.isactive = 'Y'" + "AND ur.isactive = 'Y' " + "AND au.ad_user_id in(5025094,3001205)";
+		PreparedStatement ps = conn.prepareStatement(query);
+		ps.setInt(1, ad_org_id);
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			ad_user_ids.add(rs.getInt(1));
+		}
+		return ad_user_ids;
+
+	}
+
+	public void truncateTable() throws SQLException {
+		try (Statement st = conn.createStatement()) {
+			st.execute("TRUNCATE TABLE z_sod_transactions");
+		}
+	}
+
+	public void callProcedure(String procName, int orgId, int userId) throws SQLException {
+		callProcedure(procName, orgId, userId, null, null);
+	}
+
+	public void callProcedure(String procName, int orgId, int userId, String startDate, String endDate)
+			throws SQLException {
+		String sql;
+		CallableStatement cs = null;
+
+		try {
+			if (startDate != null && endDate != null) {
+				sql = "{call " + procName + "(?,?,TO_DATE(?, "+Main.dateformat+"),TO_DATE(?,"+Main.dateformat +"))}";
+				cs = conn.prepareCall(sql);
+				cs.setInt(1, orgId);
+				cs.setInt(2, userId);
+				cs.setString(3, startDate);
+				cs.setString(4, endDate);
+				logger.debug("Procedure called {},{},{},{},{}", procName, orgId, userId, startDate, endDate);
+			} else {
+				sql = "{call " + procName + "(?, ?)}";
+				cs = conn.prepareCall(sql);
+				cs.setInt(1, orgId);
+				cs.setInt(2, userId);
+			}
+
+			cs.execute();
+			cs.close();
+			if (!conn.getAutoCommit()) {
+				conn.commit();
+			}
+		} catch (SQLException e) {
+			// Rollback on error
+			if (conn != null) {
+				try {
+					conn.rollback();
+					System.out.println("Transaction rolled back due to error");
+				} catch (SQLException rollbackEx) {
+					System.err.println("Error during rollback: " + rollbackEx.getMessage());
+				}
+			}
+			throw e; // Re-throw the original exception
+		} finally {
+			if (cs != null) {
+				try {
+					cs.close();
+				} catch (SQLException e) {
+					System.err.println("Error closing CallableStatement: " + e.getMessage());
+				}
+			}
+		}
+	}
+
+	public void getFinalQueryResult(int ad_org_id, int ad_user_id) throws SQLException, IOException {
+		String userName = getUserName(ad_org_id, ad_user_id);
+		String orgShortName = getOrgShortName(ad_org_id);
+		String directory = prop.getProperty(String.valueOf(ad_org_id));
+
+		String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM_dd_yyyy_HH_mm_ss"));
+		String fileName = String.format("SOD_AUDIT_REPORT_%s_%s_%s.xlsx", timestamp, orgShortName, userName);
+		String filePath = Paths.get(directory, fileName).toString();
+
+		ResultSet rs = getfinalQueryResultSet(ad_org_id);
+
+		try (Workbook workbook = new XSSFWorkbook()) {
+			org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Audit Report");
+
+			String[] headers = { "ORGANIZATION", "SOURCE", "SOD_MATRIX_FUNCTION", "DOCUMENTNO", "CREATION_DATE",
+					"CURRENCY_CODE", "DESCRIPTION", "QUANTITY", "UNIT_PRICE", "TOTAL_PRICE", "DEBIT_AMOUNT",
+					"CREDIT_AMOUNT", "LOCAL_ACCOUNT", "THIRD_PARTY", "THIRD_PARTY_NUMBER", "USER_ID", "USER_NAME" };
+
+			Row headerRow = sheet.createRow(0);
+			for (int i = 0; i < headers.length; i++) {
+				headerRow.createCell(i).setCellValue(headers[i]);
+			}
+
+			int rowIndex = 1;
+			while (rs.next()) {
+				Row row = sheet.createRow(rowIndex++);
+				int col = 0;
+				row.createCell(col++).setCellValue(getOrgName(rs.getInt(1)));
+				for (int i = 2; i <= 17; i++) { // Skip org_id
+					Object value = rs.getObject(i);
+					if (value != null) {
+						row.createCell(col++).setCellValue(value.toString());
+					} else {
+						row.createCell(col++).setCellValue("");
+					}
+				}
+			}
+
+			// Autosize columns
+			for (int i = 0; i < headers.length; i++) {
+				sheet.autoSizeColumn(i);
+			}
+
+			// Write to file
+			try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+				workbook.write(fileOut);
+				System.out.println("Excel file created: " + filePath);
+				logger.debug("Excel file created: {} ", filePath);
+			}
+
+		}
+
+	}
+
+	public String getOrgName(int ad_org_id) throws SQLException {
+
+		String query = "SELECT name FROM ad_org WHERE ad_org_id = ?";
+
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(1, ad_org_id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next())
+				return rs.getString(1);
+		}
+		return null;
+	}
+
+	public String getUserName(int ad_org_id, int ad_user_id) throws SQLException {
+
+		String query = "SELECT COALESCE(name, value) FROM ad_user WHERE ad_org_id = ? AND ad_user_id = ?";
+
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(1, ad_org_id);
+			ps.setInt(2, ad_user_id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next())
+				return rs.getString(1);
+		}
+		return null;
+	}
+
+	public String getOrgShortName(int ad_org_id) throws SQLException {
+
+		String query = "SELECT REGEXP_SUBSTR(name, '\\S+', 1, 2) FROM ad_org WHERE ad_org_id = ?";
+
+		try (PreparedStatement ps = conn.prepareStatement(query)) {
+			ps.setInt(1, ad_org_id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next())
+				return rs.getString(1);
+		}
+		return null;
+	}
+
+	public ResultSet getfinalQueryResultSet(int ad_org_id) throws SQLException {
+
+		String sql = "SELECT AD_org_id, Source, Sod_Matrix_Function, Documentno, Creation_Date, Currency_Code, Description, Quantity, Unit_Price, 		   Total_Price, Debit_Amount, Credit_Amount, LocalAccount, Third_Party, Third_Party_Number, User_Id, User_Name "
+				+ "FROM Z_Sod_Transactions WHERE AD_org_id=? AND isvalid='Y' AND isvalid2='Y' "
+				+ "ORDER BY Z_Sod_Transactions_ID";
+
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setInt(1, ad_org_id);
+		return ps.executeQuery();
+	}
+
+	public void closeConnection() {
+		if (conn != null) {
+			try {
+				conn.close();
+				System.out.println("Database connection closed");
+			} catch (SQLException e) {
+				System.err.println("Error closing connection: " + e.getMessage());
+			}
+		}
+	}
+
+}
