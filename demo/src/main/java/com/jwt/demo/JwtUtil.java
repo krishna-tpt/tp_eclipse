@@ -25,6 +25,7 @@ public class JwtUtil {
     // ============================================
     // 1. JWT Generate
     // ============================================
+    
     public String generateToken(String userId, String role) {
         
         Map<String, Object> claims = new HashMap<>();

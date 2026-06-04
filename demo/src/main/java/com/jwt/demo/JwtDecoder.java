@@ -17,6 +17,7 @@ public class JwtDecoder {
 	// DECODE — Without Secret only see raw part
 	// (jwt.io example — No verification!)
 	// ============================================
+	
 	public void decodeWithoutVerification(String token) {
 		System.out.println("\n=== DECODE (No Verification) ===");
 

@@ -1,0 +1,54 @@
+package com.jwt.demo;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+public class JwtUtil {
+
+    // Secret key — minimum 256 bits for HS256
+    // in Production environment variable
+    private static final String SECRET = 
+        "MySecretKey12345MySecretKey12345MySecretKey12345";
+    
+    private static final long EXPIRY_MS = 1000 * 60 * 60; // 1 hour
+    
+    private final SecretKey secretKey;
+    
+    public JwtUtil() {
+        this.secretKey = Keys.hmacShaKeyFor(SECRET.getBytes());
+    }
+    
+    // ============================================
+    // 1. JWT Generate
+    // ============================================
+    public String generateToken(String userId, String role) {
+        
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        claims.put("userId", userId);
+        
+        return Jwts.builder()
+            .subject(userId)           // sub claim
+            .issuer("myapp")           // iss claim
+            .issuedAt(new Date())      // iat claim
+            .expiration(new Date(System.currentTimeMillis() + EXPIRY_MS)) // exp
+            .claims(claims)            // custom claims
+            .signWith(secretKey)       // HS256 signature
+            .compact();                // final JWT string
+    }
+    
+    // ============================================
+    // 2. Getter methods
+    // ============================================
+    public SecretKey getSecretKey() {
+        return secretKey;
+    }
+    
+    public long getExpiryMs() {
+        return EXPIRY_MS;
+    }
+}
