@@ -127,3 +127,57 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 58f6c33] Auto sync - 2026-06-04 17:30:02
+ 78 files changed, 6490 insertions(+), 2330 deletions(-)
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/10/202e24f409600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/12/80b80cd109600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/13/70591a690a600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/17/806adc6c0a600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/1a/a08299d808600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/1e/30853db009600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/22/30b888f108600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/27/102eb23f09600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/2b/20263abf08600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/37/f0ebde460a600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/3a/806acaf209600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/3e/20577d2c09600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/49/a05d62330a600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/53/20ecc4e108600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/54/903d51ca09600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/5a/706039750a600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/6/105bdc5609600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/64/f0b823f409600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/8a/a095490b09600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/9a/809e46cf09600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/a9/201104d308600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/b/90d28f4209600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/b4/201a1cee08600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/c8/805925490a600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/c9/70731c610a600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d5/2002053109600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d7/20bd39f608600011130c8e59d6cf9156
+ create mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/MovieScraperAPI.launch
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/2319070659.index (98%)
+ create mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/10.png
+ create mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/11.png
+ create mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/12.png
+ create mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/13.png
+ create mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/8.png
+ create mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/9.png
+To https://github.com/krishna-tpt/tp_eclipse.git
+   603a72c..58f6c33  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-04 17:30:06[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-04 18:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
