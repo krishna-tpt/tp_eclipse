@@ -8,7 +8,7 @@
 	</section>
 	<section name="org.eclipse.ui.dialogs.FilteredResourcesSelectionDialog">
 		<item key="ShowStatusLine" value="true"/>
-		<item key="History" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#x0A;&lt;History&gt;&#x0A;&lt;historyRootNode&gt;&#x0A;&lt;infoNode path=&quot;/workdrive-organizer/src/main/java/com/workdrive/organizer/service/WorkDriveApiService.java&quot; type=&quot;1&quot;/&gt;&#x0A;&lt;infoNode path=&quot;/workdrive-organizer/src/main/java/com/workdrive/organizer/servlet/DashboardServlet.java&quot; type=&quot;1&quot;/&gt;&#x0A;&lt;infoNode path=&quot;/workdrive-organizer2/src/main/webapp/WEB-INF/web.xml&quot; type=&quot;1&quot;/&gt;&#x0A;&lt;infoNode path=&quot;/workdrive-organizer2/src/main/webapp/index.html&quot; type=&quot;1&quot;/&gt;&#x0A;&lt;/historyRootNode&gt;&#x0A;&lt;/History&gt;"/>
+		<item key="History" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#x0A;&lt;History&gt;&#x0A;&lt;historyRootNode&gt;&#x0A;&lt;infoNode path=&quot;/workdrive-organizer/src/main/java/com/workdrive/organizer/service/WorkDriveApiService.java&quot; type=&quot;1&quot;/&gt;&#x0A;&lt;infoNode path=&quot;/workdrive-organizer/src/main/java/com/workdrive/organizer/servlet/DashboardServlet.java&quot; type=&quot;1&quot;/&gt;&#x0A;&lt;infoNode path=&quot;/workdrive-organizer2/src/main/webapp/index.html&quot; type=&quot;1&quot;/&gt;&#x0A;&lt;infoNode path=&quot;/workdrive-organizer2/src/main/webapp/WEB-INF/web.xml&quot; type=&quot;1&quot;/&gt;&#x0A;&lt;/historyRootNode&gt;&#x0A;&lt;/History&gt;"/>
 		<item key="ShowDerived" value="false"/>
 		<item key="FilterByLocation" value="false"/>
 		<item key="WorkingSet" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#x0A;&lt;workingSet workingSetName=&quot;&quot;/&gt;"/>
@@ -26,6 +26,7 @@
 		<item key="SmartImportRootWizardPage.STORE_NESTED_PROJECTS" value="true"/>
 		<item key="SmartImportRootWizardPage.STORE_CONFIGURE_NATURES" value="true"/>
 		<list key="org.eclipse.ui.internal.wizards.datatransfer.SmartImportRootWizardPage.knownSources">
+			<item value="/home/dev021/Downloads/Servlet1-workspace-master/MovieWebsite"/>
 			<item value="/home/dev021/Downloads/ready_course_batch_1/Java1"/>
 			<item value="/home/dev021/Downloads/awesome-low-level-design-main/solutions/java"/>
 			<item value="/home/dev021/git/SODReport/SODAuditReport"/>

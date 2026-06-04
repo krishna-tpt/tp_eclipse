@@ -3,28 +3,21 @@
 	<item key="hasShownOverlayPopupBefore" value="true"/>
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="false"/>
-		<item key="selection" value="INVALID_OAUTHSCOPE"/>
+		<item key="selection" value="ACCESS_TOKEN"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="ACCESS_TOKEN"/>
+			<item value="access_token"/>
 			<item value="INVALID_OAUTHSCOPE"/>
 			<item value="renderFilesTable"/>
 			<item value="FilesApiServlet"/>
 			<item value="java"/>
 			<item value="matchCountLabel"/>
 			<item value="logSearcher"/>
-			<item value="stream closed"/>
-			<item value="Error reading file: Stream closed"/>
-			<item value="Strea"/>
-			<item value="log file"/>
-			<item value="currentContextLines"/>
-			<item value="5"/>
-			<item value="selection"/>
-			<item value="filter"/>
-			<item value="new folder"/>
 		</list>
 		<list key="replacehistory">
 		</list>
@@ -35,5 +28,9 @@
 		<item key="DIALOG_WIDTH" value="363"/>
 		<item key="DIALOG_HEIGHT" value="437"/>
 		<item key="DIALOG_FONT_NAME" value="1|Ubuntu|11.0|0|GTK|1|"/>
+	</section>
+	<section name="org.eclipse.ui.texteditor.GotoLineAction$GotoLineDialog_dialogBounds">
+		<item key="DIALOG_X_ORIGIN" value="651"/>
+		<item key="DIALOG_Y_ORIGIN" value="375"/>
 	</section>
 </section>
