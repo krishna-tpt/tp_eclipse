@@ -209,3 +209,91 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 056189c] Auto sync - 2026-06-04 18:30:02
+ 80 files changed, 2364 insertions(+), 2594 deletions(-)
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/64/f034e887fe5f0011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/85/00837bf9fa5f0011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d6/7056ba8cfe5f0011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/.org.eclipse.egit.core.cmp/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/.org.eclipse.egit.core.cmp/.syncinfo.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/CurrencyExchange/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/CurrencyExchange/.syncinfo.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/ExcelToOracleInserter/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/ExcelToOracleInserter/.syncinfo.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/Java1/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/Java1/.syncinfo.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/LLDPrograms/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/LLDPrograms/.syncinfo.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/ReadExcel/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/ReadExcel/.syncinfo.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SOD/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SOD/.syncinfo.snap
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SOD/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SODAuditReport/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SODAuditReport/.syncinfo.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/Servers/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/Servers/.syncinfo.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/demo/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/demo/.syncinfo.snap
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/demo/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/inboundfilesread/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/inboundfilesread/.syncinfo.snap
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/inboundfilesread/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/java/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/java/.syncinfo.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/junittest/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/junittest/.syncinfo.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/log-search-swing/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/log-search-swing/.syncinfo.snap
+ rewrite .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/.indexes/e4/b9/22/81/bd/7e/history.index (72%)
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/.syncinfo.snap
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer/.indexes/e4/b9/22/81/19/d1/29/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer/.syncinfo.snap
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/.markers.snap
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/.syncinfo.snap
+ create mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.root/.markers.snap
+ rename .metadata/.plugins/org.eclipse.core.resources/.root/{28.tree => 29.tree} (98%)
+ rewrite .metadata/.plugins/org.eclipse.core.resources/.safetable/org.eclipse.core.resources (66%)
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/28.snap
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/2319070659.index (97%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/externalFilesCache (92%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/nonChainingJarsCache (81%)
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/0.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/1.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/10.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/11.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/12.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/13.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/14.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/2.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/3.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/4.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/5.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/6.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/7.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/8.png
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/jdt-images/9.png
+ create mode 100644 .metadata/.plugins/org.eclipse.jst.jsp.core/taglibindex/2319070659.dat
+To https://github.com/krishna-tpt/tp_eclipse.git
+   541fc14..056189c  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-04 18:30:05[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-04 19:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
