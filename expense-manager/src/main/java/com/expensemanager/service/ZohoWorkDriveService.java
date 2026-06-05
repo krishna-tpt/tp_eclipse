@@ -27,8 +27,8 @@ import java.util.concurrent.Executors;
 public class ZohoWorkDriveService {
 
     private static final Logger log = LoggerFactory.getLogger(ZohoWorkDriveService.class);
-    private static final String ACCOUNTS_URL = "https://accounts.zoho.in/oauth/v2/token";
-    private static final String WORKDRIVE_API = "https://workdrive.zoho.in/api/v1";
+    private static final String ACCOUNTS_URL = "https://accounts.zoho.com/oauth/v2/token";
+    private static final String WORKDRIVE_API = "https://workdrive.zoho.com/api/v1";
 
     private final String clientId;
     private final String clientSecret;
@@ -102,6 +102,7 @@ public class ZohoWorkDriveService {
     public String findFileId(String filename) throws Exception {
         String token = getAccessToken();
         String url = WORKDRIVE_API + "/files/" + folderId + "/files";
+        log.info("url {}",url);
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet get = new HttpGet(url);
             get.setHeader("Authorization", "Zoho-oauthtoken " + token);
@@ -112,6 +113,7 @@ public class ZohoWorkDriveService {
             JsonNode json = mapper.readTree(response);
 
             JsonNode data = json.path("data");
+            log.info("Payload {}",data);
             if (data.isArray()) {
                 for (JsonNode file : data) {
                     String name = file.path("attributes").path("name").asText();
