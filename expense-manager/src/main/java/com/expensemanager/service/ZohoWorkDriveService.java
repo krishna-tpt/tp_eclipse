@@ -102,7 +102,9 @@ public class ZohoWorkDriveService {
     public String findFileId(String filename) throws Exception {
         String token = getAccessToken();
 //        String url = WORKDRIVE_API + "/files/" + folderId + "/files";
-        String url = WORKDRIVE_API + "/files/" + folderId + "/files?page[limit]=50&page[offset]=0";
+//        String url = WORKDRIVE_API + "/files/" + folderId + "/files?page[limit]=50&page[offset]=0";
+        String url = WORKDRIVE_API + "/privatespace/files/" + folderId + "/files";
+
         
         log.info("connecting url {}",url);
         try (CloseableHttpClient client = HttpClients.createDefault()) {
