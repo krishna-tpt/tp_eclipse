@@ -886,3 +886,123 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 505402e] Auto sync - 2026-06-05 10:30:02
+ 129 files changed, 6372 insertions(+), 2474 deletions(-)
+ create mode 100644 .gitignore
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/CurrencyExchange/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/ExcelToOracleInserter/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/Java1/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/LLDPrograms/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/ReadExcel/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SOD/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SOD/org.eclipse.egit.core/GitProjectData.properties
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SOD/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SODAuditReport/org.eclipse.egit.core/GitProjectData.properties
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SODAuditReport/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/demo/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/inboundfilesread/org.eclipse.egit.core/GitProjectData.properties
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/inboundfilesread/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/java/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/junittest/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/log-search-swing/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/.indexes/af/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/.indexes/e4/92/22/81/bd/7e/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/.indexes/e4/b9/22/81/bd/7e/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer/org.eclipse.jdt.core/state.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/org.eclipse.jdt.core/state.dat
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/2319070659.index (100%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/externalLibsTimeStamps (69%)
+ delete mode 100644 .metadata/.plugins/org.eclipse.jst.jsp.core/taglibindex/2319070659.dat
+ rewrite .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/.workspace/2026/6/23/refactorings.history (89%)
+ rewrite .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/moviedb/2026/6/23/refactorings.history (92%)
+ rewrite .metadata/.plugins/org.eclipse.m2e.core/workspaceState.ser (86%)
+ create mode 100644 MovieWebsite/db/.classpath
+ create mode 100644 MovieWebsite/db/.mvn/jvm.config
+ create mode 100644 MovieWebsite/db/.mvn/maven.config
+ create mode 100644 MovieWebsite/db/.project
+ create mode 100644 MovieWebsite/db/.settings/org.eclipse.core.resources.prefs
+ create mode 100644 MovieWebsite/db/.settings/org.eclipse.jdt.apt.core.prefs
+ create mode 100644 MovieWebsite/db/.settings/org.eclipse.jdt.core.prefs
+ create mode 100644 MovieWebsite/db/.settings/org.eclipse.m2e.core.prefs
+ create mode 100644 MovieWebsite/db/Movies.xlsx
+ create mode 100644 MovieWebsite/db/pom.xml
+ create mode 100644 MovieWebsite/db/src/main/java/com/movies/db/Movie.java
+ create mode 100644 MovieWebsite/db/src/main/java/com/movies/db/MovieScraperAPI.java
+ create mode 100644 MovieWebsite/db/src/main/java/com/movies/db/UploadFileAPI.java
+ create mode 100644 MovieWebsite/db/target/classes/META-INF/MANIFEST.MF
+ create mode 100644 MovieWebsite/db/target/classes/META-INF/maven/com.movies/db/pom.properties
+ create mode 100644 MovieWebsite/db/target/classes/META-INF/maven/com.movies/db/pom.xml
+ create mode 100644 MovieWebsite/db/target/classes/com/movies/db/Movie.class
+ create mode 100644 MovieWebsite/db/target/classes/com/movies/db/MovieScraperAPI.class
+ create mode 100644 MovieWebsite/db/target/classes/com/movies/db/UploadFileAPI.class
+ create mode 100644 expense-manager/.classpath
+ create mode 100644 expense-manager/.project
+ create mode 100644 expense-manager/.settings/.jsdtscope
+ create mode 100644 expense-manager/.settings/org.eclipse.core.resources.prefs
+ create mode 100644 expense-manager/.settings/org.eclipse.jdt.apt.core.prefs
+ create mode 100644 expense-manager/.settings/org.eclipse.jdt.core.prefs
+ create mode 100644 expense-manager/.settings/org.eclipse.m2e.core.prefs
+ create mode 100644 expense-manager/.settings/org.eclipse.wst.common.component
+ create mode 100644 expense-manager/.settings/org.eclipse.wst.common.project.facet.core.xml
+ create mode 100644 expense-manager/.settings/org.eclipse.wst.jsdt.ui.superType.container
+ create mode 100644 expense-manager/.settings/org.eclipse.wst.jsdt.ui.superType.name
+ create mode 100644 expense-manager/.settings/org.eclipse.wst.validation.prefs
+ create mode 100644 expense-manager/pom.xml
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/AppConfig.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/ExpenseBook.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/Transaction.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/service/AppContext.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/service/ExcelService.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/service/ZohoWorkDriveService.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/CategoryServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/ExcelDownloadServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/HomeServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/ReportServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/SyncServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/TransactionServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/util/AppStartupListener.java
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/footer.jsp
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/header.jsp
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/index.jsp
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/reports.jsp
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/transactions.jsp
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/txn_modals.jsp
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/web.xml
+ create mode 100644 expense-manager/src/main/webapp/css/main.css
+ create mode 100644 expense-manager/src/main/webapp/js/app.js
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/AppConfig.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/ExpenseBook.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/Transaction$Type.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/Transaction.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/service/AppContext.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/service/ExcelService.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/service/ZohoWorkDriveService.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/CategoryServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ExcelDownloadServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/HomeServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ReportServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/SyncServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/TransactionServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/util/AppStartupListener.class
+ create mode 100644 expense-manager/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
+ create mode 100644 expense-manager/target/m2e-wtp/web-resources/META-INF/maven/com.expensemanager/expense-manager/pom.properties
+ create mode 100644 expense-manager/target/m2e-wtp/web-resources/META-INF/maven/com.expensemanager/expense-manager/pom.xml
+To https://github.com/krishna-tpt/tp_eclipse.git
+   0f89f3b..505402e  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-05 10:30:07[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-05 11:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
