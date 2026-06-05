@@ -101,19 +101,24 @@ public class ZohoWorkDriveService {
      */
     public String findFileId(String filename) throws Exception {
         String token = getAccessToken();
-        String url = WORKDRIVE_API + "/files/" + folderId + "/files";
-        log.info("url {}",url);
+//        String url = WORKDRIVE_API + "/files/" + folderId + "/files";
+        String url = WORKDRIVE_API + "/files/" + folderId + "/files?page[limit]=50&page[offset]=0";
+        
+        log.info("connecting url {}",url);
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet get = new HttpGet(url);
             get.setHeader("Authorization", "Zoho-oauthtoken " + token);
-            get.setHeader("Accept", "application/json");
+            get.setHeader("Accept", "application/vnd.api+json");  
 
             String response = client.execute(get, httpResponse ->
-                    EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8));
-            JsonNode json = mapper.readTree(response);
+            		EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8));
+            
+            log.info("RAW WorkDrive response: {}", response);
+//            System.out.println("RAW RESPONSE: " + response);
 
+            JsonNode json = mapper.readTree(response);
             JsonNode data = json.path("data");
-            log.info("Payload {}",data);
+//            log.info("Payload {}",data.toString());
             if (data.isArray()) {
                 for (JsonNode file : data) {
                     String name = file.path("attributes").path("name").asText();
