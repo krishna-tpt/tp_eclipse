@@ -3412,3 +3412,13 @@ org.eclipse.core.runtime.CoreException: Launch configuration MovieScraperAPI ref
 2026-06-05 16:26:02,253 [Worker-13: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
 2026-06-05 16:26:24,806 [Worker-1: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
 2026-06-05 16:26:24,808 [Worker-1: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-06-05 16:33:57,071 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-06-05 16:33:57,073 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-06-05 16:52:49,285 [Worker-28: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-06-05 16:52:49,287 [Worker-28: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-06-05 16:57:44,476 [Worker-33: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-06-05 16:57:44,477 [Worker-33: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-06-05 16:58:03,342 [Worker-35: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-06-05 16:58:03,343 [Worker-35: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-06-05 16:58:13,350 [Worker-35: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-06-05 16:58:13,351 [Worker-35: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources

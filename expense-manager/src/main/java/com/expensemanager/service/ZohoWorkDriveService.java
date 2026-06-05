@@ -1,6 +1,9 @@
 package com.expensemanager.service;
 
+import java.io.IOException;
+import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -191,12 +194,12 @@ public class ZohoWorkDriveService {
         String token = getAccessToken();
         // WorkDrive download endpoint
 //        String url = WORKDRIVE_API + "/download/" + fileId;
-        String url = "https://workdrive.zoho.com/v1/download/" + fileId;
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
+//        String url = "https://workdrive.zoho.com/v1/download/" + fileId;
+        String url = "https://download-accl.zoho.com/v1/workdrive/download/" + fileId;
+  /**      try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet get = new HttpGet(url);
             get.setHeader("Authorization", "Zoho-oauthtoken " + token);
             
-            HttpResponse<byte[]> resp = client.send(get, HttpResponse.BodyHandlers.ofByteArray());
             return client.execute(get, httpResponse -> {
                 int status = httpResponse.getCode();
                 if (status != 200) {
@@ -205,7 +208,31 @@ public class ZohoWorkDriveService {
                 }
                 return httpResponse.getEntity().getContent().readAllBytes();
             });
-        }
+        } */
+        
+        try {
+	        HttpRequest req = HttpRequest.newBuilder()
+	                .uri(URI.create(url))
+	                .timeout(Duration.ofSeconds(60))
+	                .header("Authorization", "Zoho-oauthtoken " + token)
+	                .GET()
+	                .build();
+
+	        HttpResponse<byte[]> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofByteArray());
+	        log.debug("Download {} → HTTP {}", url, resp.statusCode());
+
+	        if (resp.statusCode() != 200) {
+	            log.error("Download failed [HTTP {}]: {}", resp.statusCode(), new String(resp.body()));
+	            throw new IOException("Download failed [HTTP " + resp.statusCode() + "]");
+	        }
+
+	        log.info("Downloaded {} bytes for fileId: {}", resp.body().length, fileId);
+	        return resp.body();
+
+	    } catch (InterruptedException e) {
+	        Thread.currentThread().interrupt();
+	        throw new IOException("Download interrupted", e);
+	    }
     }
 
     /**
