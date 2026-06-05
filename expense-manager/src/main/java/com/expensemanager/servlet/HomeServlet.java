@@ -12,19 +12,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
-@WebServlet("/home")
-public class HomeServlet extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
 
-        // TEMP TEST — JSP  direct response
-        resp.setContentType("text/html");
-        resp.getWriter().println("<h1>Hello! Servlet works!</h1>");
-    }
-}
-
-/**
 @WebServlet("/home")
 public class HomeServlet extends HttpServlet {
 
@@ -58,4 +46,3 @@ public class HomeServlet extends HttpServlet {
         req.getRequestDispatcher("/WEB-INF/views/index.jsp").forward(req, resp);
     }
 }
-*/

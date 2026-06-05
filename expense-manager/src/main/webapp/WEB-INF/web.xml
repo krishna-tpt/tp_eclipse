@@ -67,8 +67,4 @@
         <welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 
-	<listener>
-		<listener-class>com.expensemanager.util.AppStartupListener</listener-class>
-	</listener>
-
 </web-app>
