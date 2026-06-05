@@ -1,6 +1,9 @@
 package com.expensemanager.service;
 
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,6 +43,9 @@ public class ZohoWorkDriveService {
     // Cached access token
     private volatile String accessToken;
     private volatile long tokenExpiry = 0;
+    
+    private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(15))
+			.version(HttpClient.Version.HTTP_1_1).build();
 
     // Single-thread executor for async uploads (won't overwhelm API)
     private final ExecutorService uploadExecutor = Executors.newSingleThreadExecutor(r -> {
@@ -184,11 +190,13 @@ public class ZohoWorkDriveService {
     public byte[] downloadFile(String fileId) throws Exception {
         String token = getAccessToken();
         // WorkDrive download endpoint
-        String url = WORKDRIVE_API + "/download/" + fileId;
+//        String url = WORKDRIVE_API + "/download/" + fileId;
+        String url = "https://workdrive.zoho.com/v1/download/" + fileId;
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet get = new HttpGet(url);
             get.setHeader("Authorization", "Zoho-oauthtoken " + token);
-
+            
+            HttpResponse<byte[]> resp = client.send(get, HttpResponse.BodyHandlers.ofByteArray());
             return client.execute(get, httpResponse -> {
                 int status = httpResponse.getCode();
                 if (status != 200) {
