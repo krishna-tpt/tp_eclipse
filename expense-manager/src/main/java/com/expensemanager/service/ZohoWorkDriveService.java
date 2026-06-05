@@ -136,18 +136,26 @@ public class ZohoWorkDriveService {
 			for (int i = 0; i < data.length(); i++) {
 //				JSONObject item = data.getJSONObject(i);
 				JSONObject attrs = data.optJSONObject("attributes");
-				if (attrs == null)
+				if (attrs == null) {
 					log.info("continue");
 					continue;
+				}
 
 				log.info("attrs Payload {}",attrs.toString());
 				boolean isFolder = attrs.optBoolean("is_folder", false);
+				log.info("isFolder {}",isFolder);
 				if (isFolder) {
 					log.debug("Skipping folder: {}", attrs.optString("name"));
 					continue;
 				}
 				
 				String name = attrs.optString("name");
+				String id=attrs.optString("id");
+				
+				log.info("name {} {}",name, id);
+				
+				
+				
 				if(name.equalsIgnoreCase(name)) {
 					return attrs.optString("id");
 				}
