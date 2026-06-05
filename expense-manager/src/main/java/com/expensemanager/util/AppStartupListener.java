@@ -34,6 +34,8 @@ public class AppStartupListener implements ServletContextListener {
         String refreshToken  = ctx.getInitParameter("ZOHO_REFRESH_TOKEN");
         String folderId      = ctx.getInitParameter("WORKDRIVE_FOLDER_ID");
         String filename      = ctx.getInitParameter("EXCEL_FILENAME");
+        String fileId = ctx.getInitParameter("EXCEL_FILE_ID");
+
 
         ZohoWorkDriveService workDrive = new ZohoWorkDriveService(clientId, clientSecret, refreshToken, folderId);
         ExcelService excelService = new ExcelService();
@@ -45,7 +47,7 @@ public class AppStartupListener implements ServletContextListener {
 
         log.info("Starting Expense Manager — downloading workbook from WorkDrive...");
         try {
-            String fileId = workDrive.findFileId(filename);
+//            String fileId = workDrive.findFileId(filename);
             if (fileId == null) {
                 log.warn("Excel file '{}' not found in WorkDrive. App will wait for manual sync.", filename);
                 return;

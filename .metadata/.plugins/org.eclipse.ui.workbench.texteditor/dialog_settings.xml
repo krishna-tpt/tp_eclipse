@@ -10,6 +10,8 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="client"/>
+			<item value="fileId"/>
 			<item value="ACCESS_TOKEN"/>
 			<item value="access_token"/>
 			<item value="INVALID_OAUTHSCOPE"/>

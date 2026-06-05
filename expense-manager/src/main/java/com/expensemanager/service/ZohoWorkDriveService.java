@@ -190,13 +190,13 @@ public class ZohoWorkDriveService {
      * Download the Excel file as InputStream.
      * Caller must close the stream.
      */
-    public byte[] downloadFile(String fileId) throws Exception {
+ /**   public byte[] downloadFile(String fileId) throws Exception {
         String token = getAccessToken();
         // WorkDrive download endpoint
 //        String url = WORKDRIVE_API + "/download/" + fileId;
 //        String url = "https://workdrive.zoho.com/v1/download/" + fileId;
         String url = "https://download-accl.zoho.com/v1/workdrive/download/" + fileId;
-  /**      try (CloseableHttpClient client = HttpClients.createDefault()) {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet get = new HttpGet(url);
             get.setHeader("Authorization", "Zoho-oauthtoken " + token);
             
@@ -208,7 +208,7 @@ public class ZohoWorkDriveService {
                 }
                 return httpResponse.getEntity().getContent().readAllBytes();
             });
-        } */
+        } 
         
         try {
 	        HttpRequest req = HttpRequest.newBuilder()
@@ -233,6 +233,48 @@ public class ZohoWorkDriveService {
 	        Thread.currentThread().interrupt();
 	        throw new IOException("Download interrupted", e);
 	    }
+    } */
+    
+    public byte[] downloadFile(String fileId) throws Exception {
+        String token = getAccessToken();
+        
+        // Step 1: Get file metadata to extract download_url
+        String metaUrl = WORKDRIVE_API + "/files/" + fileId;
+        String downloadUrl;
+        
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet get = new HttpGet(metaUrl);
+            get.setHeader("Authorization", "Zoho-oauthtoken " + token);
+            get.setHeader("Accept", "application/vnd.api+json");
+            
+            String response = client.execute(get, httpResponse ->
+                    EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8));
+            
+            JSONObject json = new JSONObject(response);
+            downloadUrl = json.getJSONObject("data")
+                             .getJSONObject("attributes")
+                             .getString("download_url");
+            log.info("Download URL: {}", downloadUrl);
+        }
+        
+        // Step 2: Download using that URL with token
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet get = new HttpGet(downloadUrl);
+            get.setHeader("Authorization", "Zoho-oauthtoken " + token);
+            
+            return client.execute(get, httpResponse -> {
+                int status = httpResponse.getCode();
+                log.info("Download HTTP status: {}", status);
+                if (status != 200) {
+                    String body = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
+                    log.error("Download failed [{}]: {}", status, body);
+                    throw new RuntimeException("Download failed [" + status + "]: " + body);
+                }
+                byte[] bytes = httpResponse.getEntity().getContent().readAllBytes();
+                log.info("Downloaded {} bytes", bytes.length);
+                return bytes;
+            });
+        }
     }
 
     /**

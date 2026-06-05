@@ -1,105 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
-         version="6.0">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+	version="6.0">
 
-    <display-name>Expense Manager</display-name>
+	<display-name>Expense Manager</display-name>
 
-    <!-- Zoho OAuth Config - Update these values -->
-    <context-param>
-        <param-name>ZOHO_CLIENT_ID</param-name>
-        <param-value>1000.I7L8AIDAW8EIVJ0PW0O84NKMHAXBFV</param-value>
-    </context-param>
-    <context-param>
-        <param-name>ZOHO_CLIENT_SECRET</param-name>
-        <param-value>1c2192e08af94e368a964ac490624ef803f91f14ab</param-value>
-    </context-param>
-    <context-param>
-        <param-name>ZOHO_REFRESH_TOKEN</param-name>
-        <param-value>1000.72ed80257421fd9f64870b1aaba3bd60.d498f4bb72cdee00bfd61b20651102a4</param-value>
-    </context-param>
-    <!-- WorkDrive Folder ID from the URL: folders/t9myue5af95240731431ab125f3a45b139ce0 -->
-    <context-param>
-        <param-name>WORKDRIVE_FOLDER_ID</param-name>
-        <!--  <param-value>t9myue5af95240731431ab125f3a45b139ce0</param-value> -->
-        <param-value>t9myuceba2858813140d29d9bd69e75c896e1</param-value>
-    </context-param>
-    <!-- Excel file name in WorkDrive -->
-    <context-param>
-        <param-name>EXCEL_FILENAME</param-name>
-        <param-value>Expense_Manager.xlsx</param-value>
-    </context-param>
+	<!-- Zoho OAuth Config - Update these values -->
+	<context-param>
+		<param-name>ZOHO_CLIENT_ID</param-name>
+		<param-value>1000.I7L8AIDAW8EIVJ0PW0O84NKMHAXBFV</param-value>
+	</context-param>
+	<context-param>
+		<param-name>ZOHO_CLIENT_SECRET</param-name>
+		<param-value>1c2192e08af94e368a964ac490624ef803f91f14ab</param-value>
+	</context-param>
+	<context-param>
+		<param-name>ZOHO_REFRESH_TOKEN</param-name>
+		<param-value>1000.72ed80257421fd9f64870b1aaba3bd60.d498f4bb72cdee00bfd61b20651102a4</param-value>
+	</context-param>
+	<!-- WorkDrive Folder ID from the URL: folders/t9myue5af95240731431ab125f3a45b139ce0 -->
+	<context-param>
+		<param-name>WORKDRIVE_FOLDER_ID</param-name>
+		<!-- <param-value>t9myue5af95240731431ab125f3a45b139ce0</param-value> -->
+		<param-value>t9myuceba2858813140d29d9bd69e75c896e1</param-value>
+	</context-param>
 
-    <!-- Servlets -->
-    <!--
-    <servlet>
-        <servlet-name>HomeServlet</servlet-name>
-        <servlet-class>com.expensemanager.servlet.HomeServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>HomeServlet</servlet-name>
-        <url-pattern>/</url-pattern>
-    </servlet-mapping>
+	<context-param>
+		<param-name>EXCEL_FILE_ID</param-name>
+		<param-value>t9myuceba2858813140d29d9bd69e75c896e1</param-value>
+	</context-param>
+	
+	<!-- Excel file name in WorkDrive -->
+	<context-param>
+		<param-name>EXCEL_FILENAME</param-name>
+		<param-value>Expense_Manager.xlsx</param-value>
+	</context-param>
 
-    <servlet>
-        <servlet-name>TransactionServlet</servlet-name>
-        <servlet-class>com.expensemanager.servlet.TransactionServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>TransactionServlet</servlet-name>
-        <url-pattern>/transactions</url-pattern>
-    </servlet-mapping>
+	<!-- Servlets -->
+	<!-- <servlet> <servlet-name>HomeServlet</servlet-name> <servlet-class>com.expensemanager.servlet.HomeServlet</servlet-class> 
+		</servlet> <servlet-mapping> <servlet-name>HomeServlet</servlet-name> <url-pattern>/</url-pattern> 
+		</servlet-mapping> <servlet> <servlet-name>TransactionServlet</servlet-name> 
+		<servlet-class>com.expensemanager.servlet.TransactionServlet</servlet-class> 
+		</servlet> <servlet-mapping> <servlet-name>TransactionServlet</servlet-name> 
+		<url-pattern>/transactions</url-pattern> </servlet-mapping> <servlet> <servlet-name>ReportServlet</servlet-name> 
+		<servlet-class>com.expensemanager.servlet.ReportServlet</servlet-class> </servlet> 
+		<servlet-mapping> <servlet-name>ReportServlet</servlet-name> <url-pattern>/reports</url-pattern> 
+		</servlet-mapping> <servlet> <servlet-name>CategoryServlet</servlet-name> 
+		<servlet-class>com.expensemanager.servlet.CategoryServlet</servlet-class> 
+		</servlet> <servlet-mapping> <servlet-name>CategoryServlet</servlet-name> 
+		<url-pattern>/categories</url-pattern> </servlet-mapping> <servlet> <servlet-name>SyncServlet</servlet-name> 
+		<servlet-class>com.expensemanager.servlet.SyncServlet</servlet-class> </servlet> 
+		<servlet-mapping> <servlet-name>SyncServlet</servlet-name> <url-pattern>/sync</url-pattern> 
+		</servlet-mapping> <servlet> <servlet-name>ExcelDownloadServlet</servlet-name> 
+		<servlet-class>com.expensemanager.servlet.ExcelDownloadServlet</servlet-class> 
+		<load-on-startup>1</load-on-startup> </servlet> <servlet-mapping> <servlet-name>ExcelDownloadServlet</servlet-name> 
+		<url-pattern>/excel/*</url-pattern> </servlet-mapping> -->
 
-    <servlet>
-        <servlet-name>ReportServlet</servlet-name>
-        <servlet-class>com.expensemanager.servlet.ReportServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ReportServlet</servlet-name>
-        <url-pattern>/reports</url-pattern>
-    </servlet-mapping>
+	<!-- Session config -->
+	<session-config>
+		<session-timeout>60</session-timeout>
+	</session-config>
 
-    <servlet>
-        <servlet-name>CategoryServlet</servlet-name>
-        <servlet-class>com.expensemanager.servlet.CategoryServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>CategoryServlet</servlet-name>
-        <url-pattern>/categories</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>SyncServlet</servlet-name>
-        <servlet-class>com.expensemanager.servlet.SyncServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>SyncServlet</servlet-name>
-        <url-pattern>/sync</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>ExcelDownloadServlet</servlet-name>
-        <servlet-class>com.expensemanager.servlet.ExcelDownloadServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ExcelDownloadServlet</servlet-name>
-        <url-pattern>/excel/*</url-pattern>
-    </servlet-mapping>  -->
-
-    <!-- Session config -->
-    <session-config>
-        <session-timeout>60</session-timeout>
-    </session-config>
-
-    <!-- Welcome page -->
-    <welcome-file-list>
+	<!-- Welcome page -->
+	<welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
-    </welcome-file-list>
-    
-    <listener>
-    <listener-class>com.expensemanager.util.AppStartupListener</listener-class>
-</listener>
+	</welcome-file-list>
+
+	<listener>
+		<listener-class>com.expensemanager.util.AppStartupListener</listener-class>
+	</listener>
 
 </web-app>
