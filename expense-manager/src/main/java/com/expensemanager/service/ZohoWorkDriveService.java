@@ -1,7 +1,10 @@
 package com.expensemanager.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
@@ -10,14 +13,13 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Zoho WorkDrive API Service.
@@ -103,7 +105,7 @@ public class ZohoWorkDriveService {
         String token = getAccessToken();
 //        String url = WORKDRIVE_API + "/files/" + folderId + "/files";
 //        String url = WORKDRIVE_API + "/files/" + folderId + "/files?page[limit]=50&page[offset]=0";
-        String url = WORKDRIVE_API + "/privatespace/files/" + folderId + "/files";
+        String url = WORKDRIVE_API + "/files/" + folderId;
 
         
         log.info("connecting url {}",url);
@@ -118,16 +120,45 @@ public class ZohoWorkDriveService {
             log.info("RAW WorkDrive response: {}", response);
 //            System.out.println("RAW RESPONSE: " + response);
 
-            JsonNode json = mapper.readTree(response);
-            JsonNode data = json.path("data");
+//            JsonNode json = mapper.readTree(response);
+            JSONObject json = new JSONObject(response);
+            JSONObject data = json.optJSONObject("data");
+			
+			if (data == null || data.length() == 0) {
+				log.debug("No more files — stopping");
+//				break;
+			}
+			
+//            JsonNode data = json.path("data");
 //            log.info("Payload {}",data.toString());
-            if (data.isArray()) {
-                for (JsonNode file : data) {
-                    String name = file.path("attributes").path("name").asText();
-                    if (filename.equalsIgnoreCase(name)) {
-                        return file.path("id").asText();
-                    }
-                }
+			for (int i = 0; i < data.length(); i++) {
+//				JSONObject item = data.getJSONObject(i);
+				JSONObject attrs = data.optJSONObject("attributes");
+				if (attrs == null)
+					continue;
+
+				boolean isFolder = attrs.optBoolean("is_folder", false);
+				if (isFolder) {
+					log.debug("Skipping folder: {}", attrs.optString("name"));
+					continue;
+				}
+				
+				String name = attrs.optString("name");
+				if(name.equalsIgnoreCase(name)) {
+					return attrs.optString("id");
+				}
+//				String id =  attrs.optString("id");
+//                    return file.path("id").asText();
+//                }
+			
+//            if (data.isArray()) {
+//                for (JsonNode file : data) {
+//                	log.info("attributes response: {}", file);
+//                    String name = file.path("attributes").path("name").asText();
+//                    if (filename.equalsIgnoreCase(name)) {
+//                        return file.path("id").asText();
+//                    }
+//                }
             }
         }
         log.warn("File '{}' not found in folder {}", filename, folderId);
