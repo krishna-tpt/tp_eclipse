@@ -1,0 +1,18 @@
+<configuration>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{30} -- %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- Suppress noisy libs -->
+  <logger name="org.apache.hc"    level="WARN"/>
+  <logger name="org.postgresql"   level="WARN"/>
+
+  <!-- App logs -->
+  <logger name="com.expensemanager" level="INFO"/>
+
+  <root level="WARN">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+</configuration>

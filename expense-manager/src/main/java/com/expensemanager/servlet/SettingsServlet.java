@@ -66,9 +66,9 @@ public class SettingsServlet extends HttpServlet {
 			case "addSubCategory" : {
 				System.out.println("Inside addSubCategory:");
 				
-				Enumeration<String> paramNames = req.getParameterNames();
+		/**		Enumeration<String> paramNames = req.getParameterNames();
 
-			/**	while (paramNames.hasMoreElements()) {
+			while (paramNames.hasMoreElements()) {
 				    String key = paramNames.nextElement();
 				    String value = req.getParameter(key);
 

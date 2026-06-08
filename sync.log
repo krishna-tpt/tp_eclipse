@@ -1434,3 +1434,124 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 09a88a4] Auto sync - 2026-06-08 10:30:02
+ 112 files changed, 3136 insertions(+), 3206 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.wst.server.core/publish/publish0.dat (96%)
+ delete mode 100644 Junit/junittest/target/classes/META-INF/MANIFEST.MF
+ delete mode 100644 Junit/junittest/target/classes/META-INF/maven/com./junittest/pom.properties
+ delete mode 100644 Junit/junittest/target/classes/META-INF/maven/com./junittest/pom.xml
+ delete mode 100644 Junit/junittest/target/classes/com/junittest/Calculator.class
+ delete mode 100644 Junit/junittest/target/classes/com/junittest/CalculatorTest.class
+ delete mode 100644 Junit/junittest/target/test-classes/com/junittest/AppTest.class
+ delete mode 100644 MovieWebsite/db/target/classes/.gitignore
+ delete mode 100644 MovieWebsite/db/target/classes/META-INF/MANIFEST.MF
+ delete mode 100644 MovieWebsite/db/target/classes/META-INF/maven/com.movies/db/pom.properties
+ delete mode 100644 MovieWebsite/db/target/classes/META-INF/maven/com.movies/db/pom.xml
+ delete mode 100644 MovieWebsite/db/target/classes/com/movies/db/Movie.class
+ delete mode 100644 MovieWebsite/db/target/classes/com/movies/db/MovieScraperAPI.class
+ delete mode 100644 MovieWebsite/db/target/classes/com/movies/db/UploadFileAPI.class
+ delete mode 100644 demo/target/classes/META-INF/MANIFEST.MF
+ delete mode 100644 demo/target/classes/META-INF/maven/com.jwt/demo/pom.properties
+ delete mode 100644 demo/target/classes/META-INF/maven/com.jwt/demo/pom.xml
+ delete mode 100644 demo/target/classes/com/jwt/demo/JwtDecoder.class
+ delete mode 100644 demo/target/classes/com/jwt/demo/JwtDemo$1.class
+ delete mode 100644 demo/target/classes/com/jwt/demo/JwtDemo.class
+ delete mode 100644 demo/target/classes/com/jwt/demo/JwtUtil.class
+ delete mode 100644 demo/target/classes/com/jwt/demo/JwtVerifier.class
+ delete mode 100644 demo/target/classes/com/jwt/refresh/AuthController.class
+ delete mode 100644 demo/target/classes/com/jwt/refresh/RefreshTokenDemo.class
+ delete mode 100644 demo/target/classes/com/jwt/refresh/RefreshTokenStore$RefreshEntry.class
+ delete mode 100644 demo/target/classes/com/jwt/refresh/RefreshTokenStore.class
+ delete mode 100644 demo/target/classes/com/jwt/refresh/TokenPair.class
+ delete mode 100644 demo/target/classes/com/jwt/refresh/TokenService.class
+ delete mode 100644 demo/target/test-classes/com/jwt/demo/AppTest.class
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/dao/AuditLogDAO.java
+ rewrite expense-manager/src/main/java/com/expensemanager/dao/TransactionDAO.java (96%)
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/AuditLog.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/EditTransactionServlet.java
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/dao/CashBookDAO.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/dao/CategoryDAO.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/dao/ColumnDefinitionDAO.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/dao/SubCategoryDAO.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/dao/TransactionDAO.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/model/CashBook.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/model/Category.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/model/ColumnDefinition.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/model/SubCategory.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/model/Transaction$Type.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/model/Transaction.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/service/ExportService.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/service/GmailService$1.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/service/GmailService.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/servlet/CashBookServlet.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/servlet/CategoryServlet.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ColumnServlet.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ExportServlet.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/servlet/HomeServlet.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ReportServlet.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/servlet/SettingsServlet.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/servlet/TransactionServlet.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/util/AppContextListener.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/util/BookFilter.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/util/DBConnection.class
+ delete mode 100644 expense-manager/target/classes/logback.xml
+ delete mode 100644 expense-manager/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
+ delete mode 100644 expense-manager/target/m2e-wtp/web-resources/META-INF/maven/com.expensemanager/expense-manager/pom.properties
+ delete mode 100644 expense-manager/target/m2e-wtp/web-resources/META-INF/maven/com.expensemanager/expense-manager/pom.xml
+ delete mode 100644 log-search-swing/target/classes/META-INF/MANIFEST.MF
+ delete mode 100644 log-search-swing/target/classes/META-INF/maven/com.example/log-search-swing/pom.properties
+ delete mode 100644 log-search-swing/target/classes/META-INF/maven/com.example/log-search-swing/pom.xml
+ delete mode 100644 log-search-swing/target/classes/applicationContext.xml
+ delete mode 100644 log-search-swing/target/classes/com/example/logsearchswing/LogSearchGui$1.class
+ delete mode 100644 log-search-swing/target/classes/com/example/logsearchswing/LogSearchGui$2.class
+ delete mode 100644 log-search-swing/target/classes/com/example/logsearchswing/LogSearchGui$3.class
+ delete mode 100644 log-search-swing/target/classes/com/example/logsearchswing/LogSearchGui.class
+ delete mode 100644 log-search-swing/target/classes/com/example/logsearchswing/LogSearcher.class
+ delete mode 100644 log-search-swing/target/classes/com/example/logsearchswing/Main.class
+ delete mode 100644 log-search-swing/target/classes/com/logsearch/test/LogSearch.class
+ delete mode 100644 log-search-swing/target/classes/com/logsearch/test/LogTestMain.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/FindDuplicates.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$1.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$10.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$11.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$12.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$2.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$3.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$4.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$5.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$6.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$7.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$8.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$9.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$SourceMessageLoop.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/MainForm.class
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/resources/Duplicate_FinderAboutBox.properties
+ delete mode 100644 log-search-swing/target/classes/find/duplicates/resources/search-25.png
+ delete mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/model/WorkDriveFile.class
+ delete mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/service/WorkDriveApiService.class
+ delete mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/service/ZohoTokenService.class
+ delete mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/servlet/DashboardServlet.class
+ delete mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/servlet/DownloadServlet.class
+ delete mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/servlet/FilesApiServlet.class
+ delete mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/util/AppConfig.class
+ delete mode 100644 workdrive-organizer2/target/classes/logback.xml
+ delete mode 100644 workdrive-organizer2/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
+ delete mode 100644 workdrive-organizer2/target/m2e-wtp/web-resources/META-INF/maven/com.workdrive/workdrive-organizer/pom.properties
+ delete mode 100644 workdrive-organizer2/target/m2e-wtp/web-resources/META-INF/maven/com.workdrive/workdrive-organizer/pom.xml
+To https://github.com/krishna-tpt/tp_eclipse.git
+   49eb7d7..09a88a4  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-08 10:30:08[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-08 11:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m

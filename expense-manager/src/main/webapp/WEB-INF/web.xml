@@ -34,7 +34,7 @@
 		<param-name>GMAIL_APP_PASS</param-name>
 		<!-- App Password — NOT your regular Gmail password! -->
 		<!-- Format: xxxx xxxx xxxx xxxx (16 chars, spaces optional) -->
-		<param-value>xxxx xxxx xxxx xxxx</param-value>
+		<param-value>yfma ubac bmql ziyo</param-value>
 	</context-param>
 
 	<session-config>
