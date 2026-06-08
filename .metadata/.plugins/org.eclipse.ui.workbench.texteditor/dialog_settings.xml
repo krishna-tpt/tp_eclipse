@@ -10,6 +10,11 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="filterQS"/>
+			<item value="activeBookId"/>
+			<item value="editSubCatSelect"/>
+			<item value="categoryId"/>
+			<item value="subCategories"/>
 			<item value="client"/>
 			<item value="fileId"/>
 			<item value="ACCESS_TOKEN"/>
