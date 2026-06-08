@@ -1816,3 +1816,27 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 7c9b09e] Auto sync - 2026-06-08 16:00:02
+ 22 files changed, 3469 insertions(+), 2616 deletions(-)
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/dao/ReceiptDAO.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/Receipt.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/TransactionFilter.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/CalendarServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/ReceiptServlet.java
+To https://github.com/krishna-tpt/tp_eclipse.git
+   be506cc..7c9b09e  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-08 16:00:07[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-08 16:30:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
