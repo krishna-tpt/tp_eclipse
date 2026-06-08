@@ -1555,3 +1555,90 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main f573cf8] Auto sync - 2026-06-08 11:00:02
+ 87 files changed, 3584 insertions(+), 2591 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.wst.server.core/publish/publish0.dat (94%)
+ create mode 100644 Junit/junittest/target/classes/META-INF/MANIFEST.MF
+ create mode 100644 Junit/junittest/target/classes/META-INF/maven/com./junittest/pom.properties
+ create mode 100644 Junit/junittest/target/classes/META-INF/maven/com./junittest/pom.xml
+ create mode 100644 Junit/junittest/target/classes/com/junittest/Calculator.class
+ create mode 100644 Junit/junittest/target/classes/com/junittest/CalculatorTest.class
+ create mode 100644 Junit/junittest/target/test-classes/com/junittest/AppTest.class
+ create mode 100644 MovieWebsite/db/target/classes/.gitignore
+ create mode 100644 demo/target/classes/META-INF/MANIFEST.MF
+ create mode 100644 demo/target/classes/META-INF/maven/com.jwt/demo/pom.properties
+ create mode 100644 demo/target/classes/META-INF/maven/com.jwt/demo/pom.xml
+ create mode 100644 demo/target/classes/com/jwt/demo/JwtDecoder.class
+ create mode 100644 demo/target/classes/com/jwt/demo/JwtDemo$1.class
+ create mode 100644 demo/target/classes/com/jwt/demo/JwtDemo.class
+ create mode 100644 demo/target/classes/com/jwt/demo/JwtUtil.class
+ create mode 100644 demo/target/classes/com/jwt/demo/JwtVerifier.class
+ create mode 100644 demo/target/classes/com/jwt/refresh/AuthController.class
+ create mode 100644 demo/target/classes/com/jwt/refresh/RefreshTokenDemo.class
+ create mode 100644 demo/target/classes/com/jwt/refresh/RefreshTokenStore$RefreshEntry.class
+ create mode 100644 demo/target/classes/com/jwt/refresh/RefreshTokenStore.class
+ create mode 100644 demo/target/classes/com/jwt/refresh/TokenPair.class
+ create mode 100644 demo/target/classes/com/jwt/refresh/TokenService.class
+ create mode 100644 demo/target/test-classes/com/jwt/demo/AppTest.class
+ rewrite expense-manager/src/main/java/com/expensemanager/servlet/EditTransactionServlet.java (93%)
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/transaction_detail.jsp
+ create mode 100644 expense-manager/target/classes/.gitignore
+ create mode 100644 expense-manager/target/classes/logback.xml
+ create mode 100644 expense-manager/target/m2e-wtp/web-resources/.gitignore
+ create mode 100644 log-search-swing/target/classes/META-INF/MANIFEST.MF
+ create mode 100644 log-search-swing/target/classes/META-INF/maven/com.example/log-search-swing/pom.properties
+ create mode 100644 log-search-swing/target/classes/META-INF/maven/com.example/log-search-swing/pom.xml
+ create mode 100644 log-search-swing/target/classes/applicationContext.xml
+ create mode 100644 log-search-swing/target/classes/com/example/logsearchswing/LogSearchGui$1.class
+ create mode 100644 log-search-swing/target/classes/com/example/logsearchswing/LogSearchGui$2.class
+ create mode 100644 log-search-swing/target/classes/com/example/logsearchswing/LogSearchGui$3.class
+ create mode 100644 log-search-swing/target/classes/com/example/logsearchswing/LogSearchGui.class
+ create mode 100644 log-search-swing/target/classes/com/example/logsearchswing/LogSearcher.class
+ create mode 100644 log-search-swing/target/classes/com/example/logsearchswing/Main.class
+ create mode 100644 log-search-swing/target/classes/com/logsearch/test/LogSearch.class
+ create mode 100644 log-search-swing/target/classes/com/logsearch/test/LogTestMain.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/FindDuplicates.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$1.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$10.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$11.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$12.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$2.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$3.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$4.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$5.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$6.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$7.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$8.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$9.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm$SourceMessageLoop.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/MainForm.class
+ create mode 100644 log-search-swing/target/classes/find/duplicates/resources/Duplicate_FinderAboutBox.properties
+ create mode 100644 log-search-swing/target/classes/find/duplicates/resources/search-25.png
+ create mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/model/WorkDriveFile.class
+ create mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/service/WorkDriveApiService.class
+ create mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/service/ZohoTokenService.class
+ create mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/servlet/DashboardServlet.class
+ create mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/servlet/DownloadServlet.class
+ create mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/servlet/FilesApiServlet.class
+ create mode 100644 workdrive-organizer2/target/classes/com/workdrive/organizer/util/AppConfig.class
+ create mode 100644 workdrive-organizer2/target/classes/logback.xml
+ create mode 100644 workdrive-organizer2/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
+ create mode 100644 workdrive-organizer2/target/m2e-wtp/web-resources/META-INF/maven/com.workdrive/workdrive-organizer/pom.properties
+ create mode 100644 workdrive-organizer2/target/m2e-wtp/web-resources/META-INF/maven/com.workdrive/workdrive-organizer/pom.xml
+To https://github.com/krishna-tpt/tp_eclipse.git
+   09a88a4..f573cf8  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-08 11:00:05[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-08 11:30:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
