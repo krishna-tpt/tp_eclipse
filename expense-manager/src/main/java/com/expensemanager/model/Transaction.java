@@ -1,65 +1,134 @@
 package com.expensemanager.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Represents a single Income or Expense transaction.
- * Supports dynamic/custom columns via extraFields map.
- */
 public class Transaction {
 
-    public enum Type { INCOME, EXPENSE }
+	public enum Type {
+		INCOME, EXPENSE
+	}
 
-    private Type type;
-    private LocalDateTime dateTime;
-    private double amount;
-    private String category;
-    private String payment;   // optional
-    private String note;
-    // Custom columns — order preserved (LinkedHashMap)
-    private Map<String, String> extraFields = new LinkedHashMap<>();
+	private int id;
+	private Type type;
+	private LocalDateTime dateTime;
+	private BigDecimal amount;
+	private int categoryId;
+	private String categoryName;
+	private String note;
+	private int subcategoryid;
+	private String subCategoryName;
+	private int bookId;
+	private Map<String, String> customValues = new LinkedHashMap<>();
 
-    public Transaction() {}
+	public Transaction() {
+	}
 
-    public Transaction(Type type, LocalDateTime dateTime, double amount,
-                       String category, String payment, String note) {
-        this.type = type;
-        this.dateTime = dateTime;
-        this.amount = amount;
-        this.category = category;
-        this.payment = payment;
-        this.note = note;
-    }
+	public String getFormattedDate() {
+		if (dateTime == null)
+			return "";
+		return dateTime.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+	}
 
-    // --- Getters / Setters ---
+	public String getFormattedDateTime() {
+		if (dateTime == null)
+			return "";
+		return dateTime.format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm"));
+	}
 
-    public Type getType() { return type; }
-    public void setType(Type type) { this.type = type; }
+	// Getters / Setters
+	public int getId() {
+		return id;
+	}
 
-    public LocalDateTime getDateTime() { return dateTime; }
-    public void setDateTime(LocalDateTime dateTime) { this.dateTime = dateTime; }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public double getAmount() { return amount; }
-    public void setAmount(double amount) { this.amount = amount; }
+	public Type getType() {
+		return type;
+	}
 
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+	public void setType(Type type) {
+		this.type = type;
+	}
 
-    public String getPayment() { return payment; }
-    public void setPayment(String payment) { this.payment = payment; }
+	public LocalDateTime getDateTime() {
+		return dateTime;
+	}
 
-    public String getNote() { return note; }
-    public void setNote(String note) { this.note = note; }
+	public void setDateTime(LocalDateTime dateTime) {
+		this.dateTime = dateTime;
+	}
 
-    public Map<String, String> getExtraFields() { return extraFields; }
-    public void setExtraFields(Map<String, String> extraFields) { this.extraFields = extraFields; }
-    public void addExtraField(String key, String value) { this.extraFields.put(key, value); }
+	public BigDecimal getAmount() {
+		return amount;
+	}
 
-    @Override
-    public String toString() {
-        return "Transaction{type=" + type + ", amount=" + amount +
-               ", category='" + category + "', dateTime=" + dateTime + "}";
-    }
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
+
+	public int getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategoryId(int categoryId) {
+		this.categoryId = categoryId;
+	}
+
+	public String getCategoryName() {
+		return categoryName;
+	}
+
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
+	}
+
+	public int getSubcategoryid() {
+		return subcategoryid;
+	}
+
+	public void setSubcategoryid(int subcategoryid) {
+		this.subcategoryid = subcategoryid;
+	}
+
+	public String getSubCategoryName() {
+		return subCategoryName;
+	}
+
+	public void setSubCategoryName(String subCategoryName) {
+		this.subCategoryName = subCategoryName;
+	}
+
+	public int getBookId() {
+		return bookId;
+	}
+
+	public void setBookId(int bookId) {
+		this.bookId = bookId;
+	}
+
+	public Map<String, String> getCustomValues() {
+		return customValues;
+	}
+
+	public void setCustomValues(Map<String, String> customValues) {
+		this.customValues = customValues;
+	}
+
+	public void addCustomValue(String key, String value) {
+		this.customValues.put(key, value);
+	}
 }

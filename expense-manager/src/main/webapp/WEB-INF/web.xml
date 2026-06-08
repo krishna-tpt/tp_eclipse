@@ -1,70 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
 	version="6.0">
 
 	<display-name>Expense Manager</display-name>
 
-	<!-- Zoho OAuth Config - Update these values -->
-	<context-param>
-		<param-name>ZOHO_CLIENT_ID</param-name>
-		<param-value>1000.I7L8AIDAW8EIVJ0PW0O84NKMHAXBFV</param-value>
-	</context-param>
-	<context-param>
-		<param-name>ZOHO_CLIENT_SECRET</param-name>
-		<param-value>1c2192e08af94e368a964ac490624ef803f91f14ab</param-value>
-	</context-param>
-	<context-param>
-		<param-name>ZOHO_REFRESH_TOKEN</param-name>
-		<param-value>1000.72ed80257421fd9f64870b1aaba3bd60.d498f4bb72cdee00bfd61b20651102a4</param-value>
-	</context-param>
-	<!-- WorkDrive Folder ID from the URL: folders/t9myue5af95240731431ab125f3a45b139ce0 -->
-	<context-param>
-		<param-name>WORKDRIVE_FOLDER_ID</param-name>
-		<!-- <param-value>t9myue5af95240731431ab125f3a45b139ce0</param-value> -->
-		<param-value>t9myuceba2858813140d29d9bd69e75c896e1</param-value>
-	</context-param>
+	<!-- ══ DB Config — update with your cloud DB URL ══ -->
+	<!--<context-param> <param-name>DB_URL</param-name> <param-value>jdbc:postgresql://ep-plain-meadow-apr9n2ix.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require</param-value> 
+		</context-param> <context-param> <param-name>DB_USER</param-name> <param-value>neondb_owner</param-value> 
+		</context-param> <context-param> <param-name>DB_PASSWORD</param-name> <param-value>npg_30bZIuKdaFvM</param-value> 
+		</context-param> -->
 
 	<context-param>
-		<param-name>EXCEL_FILE_ID</param-name>
-		<param-value>t9myuceba2858813140d29d9bd69e75c896e1</param-value>
+		<param-name>DB_URL</param-name>
+		<param-value>jdbc:postgresql://localhost/mydb</param-value>
 	</context-param>
-	
-	<!-- Excel file name in WorkDrive -->
 	<context-param>
-		<param-name>EXCEL_FILENAME</param-name>
-		<param-value>Expense_Manager.xlsx</param-value>
+		<param-name>DB_USER</param-name>
+		<param-value>postgres</param-value>
+	</context-param>
+	<context-param>
+		<param-name>DB_PASSWORD</param-name>
+		<param-value>postgres</param-value>
+	</context-param>
+	<!-- Gmail Config — ADD to web.xml context-params section -->
+	<context-param>
+		<param-name>GMAIL_FROM</param-name>
+		<param-value>krishnakumar1971997@gmail.com</param-value>
+	</context-param>
+	<context-param>
+		<param-name>GMAIL_APP_PASS</param-name>
+		<!-- App Password — NOT your regular Gmail password! -->
+		<!-- Format: xxxx xxxx xxxx xxxx (16 chars, spaces optional) -->
+		<param-value>xxxx xxxx xxxx xxxx</param-value>
 	</context-param>
 
-	<!-- Servlets -->
-	<!-- <servlet> <servlet-name>HomeServlet</servlet-name> <servlet-class>com.expensemanager.servlet.HomeServlet</servlet-class> 
-		</servlet> <servlet-mapping> <servlet-name>HomeServlet</servlet-name> <url-pattern>/</url-pattern> 
-		</servlet-mapping> <servlet> <servlet-name>TransactionServlet</servlet-name> 
-		<servlet-class>com.expensemanager.servlet.TransactionServlet</servlet-class> 
-		</servlet> <servlet-mapping> <servlet-name>TransactionServlet</servlet-name> 
-		<url-pattern>/transactions</url-pattern> </servlet-mapping> <servlet> <servlet-name>ReportServlet</servlet-name> 
-		<servlet-class>com.expensemanager.servlet.ReportServlet</servlet-class> </servlet> 
-		<servlet-mapping> <servlet-name>ReportServlet</servlet-name> <url-pattern>/reports</url-pattern> 
-		</servlet-mapping> <servlet> <servlet-name>CategoryServlet</servlet-name> 
-		<servlet-class>com.expensemanager.servlet.CategoryServlet</servlet-class> 
-		</servlet> <servlet-mapping> <servlet-name>CategoryServlet</servlet-name> 
-		<url-pattern>/categories</url-pattern> </servlet-mapping> <servlet> <servlet-name>SyncServlet</servlet-name> 
-		<servlet-class>com.expensemanager.servlet.SyncServlet</servlet-class> </servlet> 
-		<servlet-mapping> <servlet-name>SyncServlet</servlet-name> <url-pattern>/sync</url-pattern> 
-		</servlet-mapping> <servlet> <servlet-name>ExcelDownloadServlet</servlet-name> 
-		<servlet-class>com.expensemanager.servlet.ExcelDownloadServlet</servlet-class> 
-		<load-on-startup>1</load-on-startup> </servlet> <servlet-mapping> <servlet-name>ExcelDownloadServlet</servlet-name> 
-		<url-pattern>/excel/*</url-pattern> </servlet-mapping> -->
-
-	<!-- Session config -->
 	<session-config>
 		<session-timeout>60</session-timeout>
 	</session-config>
 
-	<!-- Welcome page -->
 	<welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 
 </web-app>

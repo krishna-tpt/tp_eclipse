@@ -1,48 +1,41 @@
 package com.expensemanager.servlet;
 
+import com.expensemanager.dao.TransactionDAO;
 import com.expensemanager.model.Transaction;
-import com.expensemanager.service.AppContext;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+import jakarta.servlet.*;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @WebServlet("/home")
 public class HomeServlet extends HttpServlet {
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+	private static final Logger log = LoggerFactory.getLogger(TransactionServlet.class);
 
-        AppContext ctx = AppContext.getInstance();
-        boolean loaded = ctx.isLoaded();
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        if (loaded) {
-            List<Transaction> txns = ctx.getTransactions();
-            double totalIncome  = txns.stream().filter(t -> t.getType() == Transaction.Type.INCOME)
-                    .mapToDouble(Transaction::getAmount).sum();
-            double totalExpense = txns.stream().filter(t -> t.getType() == Transaction.Type.EXPENSE)
-                    .mapToDouble(Transaction::getAmount).sum();
+		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
+//		System.out.println("Book ID: "+bookId);
+		try {
+			TransactionDAO dao = new TransactionDAO();
+			BigDecimal income = dao.sumByType("INCOME", bookId);
+			BigDecimal expense = dao.sumByType("EXPENSE", bookId);
+			List<Transaction> recent = dao.findAll(null, 1, 5, bookId);
 
-            req.setAttribute("totalIncome",  totalIncome);
-            req.setAttribute("totalExpense", totalExpense);
-            req.setAttribute("balance",      totalIncome - totalExpense);
-            req.setAttribute("txnCount",     txns.size());
-            req.setAttribute("config",       ctx.getConfig());
-
-            // Recent 5 transactions
-            int from = Math.max(0, txns.size() - 5);
-            req.setAttribute("recentTxns", txns.subList(from, txns.size()));
-        }
-
-        req.setAttribute("loaded", loaded);
-        req.setAttribute("currentYear", LocalDate.now().getYear());
-        req.getRequestDispatcher("/WEB-INF/views/index.jsp").forward(req, resp);
-    }
+			req.setAttribute("totalIncome", income);
+			req.setAttribute("totalExpense", expense);
+			req.setAttribute("balance", income.subtract(expense));
+			req.setAttribute("recentTxns", recent);
+		} catch (Exception e) {
+			req.setAttribute("dbError", e.getMessage());
+		}
+		req.getRequestDispatcher("/WEB-INF/views/index.jsp").forward(req, resp);
+	}
 }

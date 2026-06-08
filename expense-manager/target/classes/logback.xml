@@ -1,20 +1,18 @@
 <configuration>
-    <!-- Console output -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} -- %msg%n</pattern>
-        </encoder>
-    </appender>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{30} -- %msg%n</pattern>
+    </encoder>
+  </appender>
 
-    <!-- Apache HttpClient DEBUG logs OFF பண்ணு -->
-    <logger name="org.apache.hc" level="WARN"/>
-    <logger name="org.apache.hc.client5.http.wire" level="OFF"/>
-    <logger name="org.apache.hc.client5.http.headers" level="OFF"/>
+  <!-- Suppress noisy libs -->
+  <logger name="org.apache.hc"    level="WARN"/>
+  <logger name="org.postgresql"   level="WARN"/>
 
-    <!-- உன்னோட application logs மட்டும் INFO -->
-    <logger name="com.expensemanager" level="INFO"/>
+  <!-- App logs -->
+  <logger name="com.expensemanager" level="INFO"/>
 
-    <root level="WARN">
-        <appender-ref ref="CONSOLE"/>
-    </root>
+  <root level="WARN">
+    <appender-ref ref="CONSOLE"/>
+  </root>
 </configuration>

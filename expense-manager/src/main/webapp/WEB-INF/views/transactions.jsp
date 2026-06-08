@@ -1,41 +1,52 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<c:set var="pageTitle" value="Transactions" scope="request"/>
-<c:set var="activePage" value="txn" scope="request"/>
+<c:set var="pageTitle"  value="Transactions" scope="request"/>
+<c:set var="activePage" value="txn"          scope="request"/>
+<c:set var="currentYear" value="<%=java.time.Year.now().getValue()%>" scope="request"/>
 <%@ include file="header.jsp" %>
 
 <div class="page-header flex">
   <div>
     <h1>Transactions</h1>
-    <p>All income &amp; expense records</p>
+    <p>All income &amp; expense records (${total} total)</p>
   </div>
-  <div class="flex gap-2 ml-auto">
-    <button class="btn btn-primary" onclick="openModal('incomeModal')">+ Income</button>
-    <button class="btn btn-danger"  onclick="openModal('expenseModal')">+ Expense</button>
-    <button class="btn btn-amber"   onclick="openModal('categoryModal')">⚙ Config</button>
+  <div class="flex gap-1 ml-auto">
+    <button class="btn btn-success btn-sm" onclick="openModal('incomeModal')">+ Income</button>
+    <button class="btn btn-danger btn-sm"  onclick="openModal('expenseModal')">+ Expense</button>
+<!--<button class="btn btn-outline btn-sm" onclick="openModal('catModal')">+ Category</button>
+    <button class="btn btn-outline btn-sm" onclick="openModal('colModal')">+ Column</button>  --> 
   </div>
 </div>
 
-<!-- Alerts -->
 <c:if test="${not empty param.success}">
-  <div class="alert alert-success">✓ Transaction saved &amp; syncing to WorkDrive in background.</div>
+  <div class="alert alert-success">
+    <c:choose>
+      <c:when test="${param.success=='1'}">Transaction saved successfully!</c:when>
+      <c:when test="${param.success=='cat'}">Category added!</c:when>
+      <c:when test="${param.success=='col'}">Custom column added!</c:when>
+      <c:otherwise>Done!</c:otherwise>
+    </c:choose>
+  </div>
 </c:if>
 <c:if test="${not empty param.error}">
-  <div class="alert alert-error">✗ Error: ${param.error}</div>
+  <div class="alert alert-error">Error: ${param.error}</div>
+</c:if>
+<c:if test="${not empty dbError}">
+  <div class="alert alert-error">DB Error: ${dbError}</div>
 </c:if>
 
-<!-- Filter Tabs -->
-<div class="tab-bar">
-  <button class="tab-btn ${empty param.filter ? 'active' : ''}"
-    onclick="location.href='${pageContext.request.contextPath}/transactions'">All</button>
-  <button class="tab-btn income ${param.filter == 'INCOME' ? 'active' : ''}"
-    onclick="location.href='${pageContext.request.contextPath}/transactions?filter=INCOME'">Income</button>
-  <button class="tab-btn expense ${param.filter == 'EXPENSE' ? 'active' : ''}"
-    onclick="location.href='${pageContext.request.contextPath}/transactions?filter=EXPENSE'">Expenses</button>
+<!-- Filter tabs -->
+<div class="tabs">
+  <a href="${pageContext.request.contextPath}/transactions"
+     class="tab ${empty param.filter ? 'active' : ''}">All</a>
+  <a href="${pageContext.request.contextPath}/transactions?filter=INCOME"
+     class="tab income ${param.filter == 'INCOME' ? 'active' : ''}">Income</a>
+  <a href="${pageContext.request.contextPath}/transactions?filter=EXPENSE"
+     class="tab expense ${param.filter == 'EXPENSE' ? 'active' : ''}">Expenses</a>
 </div>
 
-<div class="txn-table-wrap">
+<div class="table-wrap">
   <table>
     <thead>
       <tr>
@@ -43,50 +54,89 @@
         <th>Date &amp; Time</th>
         <th>Type</th>
         <th>Category</th>
+        <th>Sub Category</th>
         <th>Amount</th>
-        <th>Payment</th>
         <th>Note</th>
+        <c:choose>
+          <c:when test="${param.filter == 'INCOME'}">
+            <c:forEach var="col" items="${incomeColumns}">
+              <th>${col.colName}</th>
+            </c:forEach>
+          </c:when>
+          <c:when test="${param.filter == 'EXPENSE'}">
+            <c:forEach var="col" items="${expenseColumns}">
+              <th>${col.colName}</th>
+            </c:forEach>
+          </c:when>
+        </c:choose>
       </tr>
     </thead>
     <tbody>
-      <c:set var="rowNum" value="0"/>
       <c:forEach var="t" items="${transactions}" varStatus="st">
-        <c:set var="rowNum" value="${transactions.size() - st.index}"/>
         <tr>
-          <td style="color:var(--text-muted);font-size:0.8rem">${rowNum}</td>
-          <td class="text-mono" style="font-size:0.8rem;white-space:nowrap">
-            <c:if test="${t.dateTime != null}">
-              <fmt:formatDate value="${t.dateTime}" pattern="dd MMM yyyy HH:mm"/>
-            </c:if>
-          </td>
-          <td><span class="badge ${t.type == 'INCOME' ? 'income' : 'expense'}">${t.type}</span></td>
-          <td><span class="category-chip">${t.category}</span></td>
-          <td class="amount-cell ${t.type == 'INCOME' ? 'income' : 'expense'} text-mono">
-            ${t.type == 'INCOME' ? '+' : '−'}₹<fmt:formatNumber value="${t.amount}" pattern="#,##0.00"/>
-          </td>
+          <td class="text-muted" style="font-size:.8rem">${total - ((page-1)*15) - st.index}</td>
+          <td class="text-muted" style="font-size:.82rem;white-space:nowrap">${t.formattedDateTime}</td>
           <td>
-            <c:if test="${not empty t.payment}">
-              <span class="payment-chip">${t.payment}</span>
-            </c:if>
+            <c:choose>
+              <c:when test="${t.type == 'INCOME'}">
+                <span class="badge income">INCOME</span>
+              </c:when>
+              <c:otherwise>
+                <span class="badge expense">EXPENSE</span>
+              </c:otherwise>
+            </c:choose>
           </td>
-          <td style="color:var(--text-secondary);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-            ${t.note}
+          <td><span class="chip">${t.categoryName}</span></td>
+          <td><span class="chip">${t.subCategoryName}</span></td>
+          <td>
+            <c:choose>
+              <c:when test="${t.type == 'INCOME'}">
+                <span class="amount-pos">+&#8377;${t.amount}</span>
+              </c:when>
+              <c:otherwise>
+                <span class="amount-neg">-&#8377;${t.amount}</span>
+              </c:otherwise>
+            </c:choose>
           </td>
+          <td class="text-muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.note}</td>
+          <c:choose>
+            <c:when test="${param.filter == 'INCOME'}">
+              <c:forEach var="col" items="${incomeColumns}">
+                <td class="text-muted">${t.customValues[col.colKey]}</td>
+              </c:forEach>
+            </c:when>
+            <c:when test="${param.filter == 'EXPENSE'}">
+              <c:forEach var="col" items="${expenseColumns}">
+                <td class="text-muted">${t.customValues[col.colKey]}</td>
+              </c:forEach>
+            </c:when>
+          </c:choose>
         </tr>
       </c:forEach>
       <c:if test="${empty transactions}">
-        <tr>
-          <td colspan="7">
-            <div class="empty-state">
-              <div class="icon">📊</div>
-              <div>No transactions found. Add one using the buttons above.</div>
-            </div>
-          </td>
-        </tr>
+        <tr><td colspan="8" class="empty-state">No transactions found.</td></tr>
       </c:if>
     </tbody>
   </table>
 </div>
+
+<!-- Pagination -->
+<c:if test="${totalPages > 1}">
+  <div class="pagination mt-2">
+    <c:forEach begin="1" end="${totalPages}" var="p">
+      <c:choose>
+        <c:when test="${not empty param.filter}">
+          <a href="${pageContext.request.contextPath}/transactions?page=${p}&amp;filter=${param.filter}"
+             class="page-btn ${p == page ? 'active' : ''}">${p}</a>
+        </c:when>
+        <c:otherwise>
+          <a href="${pageContext.request.contextPath}/transactions?page=${p}"
+             class="page-btn ${p == page ? 'active' : ''}">${p}</a>
+        </c:otherwise>
+      </c:choose>
+    </c:forEach>
+  </div>
+</c:if>
 
 <%@ include file="txn_modals.jsp" %>
 <%@ include file="footer.jsp" %>
