@@ -1916,3 +1916,59 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main db1a32d] Auto sync - 2026-06-08 18:30:01
+ 57 files changed, 2477 insertions(+), 4158 deletions(-)
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/26/400d8fba9a5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/27/904330e79b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/2b/102673039e5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/32/10092efd9c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/35/905fc1d59b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/39/405615b49a5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/3a/70c193bc9b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/44/90cd127a9c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/51/b01f44d29b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/66/707be1b09a5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/67/c061b9e39a5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/6c/a053cbee9c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/74/8004e9b49b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/7e/20721bab9c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/7f/a03623ba9b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/97/90047d0a9d5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/9e/a03be0009d5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/9f/90ee7a049d5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/9f/a0e9c9ff9c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/a/a0a7e1e89c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/a1/10f785da9c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/a2/00650cca9b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/a4/4056cbe99a5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/ab/008a9ec29b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/b6/2087339c9c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/ba/502854509c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/c0/d0075bd79a5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d3/a071ecc49b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/dc/90e2b7159c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/f0/f024afb39b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/fe/701c8dcc9b5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/ff/a0d567089c5d0011145aa1d95337eeb9
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/demo/.indexes/e4/b9/22/81/c7/db/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/demo/.indexes/e4/b9/22/81/c7/e3/history.index
+ rewrite .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/.markers (64%)
+ rewrite .metadata/.plugins/org.eclipse.core.resources/.safetable/org.eclipse.core.resources (73%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/externalFilesCache (98%)
+To https://github.com/krishna-tpt/tp_eclipse.git
+   530018f..db1a32d  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-08 18:30:08[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-08 19:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
