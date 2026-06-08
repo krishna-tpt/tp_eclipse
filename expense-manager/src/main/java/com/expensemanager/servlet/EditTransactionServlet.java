@@ -96,50 +96,50 @@ public class EditTransactionServlet extends HttpServlet {
 				System.out.println("Key: " + key + ", Value: " + value);
 			} */
 
-			// UPDATE
-			Transaction old = txnDAO.findById(id);
-			if (old == null) {
-				resp.sendRedirect(req.getContextPath() + "/transactions?error=notfound");
-				return;
-			}
-
-			// Build updated transaction
-			Transaction updated = new Transaction();
-			updated.setId(id);
-			updated.setType(old.getType()); // type cannot change
-			updated.setBookId(bookId);
-
-			String amountStr = req.getParameter("amount");
-			String dateStr = req.getParameter("dateTime");
-			String catIdStr = req.getParameter("categoryId");
-			String subcatStr = req.getParameter("subcategoryId");
-			String note = req.getParameter("note");
-
-			updated.setAmount(new BigDecimal(amountStr));
-			updated.setDateTime(LocalDateTime.parse(dateStr));
-			updated.setCategoryId(Integer.parseInt(catIdStr));
-
-			// Need category name for audit log
-			CategoryDAO catDAO = new CategoryDAO();
-			String catType = old.getType().name();
-			catDAO.findByType(catType).stream().filter(c -> c.getId() == updated.getCategoryId()).findFirst()
-					.ifPresent(c -> updated.setCategoryName(c.getName()));
-
-			if (subcatStr != null && !subcatStr.isBlank()) {
-				int subcatId = Integer.parseInt(subcatStr.trim());
-				updated.setSubcategoryid(subcatId);
-				new SubCategoryDAO().findAll().stream().filter(sc -> sc.getId() == subcatId).findFirst()
-						.ifPresent(sc -> updated.setSubCategoryName(sc.getName()));
-			}
-
-			updated.setNote(note);
-
-			txnDAO.update(old, updated);
-			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + id + "&success=updated");
-
-		} catch (Exception e) {
-			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + id + "&error="
-					+ java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
+		// UPDATE
+		Transaction old = txnDAO.findById(id);
+		if (old == null) {
+			resp.sendRedirect(req.getContextPath() + "/transactions?error=notfound");
+			return;
 		}
+
+		// Build updated transaction
+		Transaction updated = new Transaction();
+		updated.setId(id);
+		updated.setType(old.getType()); // type cannot change
+		updated.setBookId(bookId);
+
+		String amountStr = req.getParameter("amount");
+		String dateStr = req.getParameter("dateTime");
+		String catIdStr = req.getParameter("categoryId");
+		String subcatStr = req.getParameter("subcategoryId");
+		String note = req.getParameter("note");
+
+		updated.setAmount(new BigDecimal(amountStr));
+		updated.setDateTime(LocalDateTime.parse(dateStr));
+		updated.setCategoryId(Integer.parseInt(catIdStr));
+
+		// Need category name for audit log
+		CategoryDAO catDAO = new CategoryDAO();
+		String catType = old.getType().name();
+		catDAO.findByType(catType).stream().filter(c -> c.getId() == updated.getCategoryId()).findFirst()
+				.ifPresent(c -> updated.setCategoryName(c.getName()));
+
+		if (subcatStr != null && !subcatStr.isBlank()) {
+			int subcatId = Integer.parseInt(subcatStr.trim());
+			updated.setSubcategoryid(subcatId);
+			new SubCategoryDAO().findAll().stream().filter(sc -> sc.getId() == subcatId).findFirst()
+					.ifPresent(sc -> updated.setSubCategoryName(sc.getName()));
+		}
+
+		updated.setNote(note);
+
+		txnDAO.update(old, updated);
+		resp.sendRedirect(req.getContextPath() + "/transaction?id=" + id + "&success=updated");
+
+	} catch (Exception e) {
+		resp.sendRedirect(req.getContextPath() + "/transaction?id=" + id + "&error="
+				+ java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
 	}
+}
 }
