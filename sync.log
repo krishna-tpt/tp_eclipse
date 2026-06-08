@@ -1336,3 +1336,101 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 49eb7d7] Auto sync - 2026-06-08 10:00:02
+ 99 files changed, 6646 insertions(+), 5417 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/externalLibsTimeStamps (90%)
+ rewrite .metadata/.plugins/org.eclipse.m2e.core/workspaceState.ser (87%)
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/dao/CashBookDAO.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/dao/CategoryDAO.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/dao/ColumnDefinitionDAO.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/dao/SubCategoryDAO.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/dao/TransactionDAO.java
+ delete mode 100644 expense-manager/src/main/java/com/expensemanager/model/AppConfig.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/CashBook.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/Category.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/ColumnDefinition.java
+ delete mode 100644 expense-manager/src/main/java/com/expensemanager/model/ExpenseBook.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/SubCategory.java
+ rewrite expense-manager/src/main/java/com/expensemanager/model/Transaction.java (92%)
+ delete mode 100644 expense-manager/src/main/java/com/expensemanager/service/AppContext.java
+ delete mode 100644 expense-manager/src/main/java/com/expensemanager/service/ExcelService.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/service/ExportService.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/service/GmailService.java
+ delete mode 100644 expense-manager/src/main/java/com/expensemanager/service/ZohoWorkDriveService.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/CashBookServlet.java
+ rewrite expense-manager/src/main/java/com/expensemanager/servlet/CategoryServlet.java (84%)
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/ColumnServlet.java
+ delete mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/ExcelDownloadServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/ExportServlet.java
+ rewrite expense-manager/src/main/java/com/expensemanager/servlet/HomeServlet.java (86%)
+ rewrite expense-manager/src/main/java/com/expensemanager/servlet/ReportServlet.java (85%)
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/SettingsServlet.java
+ delete mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/SyncServlet.java
+ rewrite expense-manager/src/main/java/com/expensemanager/servlet/TransactionServlet.java (87%)
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/util/AppContextListener.java
+ delete mode 100644 expense-manager/src/main/java/com/expensemanager/util/AppStartupListener.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/util/BookFilter.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/util/DBConnection.java
+ rewrite expense-manager/src/main/resources/logback.xml (97%)
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/books.jsp
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/export_bar.jsp
+ rewrite expense-manager/src/main/webapp/WEB-INF/views/header.jsp (89%)
+ rewrite expense-manager/src/main/webapp/WEB-INF/views/reports.jsp (87%)
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/settings.jsp
+ rewrite expense-manager/src/main/webapp/WEB-INF/views/transactions.jsp (75%)
+ rewrite expense-manager/src/main/webapp/WEB-INF/views/txn_modals.jsp (66%)
+ rewrite expense-manager/src/main/webapp/WEB-INF/web.xml (84%)
+ rewrite expense-manager/src/main/webapp/css/main.css (92%)
+ rewrite expense-manager/src/main/webapp/js/app.js (76%)
+ delete mode 100644 expense-manager/target/classes/.gitignore
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/CashBookDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/CategoryDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/ColumnDefinitionDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/SubCategoryDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/TransactionDAO.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/model/AppConfig.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/CashBook.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/Category.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/ColumnDefinition.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/model/ExpenseBook.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/SubCategory.class
+ rewrite expense-manager/target/classes/com/expensemanager/model/Transaction.class (100%)
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/service/AppContext.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/service/ExcelService.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/service/ExportService.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/service/GmailService$1.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/service/GmailService.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/service/ZohoWorkDriveService.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/CashBookServlet.class
+ rewrite expense-manager/target/classes/com/expensemanager/servlet/CategoryServlet.class (85%)
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ColumnServlet.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ExcelDownloadServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ExportServlet.class
+ rewrite expense-manager/target/classes/com/expensemanager/servlet/HomeServlet.class (98%)
+ rewrite expense-manager/target/classes/com/expensemanager/servlet/ReportServlet.class (99%)
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/SettingsServlet.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/servlet/SyncServlet.class
+ rewrite expense-manager/target/classes/com/expensemanager/servlet/TransactionServlet.class (88%)
+ create mode 100644 expense-manager/target/classes/com/expensemanager/util/AppContextListener.class
+ delete mode 100644 expense-manager/target/classes/com/expensemanager/util/AppStartupListener.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/util/BookFilter.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/util/DBConnection.class
+ rewrite expense-manager/target/classes/logback.xml (97%)
+ delete mode 100644 expense-manager/target/m2e-wtp/web-resources/.gitignore
+To https://github.com/krishna-tpt/tp_eclipse.git
+   306f1d5..49eb7d7  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-08 10:00:06[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-08 10:30:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
