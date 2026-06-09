@@ -1,142 +1,213 @@
  contentType="text/html;charset=UTF-8" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-<c:set var="pageTitle"  value="Transactions" scope="request"/>
-<c:set var="activePage" value="txn"          scope="request"/>
-<c:set var="currentYear" value="<%=java.time.Year.now().getValue()%>" scope="request"/>
-<%@ include file="header.jsp" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
+<c:set var="pageTitle" value="Transactions" scope="request" />
+<c:set var="activePage" value="txn" scope="request" />
+<c:set var="currentYear" value="<%=java.time.Year.now().getValue()%>"
+	scope="request" />
+<%@ include file="header.jsp"%>
 
 <style>
-.filter-panel { background:#f8fafc; border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.25rem; margin-bottom:1.25rem; }
-.filter-panel.collapsed .filter-body { display:none; }
-.filter-header { display:flex; align-items:center; gap:.5rem; cursor:pointer; user-select:none; }
-.filter-header h4 { font-size:.875rem; font-weight:600; margin:0; }
-.filter-tag { background:#dbeafe; color:var(--primary); padding:.1rem .5rem; border-radius:20px; font-size:.7rem; font-weight:600; }
-.filter-body { margin-top:.85rem; }
-.amount-row { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
-.amount-row select { width:80px; flex-shrink:0; }
-.amount-row input  { width:120px; }
-.amount-row .and   { font-size:.8rem; color:var(--text-2); font-weight:600; padding:0 .25rem; }
-tbody tr.clickable { cursor:pointer; }
-tbody tr.clickable:hover { background:#eff6ff !important; }
+.filter-panel {
+	background: #f8fafc;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1rem 1.25rem;
+	margin-bottom: 1.25rem;
+}
+
+.filter-panel.collapsed .filter-body {
+	display: none;
+}
+
+.filter-header {
+	display: flex;
+	align-items: center;
+	gap: .5rem;
+	cursor: pointer;
+	user-select: none;
+}
+
+.filter-header h4 {
+	font-size: .875rem;
+	font-weight: 600;
+	margin: 0;
+}
+
+.filter-tag {
+	background: #dbeafe;
+	color: var(--primary);
+	padding: .1rem .5rem;
+	border-radius: 20px;
+	font-size: .7rem;
+	font-weight: 600;
+}
+
+.filter-body {
+	margin-top: .85rem;
+}
+
+.amount-row {
+	display: flex;
+	gap: .5rem;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.amount-row select {
+	width: 80px;
+	flex-shrink: 0;
+}
+
+.amount-row input {
+	width: 120px;
+}
+
+.amount-row .and {
+	font-size: .8rem;
+	color: var(--text-2);
+	font-weight: 600;
+	padding: 0 .25rem;
+}
+
+tbody tr.clickable {
+	cursor: pointer;
+}
+
+tbody tr.clickable:hover {
+	background: #eff6ff !important;
+}
 </style>
 
 <div class="page-header flex">
-  <div>
-    <h1>Transactions</h1>
-    <p><strong>${sessionScope.activeBookName}</strong> — ${total} records found
-      <c:if test="${filter.filtered}">
+	<div>
+		<h1>Transactions</h1>
+		<p>
+			<strong>${sessionScope.activeBookName}</strong> — ${total} records
+			found
+			<c:if test="${filter.filtered}">
         &nbsp;<span class="filter-tag">&#128269; Filtered</span>
-      </c:if>
-    </p>
-  </div>
-  <div class="flex gap-1 ml-auto">
-    <a href="${pageContext.request.contextPath}/calendar" class="btn btn-outline btn-sm">&#128197; Calendar</a>
-    <button class="btn btn-success btn-sm" onclick="openModal('incomeModal')">+ Income</button>
-    <button class="btn btn-danger btn-sm"  onclick="openModal('expenseModal')">+ Expense</button>
-    <button class="btn btn-outline btn-sm" onclick="openModal('catModal')">+ Category</button>
-    <button class="btn btn-outline btn-sm" onclick="openModal('colModal')">+ Column</button>
-  </div>
+			</c:if>
+		</p>
+	</div>
+	<div class="flex gap-1 ml-auto">
+		<a href="${pageContext.request.contextPath}/calendar"
+			class="btn btn-outline btn-sm">&#128197; Calendar</a>
+		<button class="btn btn-success btn-sm"
+			onclick="openModal('incomeModal')">+ Income</button>
+		<button class="btn btn-danger btn-sm"
+			onclick="openModal('expenseModal')">+ Expense</button>
+		<!-- <button class="btn btn-outline btn-sm" onclick="openModal('catModal')">+
+			Category</button>
+		<button class="btn btn-outline btn-sm" onclick="openModal('colModal')">+
+			Column</button> -->
+	</div>
 </div>
 
 <c:if test="${not empty param.success}">
-  <div class="alert alert-success">&#10003;
-    <c:choose>
-      <c:when test="${param.success=='1'}">Transaction saved!</c:when>
-      <c:when test="${param.success=='deleted'}">Transaction deleted.</c:when>
-    </c:choose>
-  </div>
+	<div class="alert alert-success">
+		&#10003;
+		<c:choose>
+			<c:when test="${param.success=='1'}">Transaction saved!</c:when>
+			<c:when test="${param.success=='deleted'}">Transaction deleted.</c:when>
+		</c:choose>
+	</div>
 </c:if>
 
 <!-- ═══ ADVANCED FILTER PANEL ═══ -->
-<div class="filter-panel ${filter.filtered ? '' : 'collapsed'}" id="filterPanel">
-  <div class="filter-header" onclick="toggleFilter()">
-    <span style="font-size:1rem">&#128269;</span>
-    <h4>Search &amp; Filter</h4>
-    <c:if test="${filter.filtered}">
-      <span class="filter-tag">Active</span>
-    </c:if>
-    <a href="${pageContext.request.contextPath}/transactions${not empty param.filter ? '?filter='.concat(param.filter) : ''}"
-       class="btn btn-outline btn-sm ml-auto" style="font-size:.75rem"
-       onclick="event.stopPropagation()">&#10005; Clear All</a>
-    <span id="filterArrow" style="transition:transform .2s;font-size:.75rem">&#9660;</span>
-  </div>
+<div class="filter-panel ${filter.filtered ? '' : 'collapsed'}"
+	id="filterPanel">
+	<div class="filter-header" onclick="toggleFilter()">
+		<span style="font-size: 1rem">&#128269;</span>
+		<h4>Search &amp; Filter</h4>
+		<c:if test="${filter.filtered}">
+			<span class="filter-tag">Active</span>
+		</c:if>
+		<a
+			href="${pageContext.request.contextPath}/transactions${not empty param.filter ? '?filter='.concat(param.filter) : ''}"
+			class="btn btn-outline btn-sm ml-auto" style="font-size: .75rem"
+			onclick="event.stopPropagation()">&#10005; Clear All</a> <span
+			id="filterArrow" style="transition: transform .2s; font-size: .75rem">&#9660;</span>
+	</div>
 
-  <div class="filter-body">
-    <form method="get" action="${pageContext.request.contextPath}/transactions" id="filterForm">
-      <%-- Preserve type tab --%>
-      <c:if test="${not empty param.filter}">
-        <input type="hidden" name="filter" value="${param.filter}">
-      </c:if>
+	<div class="filter-body">
+		<form method="get"
+			action="${pageContext.request.contextPath}/transactions"
+			id="filterForm">
+			<%-- Preserve type tab --%>
+			<c:if test="${not empty param.filter}">
+				<input type="hidden" name="filter" value="${param.filter}">
+			</c:if>
 
-      <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+			<div class="form-grid"
+				style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr))">
 
-        <!-- Date From -->
-        <div class="form-group">
-          <label>Date From</label>
-          <input type="date" name="dateFrom"
-                 value="${filter.dateFrom}">
-        </div>
-        <!-- Date To -->
-        <div class="form-group">
-          <label>Date To</label>
-          <input type="date" name="dateTo"
-                 value="${filter.dateTo}">
-        </div>
+				<!-- Date From -->
+				<div class="form-group">
+					<label>Date From</label> <input type="date" name="dateFrom"
+						value="${filter.dateFrom}">
+				</div>
+				<!-- Date To -->
+				<div class="form-group">
+					<label>Date To</label> <input type="date" name="dateTo"
+						value="${filter.dateTo}">
+				</div>
 
-        <!-- Category -->
-        <div class="form-group">
-          <label>Category</label>
-          <select name="categoryId" onchange="filterSubCatSearch()">
-            <option value="">All Categories</option>
-            <c:if test="${empty param.filter or param.filter == 'INCOME'}">
-              <optgroup label="Income">
-                <c:forEach var="cat" items="${incomeCategories}">
-                  <option value="${cat.id}" ${filter.categoryId == cat.id ? 'selected' : ''}>${cat.name}</option>
-                </c:forEach>
-              </optgroup>
-            </c:if>
-            <c:if test="${empty param.filter or param.filter == 'EXPENSE'}">
-              <optgroup label="Expense">
-                <c:forEach var="cat" items="${expenseCategories}">
-                  <option value="${cat.id}" ${filter.categoryId == cat.id ? 'selected' : ''}>${cat.name}</option>
-                </c:forEach>
-              </optgroup>
-            </c:if>
-          </select>
-        </div>
+				<!-- Category -->
+				<div class="form-group">
+					<label>Category</label> <select name="categoryId"
+						onchange="filterSubCatSearch()">
+						<option value="">All Categories</option>
+						<c:if test="${empty param.filter or param.filter == 'INCOME'}">
+							<optgroup label="Income">
+								<c:forEach var="cat" items="${incomeCategories}">
+									<option value="${cat.id}"
+										${filter.categoryId == cat.id ? 'selected' : ''}>${cat.name}</option>
+								</c:forEach>
+							</optgroup>
+						</c:if>
+						<c:if test="${empty param.filter or param.filter == 'EXPENSE'}">
+							<optgroup label="Expense">
+								<c:forEach var="cat" items="${expenseCategories}">
+									<option value="${cat.id}"
+										${filter.categoryId == cat.id ? 'selected' : ''}>${cat.name}</option>
+								</c:forEach>
+							</optgroup>
+						</c:if>
+					</select>
+				</div>
 
-        <!-- Sub Category -->
-        <div class="form-group">
-          <label>Sub Category</label>
-          <select name="subCategoryId" id="searchSubCat">
-            <option value="">All</option>
-            <c:forEach var="sc" items="${subCategories}">
-              <option value="${sc.id}"
-                      data-cat="${sc.category_id}"
-                      ${filter.subCategoryId == sc.id ? 'selected' : ''}>${sc.name}</option>
-            </c:forEach>
-          </select>
-        </div>
+				<!-- Sub Category -->
+				<div class="form-group">
+					<label>Sub Category</label> <select name="subCategoryId"
+						id="searchSubCat">
+						<option value="">All</option>
+						<c:forEach var="sc" items="${subCategories}">
+							<option value="${sc.id}" data-cat="${sc.category_id}"
+								${filter.subCategoryId == sc.id ? 'selected' : ''}>${sc.name}</option>
+						</c:forEach>
+					</select>
+				</div>
 
-        <!-- Note / Custom search -->
-        <div class="form-group" style="grid-column:span 2">
-          <label>Search (Note &amp; Custom Fields)</label>
-          <input type="text" name="search" placeholder="Search in note, custom fields&#8230;"
-                 value="${filter.noteSearch}">
-        </div>
-      </div>
+				<!-- Note / Custom search -->
+				<div class="form-group" style="grid-column: span 2">
+					<label>Search (Note &amp; Custom Fields)</label> <input type="text"
+						name="search" placeholder="Search in note, custom fields&#8230;"
+						value="${filter.noteSearch}">
+				</div>
+			</div>
 
-      <!-- Amount filter -->
-      <div class="form-group mt-2">
-        <label>Amount Filter</label>
-        <div class="amount-row mt-1">
-          <select name="amountOp1">
-            <option value=""  ${empty filter.amountOp1 ? 'selected' : ''}>Any</option>
-            <option value="=" ${filter.amountOp1 == '=' ? 'selected' : ''}>=</option>
-            <option value=">" ${filter.amountOp1 == '>' ? 'selected' : ''}>&#62;</option>
-            <option value=">=" ${filter.amountOp1 == '>=' ? 'selected' : ''}>&#62;=</option>
-            <option value="<" ${filter.amountOp1 == '<' ? 'selected' : ''}>&#60;</option>
+			<!-- Amount filter -->
+			<div class="form-group mt-2">
+				<label>Amount Filter</label>
+				<div class="amount-row mt-1">
+					<select name="amountOp1">
+						<option value="" ${empty filter.amountOp1 ? 'selected' : ''}>Any</option>
+						<option value="=" ${filter.amountOp1 == '=' ? 'selected' : ''}>=</option>
+						<option value=">" ${filter.amountOp1 == '>' ? 'selected' : ''}>&#62;</option>
+						<option value=">=" ${filter.amountOp1 == '>=' ? 'selected' : ''}>&#62;=</option>
+						<option
+							value="<" ${filter.amountOp1 == '<' ? 'selected' : ''}>&#60;</option>
             <option value="<=" ${filter.amountOp1 == '<=' ? 'selected' : ''}>&#60;=</option>
           </select>
           <input type="number" name="amount1" step="0.01" min="0"
@@ -162,7 +233,7 @@ tbody tr.clickable:hover { background:#eff6ff !important; }
       <div class="flex gap-1 mt-2">
         <button type="submit" class="btn btn-primary btn-sm">&#128269; Apply Filter</button>
         <button type="button" class="btn btn-outline btn-sm"
-                onclick="document.getElementById('filterForm').reset()">Reset</button>
+          onclick="event.stopPropagation()">Reset</button> 
       </div>
     </form>
   </div>

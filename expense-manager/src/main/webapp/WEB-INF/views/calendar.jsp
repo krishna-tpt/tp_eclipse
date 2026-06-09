@@ -117,20 +117,24 @@
   <div class="flex gap-1 mt-2" id="dayPanelActions"></div>
 </div>
 
+<%-- Extract Java values into page-scope vars to avoid ${} inside <script> --%>
+<c:set var="ctxPath" value="${pageContext.request.contextPath}" />
+
 <script>
-const dailyData = ${dailyJson};
-const CAL_YEAR  = ${year};
-const CAL_MONTH = ${month};
-const TODAY     = '${today}';
-const CTX       = '${pageContext.request.contextPath}';
-const MONTH_NAMES = ['','January','February','March','April','May','June',
-                     'July','August','September','October','November','December'];
-const DAY_NAMES   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+<%-- Use scriptlet to emit Java values safely --%>
+var dailyData = ${dailyJson};
+var CAL_YEAR  = ${year};
+var CAL_MONTH = ${month};
+var TODAY     = '<c:out value="${today}"/>';
+var CTX       = '<c:out value="${ctxPath}"/>';
+var MONTH_NAMES = ['','January','February','March','April','May','June',
+                   'July','August','September','October','November','December'];
+var DAY_NAMES   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 // Build lookup
-const dataMap = {};
-let totIncome = 0, totExpense = 0;
-dailyData.forEach(d => {
+var dataMap = {};
+var totIncome = 0, totExpense = 0;
+dailyData.forEach(function(d) {
   dataMap[d.day] = d;
   totIncome  += +d.income  || 0;
   totExpense += +d.expense || 0;
@@ -145,32 +149,32 @@ document.getElementById('sumDays').textContent    = dailyData.length;
 
 // ── Month View ────────────────────────────────────────
 function buildMonth() {
-  const body     = document.getElementById('calBody');
+  var body     = document.getElementById('calBody');
   body.innerHTML = '';
-  const firstDow = new Date(CAL_YEAR, CAL_MONTH - 1, 1).getDay();
-  const daysInMo = new Date(CAL_YEAR, CAL_MONTH, 0).getDate();
+  var firstDow = new Date(CAL_YEAR, CAL_MONTH - 1, 1).getDay();
+  var daysInMo = new Date(CAL_YEAR, CAL_MONTH, 0).getDate();
 
   // Empty prefix cells
-  for (let i = 0; i < firstDow; i++) {
-    const e = document.createElement('div');
+  for (var i = 0; i < firstDow; i++) {
+    var e = document.createElement('div');
     e.className = 'cal-cell empty';
     body.appendChild(e);
   }
 
-  for (let d = 1; d <= daysInMo; d++) {
-    const ds   = pad(CAL_YEAR) + '-' + pad(CAL_MONTH) + '-' + pad(d);
-    const data = dataMap[ds];
-    const cell = document.createElement('div');
+  for (var d = 1; d <= daysInMo; d++) {
+    var ds   = pad(CAL_YEAR) + '-' + pad(CAL_MONTH) + '-' + pad(d);
+    var data = dataMap[ds];
+    var cell = document.createElement('div');
     cell.className = 'cal-cell' + (ds === TODAY ? ' today' : '');
     cell.dataset.date = ds;
-    cell.onclick = () => showPanel(ds, data);
+    (function(ds, data){ cell.onclick = function(){ showPanel(ds, data); }; })(ds, data);
 
-    let h = `<div class="cal-date">${d}</div>`;
+    var h = '<div class="cal-date">' + d + '</div>';
     if (data) {
-      if (+data.income  > 0) h += `<div class="cal-income">+₹${fmt(data.income)}</div>`;
-      if (+data.expense > 0) h += `<div class="cal-expense">-₹${fmt(data.expense)}</div>`;
-      const color = +data.income > +data.expense ? '#dcfce7' : '#fee2e2';
-      h += `<div class="cal-bar" style="background:${color}"></div>`;
+      if (+data.income  > 0) h += '<div class="cal-income">+₹' + fmt(data.income)  + '</div>';
+      if (+data.expense > 0) h += '<div class="cal-expense">-₹' + fmt(data.expense) + '</div>';
+      var color = +data.income > +data.expense ? '#dcfce7' : '#fee2e2';
+      h += '<div class="cal-bar" style="background:' + color + '"></div>';
     }
     cell.innerHTML = h;
     body.appendChild(cell);
@@ -179,29 +183,29 @@ function buildMonth() {
 
 // ── Week View ─────────────────────────────────────────
 function buildWeek() {
-  const body = document.getElementById('weekBody');
+  var body = document.getElementById('weekBody');
   body.innerHTML = '';
-  const anchor   = new Date(TODAY >= pad(CAL_YEAR)+'-'+pad(CAL_MONTH)
-                              ? TODAY
-                              : pad(CAL_YEAR)+'-'+pad(CAL_MONTH)+'-01');
-  const dow      = anchor.getDay();
-  const weekStart= new Date(anchor);
+  var anchorStr  = TODAY >= pad(CAL_YEAR)+'-'+pad(CAL_MONTH) ? TODAY
+                   : pad(CAL_YEAR)+'-'+pad(CAL_MONTH)+'-01';
+  var anchor     = new Date(anchorStr);
+  var dow        = anchor.getDay();
+  var weekStart  = new Date(anchor);
   weekStart.setDate(anchor.getDate() - dow);
 
-  for (let i = 0; i < 7; i++) {
-    const d   = new Date(weekStart); d.setDate(weekStart.getDate() + i);
-    const ds  = d.toISOString().split('T')[0];
-    const data= dataMap[ds];
-    const cell= document.createElement('div');
+  for (var i = 0; i < 7; i++) {
+    var d    = new Date(weekStart); d.setDate(weekStart.getDate() + i);
+    var ds   = d.toISOString().split('T')[0];
+    var data = dataMap[ds];
+    var cell = document.createElement('div');
     cell.className = 'week-cell' + (ds === TODAY ? ' today' : '');
-    cell.onclick   = () => showPanel(ds, data);
+    (function(ds, data){ cell.onclick = function(){ showPanel(ds, data); }; })(ds, data);
 
-    let h = `<div class="week-cell-label">${DAY_NAMES[d.getDay()]} ${d.getDate()}</div>`;
+    var h = '<div class="week-cell-label">' + DAY_NAMES[d.getDay()] + ' ' + d.getDate() + '</div>';
     if (data) {
-      if (+data.income  > 0) h += `<div class="cal-income">+₹${fmt(data.income)}</div>`;
-      if (+data.expense > 0) h += `<div class="cal-expense">-₹${fmt(data.expense)}</div>`;
+      if (+data.income  > 0) h += '<div class="cal-income">+₹' + fmt(data.income)  + '</div>';
+      if (+data.expense > 0) h += '<div class="cal-expense">-₹' + fmt(data.expense) + '</div>';
     } else {
-      h += `<div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem">No activity</div>`;
+      h += '<div style="font-size:.72rem;color:var(--text-3);margin-top:.25rem">No activity</div>';
     }
     cell.innerHTML = h;
     body.appendChild(cell);
@@ -210,57 +214,57 @@ function buildWeek() {
 
 // ── Day View ──────────────────────────────────────────
 function buildDay() {
-  const ds   = TODAY.startsWith(pad(CAL_YEAR)+'-'+pad(CAL_MONTH)) ? TODAY
-               : pad(CAL_YEAR)+'-'+pad(CAL_MONTH)+'-01';
-  const data = dataMap[ds];
-  const d    = new Date(ds+'T00:00:00');
+  var ds   = TODAY.startsWith(pad(CAL_YEAR)+'-'+pad(CAL_MONTH)) ? TODAY
+             : pad(CAL_YEAR)+'-'+pad(CAL_MONTH)+'-01';
+  var data = dataMap[ds];
+  var d    = new Date(ds+'T00:00:00');
   document.getElementById('dayBody').innerHTML =
-    `<div class="card-title">${d.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>`
+    '<div class="card-title">' + d.toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + '</div>'
     + summaryCards(data)
-    + `<div class="flex gap-1 mt-2">
-         <a href="${CTX}/transactions?dateFrom=${ds}&dateTo=${ds}" class="btn btn-outline btn-sm">View Transactions</a>
-         <a href="${CTX}/home" class="btn btn-primary btn-sm ml-auto">+ Add Entry</a>
-       </div>`;
+    + '<div class="flex gap-1 mt-2">'
+    +   '<a href="' + CTX + '/transactions?dateFrom=' + ds + '&dateTo=' + ds + '" class="btn btn-outline btn-sm">View Transactions</a>'
+    +   '<a href="' + CTX + '/home" class="btn btn-primary btn-sm ml-auto">+ Add Entry</a>'
+    + '</div>';
 }
 
 // ── Panel ─────────────────────────────────────────────
 function showPanel(ds, data) {
   document.querySelectorAll('.cal-cell.selected,.week-cell.selected')
-    .forEach(el => el.classList.remove('selected'));
-  const el = document.querySelector(`[data-date="${ds}"]`);
+    .forEach(function(el){ el.classList.remove('selected'); });
+  var el = document.querySelector('[data-date="' + ds + '"]');
   if (el) el.classList.add('selected');
 
-  const d = new Date(ds + 'T00:00:00');
+  var d = new Date(ds + 'T00:00:00');
   document.getElementById('dayPanelTitle').textContent =
     d.toLocaleDateString('en-IN', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
   document.getElementById('dayPanelBody').innerHTML = summaryCards(data);
   document.getElementById('dayPanelActions').innerHTML =
-    `<a href="${CTX}/transactions?dateFrom=${ds}&dateTo=${ds}" class="btn btn-outline btn-sm">View Transactions &#8594;</a>
-     <a href="${CTX}/home" class="btn btn-success btn-sm ml-auto">+ Add Entry</a>`;
+    '<a href="' + CTX + '/transactions?dateFrom=' + ds + '&dateTo=' + ds + '" class="btn btn-outline btn-sm">View Transactions &#8594;</a>'
+    + '<a href="' + CTX + '/home" class="btn btn-success btn-sm ml-auto">+ Add Entry</a>';
   document.getElementById('dayPanel').classList.add('show');
 }
 
 function summaryCards(data) {
   if (!data) return '<div class="text-muted" style="font-size:.875rem;padding:.5rem 0">No transactions on this day.</div>';
-  const net = +data.income - +data.expense;
-  return `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin-top:.5rem">
-    <div style="background:#dcfce7;border-radius:8px;padding:.6rem .75rem">
-      <div style="font-size:.65rem;color:#15803d;font-weight:700;text-transform:uppercase">Income</div>
-      <div style="font-size:1rem;font-weight:700;color:#15803d">₹${fmt(data.income)}</div>
-    </div>
-    <div style="background:#fee2e2;border-radius:8px;padding:.6rem .75rem">
-      <div style="font-size:.65rem;color:#b91c1c;font-weight:700;text-transform:uppercase">Expense</div>
-      <div style="font-size:1rem;font-weight:700;color:#b91c1c">₹${fmt(data.expense)}</div>
-    </div>
-    <div style="background:#eff6ff;border-radius:8px;padding:.6rem .75rem">
-      <div style="font-size:.65rem;color:var(--primary);font-weight:700;text-transform:uppercase">Net</div>
-      <div style="font-size:1rem;font-weight:700;color:${net>=0?'#15803d':'#b91c1c'}">₹${fmt(net)}</div>
-    </div>
-  </div>`;
+  var net = +data.income - +data.expense;
+  return '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin-top:.5rem">'
+    + '<div style="background:#dcfce7;border-radius:8px;padding:.6rem .75rem">'
+    +   '<div style="font-size:.65rem;color:#15803d;font-weight:700;text-transform:uppercase">Income</div>'
+    +   '<div style="font-size:1rem;font-weight:700;color:#15803d">₹' + fmt(data.income) + '</div>'
+    + '</div>'
+    + '<div style="background:#fee2e2;border-radius:8px;padding:.6rem .75rem">'
+    +   '<div style="font-size:.65rem;color:#b91c1c;font-weight:700;text-transform:uppercase">Expense</div>'
+    +   '<div style="font-size:1rem;font-weight:700;color:#b91c1c">₹' + fmt(data.expense) + '</div>'
+    + '</div>'
+    + '<div style="background:#eff6ff;border-radius:8px;padding:.6rem .75rem">'
+    +   '<div style="font-size:.65rem;color:var(--primary);font-weight:700;text-transform:uppercase">Net</div>'
+    +   '<div style="font-size:1rem;font-weight:700;color:' + (net>=0?'#15803d':'#b91c1c') + '">₹' + fmt(net) + '</div>'
+    + '</div>'
+    + '</div>';
 }
 
 function switchView(v) {
-  ['Month','Week','Day'].forEach(x => {
+  ['Month','Week','Day'].forEach(function(x){
     document.getElementById('view'+x).style.display = x.toLowerCase()===v ? '' : 'none';
     document.getElementById('btn'+x).classList.toggle('active', x.toLowerCase()===v);
   });

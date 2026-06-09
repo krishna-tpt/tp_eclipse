@@ -104,7 +104,7 @@
           <select name="subcategoryId" id="editSub">
             <option value="">None</option>
             <c:forEach var="sc" items="${subCategories}">
-              <option value="${sc.id}" data-cat="${sc.categoryId}"
+              <option value="${sc.id}" data-cat="${sc.category_id}"
                       ${sc.id==txn.subcategoryid?'selected':''}>${sc.name}</option>
             </c:forEach>
           </select>
