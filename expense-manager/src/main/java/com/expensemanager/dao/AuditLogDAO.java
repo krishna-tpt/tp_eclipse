@@ -26,6 +26,20 @@ public class AuditLogDAO {
     public void logDelete(int transactionId, String changedBy) throws SQLException {
         insert(transactionId, "DELETE", changedBy, null, null, null, "Transaction deleted");
     }
+    
+    /** Log receipt upload */
+    public void logReceiptUpload(int transactionId, String changedBy, 
+                                  String fileName) throws SQLException {
+        insert(transactionId, "RECEIPT_ADD", changedBy, 
+               "receipt", null, fileName, "Receipt uploaded: " + fileName);
+    }
+
+    /** Log receipt delete */
+    public void logReceiptDelete(int transactionId, String changedBy, 
+                                  String fileName) throws SQLException {
+        insert(transactionId, "RECEIPT_DEL", changedBy, 
+               "receipt", fileName, null, "Receipt deleted: " + fileName);
+    }
 
     private void insert(int transactionId, String action, String changedBy,
                         String fieldName, String oldValue, String newValue, String note)

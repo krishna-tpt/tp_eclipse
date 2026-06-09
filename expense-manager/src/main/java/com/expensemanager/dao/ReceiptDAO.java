@@ -10,7 +10,8 @@ import java.util.List;
 public class ReceiptDAO {
 
 	private final DBConnection db = DBConnection.getInstance();
-
+	private final AuditLogDAO auditDAO = new AuditLogDAO();
+	
 	public void insert(Receipt r) throws SQLException {
 		String sql = """
 				INSERT INTO transaction_receipts
@@ -25,6 +26,7 @@ public class ReceiptDAO {
 			ps.setBytes(4, r.getFileData());
 			ps.setInt(5, r.getFileSize());
 			ps.executeUpdate();
+			auditDAO.logCreate(r.getTransactionId(), "user");
 		} finally {
 			db.releaseConnection(conn);
 		}

@@ -1,13 +1,18 @@
 package com.expensemanager.servlet;
 
+import java.io.IOException;
+
+import com.expensemanager.dao.AuditLogDAO;
 import com.expensemanager.dao.ReceiptDAO;
 import com.expensemanager.model.Receipt;
+
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-import jakarta.servlet.*;
-
-import java.io.IOException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 /**
  * GET /receipt?view=ID → serve image/file bytes POST /receipt (upload) → save
@@ -50,7 +55,12 @@ public class ReceiptServlet extends HttpServlet {
 		if ("delete".equals(action)) {
 			String receiptId = req.getParameter("receiptId");
 			try {
-				new ReceiptDAO().delete(Integer.parseInt(receiptId));
+				ReceiptDAO receiptDAO = new ReceiptDAO();
+				Receipt existing = receiptDAO.findById(Integer.parseInt(receiptId)); // fetch before delete
+				receiptDAO.delete(Integer.parseInt(receiptId));
+				if (existing != null) {
+					new AuditLogDAO().logReceiptDelete(Integer.parseInt(txnId), "user", existing.getFileName());
+				}
 			} catch (Exception ignored) {
 			}
 			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + txnId + "&success=receipt_deleted");
@@ -75,7 +85,7 @@ public class ReceiptServlet extends HttpServlet {
 			r.setFileType(filePart.getContentType());
 			r.setFileData(filePart.getInputStream().readAllBytes());
 			r.setFileSize((int) filePart.getSize());
-			new ReceiptDAO().insert(r);
+			new AuditLogDAO().logReceiptUpload(Integer.parseInt(txnId), "user", r.getFileName());
 			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + txnId + "&success=receipt_uploaded");
 		} catch (Exception e) {
 			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + txnId + "&error=" + e.getMessage());
