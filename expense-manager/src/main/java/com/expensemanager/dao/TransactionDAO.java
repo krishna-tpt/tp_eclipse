@@ -238,7 +238,8 @@ public class TransactionDAO {
 				""");
 		if (bookId != null && bookId > 0)
 			sql.append(" AND book_id=").append(bookId);
-		sql.append(" GROUP BY 1 ORDER BY DATE_TRUNC('month',txn_datetime)");
+		sql.append(" GROUP BY DATE_TRUNC('month',txn_datetime) ORDER BY DATE_TRUNC('month',txn_datetime)");
+		System.out.println("SQL -->"+sql);
 		Connection conn = db.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 			ps.setInt(1, months);
@@ -252,7 +253,12 @@ public class TransactionDAO {
 				rows.add(m);
 			}
 			return rows;
-		} finally {
+		} catch(Exception e) {
+			
+			System.out.println("monthlyTrend -->"+e.getMessage());
+			return null;
+		}
+		finally {
 			db.releaseConnection(conn);
 		}
 	}
