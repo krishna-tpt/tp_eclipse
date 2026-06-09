@@ -89,6 +89,7 @@ public class ReceiptServlet extends HttpServlet {
 			new ReceiptDAO().insert(r);
 			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + txnId + "&success=receipt_uploaded");
 		} catch (Exception e) {
+			System.out.println("Receipt save failed ->"+e.getMessage());
 			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + txnId + "&error=" + e.getMessage());
 		}
 	}
