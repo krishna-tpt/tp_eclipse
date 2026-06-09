@@ -86,7 +86,7 @@ public class ReceiptServlet extends HttpServlet {
 			r.setFileData(filePart.getInputStream().readAllBytes());
 			r.setFileSize((int) filePart.getSize());
 			new AuditLogDAO().logReceiptUpload(Integer.parseInt(txnId), "user", r.getFileName());
-//			new ReceiptDAO().insert(r);
+			new ReceiptDAO().insert(r);
 			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + txnId + "&success=receipt_uploaded");
 		} catch (Exception e) {
 			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + txnId + "&error=" + e.getMessage());

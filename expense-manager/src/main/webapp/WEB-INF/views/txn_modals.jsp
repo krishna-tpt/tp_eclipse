@@ -17,6 +17,66 @@
   }
 %>
 
+<style>
+/* Receipts */
+.receipt-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+	gap: .75rem;
+	margin-top: .75rem;
+}
+
+.receipt-card {
+	background: #f8fafc;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	overflow: hidden;
+	position: relative;
+}
+
+.receipt-img {
+	width: 100%;
+	height: 100px;
+	object-fit: cover;
+	display: block;
+	cursor: pointer;
+}
+
+.receipt-info {
+	padding: .4rem .5rem;
+	font-size: .72rem;
+	color: var(--text-2);
+}
+
+.receipt-del {
+	position: absolute;
+	top: .3rem;
+	right: .3rem;
+	background: rgba(255, 255, 255, .9);
+	border: none;
+	border-radius: 50%;
+	width: 22px;
+	height: 22px;
+	cursor: pointer;
+	font-size: .75rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.receipt-del:hover {
+	background: #fee2e2;
+	color: var(--red);
+}
+
+.receipt-file {
+	padding: .75rem;
+	text-align: center;
+	font-size: .75rem;
+	color: var(--primary);
+}
+</style>
+
 <!-- ══ ADD INCOME ══ -->
 <div id="incomeModal" class="modal-overlay">
   <div class="modal">
@@ -76,6 +136,24 @@
           </div>
         </div>
       </c:if>
+      <!-- Receipts -->
+			<div class="card mt-2">
+				<div class="flex mb-2">
+					<span class="card-title" style="margin-bottom: 0">&#128248;
+						Receipts &amp; Attachments</span> <span class="text-muted"
+						style="font-size: .75rem; margin-left: .5rem">(max 5 MB
+						each)</span>
+				</div>
+
+				<%-- Upload form --%>
+				<form action="${pageContext.request.contextPath}/receipt"
+					method="post" enctype="multipart/form-data" class="flex gap-1">
+					<input type="hidden" name="transactionId" value="${txn.id}">
+					<input type="file" name="receipt" accept="image/*,application/pdf"
+						style="font-size: .82rem; flex: 1" required>
+					<button type="submit" class="btn btn-primary btn-sm">Upload</button>
+				</form>
+			</div>
 
  <div id="incExtras"></div>
       <div class="flex gap-1 mt-2">
