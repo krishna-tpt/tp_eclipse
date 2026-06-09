@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+ contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <c:set var="pageTitle"  value="Transactions" scope="request"/>
@@ -170,12 +170,12 @@ tbody tr.clickable:hover { background:#eff6ff !important; }
 
 <!-- Type tabs -->
 <div class="tabs">
-  <a href="${pageContext.request.contextPath}/transactions${filterQS('')}"
-     class="tab ${empty param.filter ? 'active' : ''}">All</a>
-  <a href="${pageContext.request.contextPath}/transactions${filterQS('INCOME')}"
-     class="tab income ${param.filter == 'INCOME' ? 'active' : ''}">Income</a>
-  <a href="${pageContext.request.contextPath}/transactions${filterQS('EXPENSE')}"
-     class="tab expense ${param.filter == 'EXPENSE' ? 'active' : ''}">Expenses</a>
+  <a href="${pageContext.request.contextPath}/transactions"
+   class="tab ${empty param.filter ? 'active' : ''}">All</a>
+<a href="${pageContext.request.contextPath}/transactions?filter=INCOME"
+   class="tab income ${param.filter == 'INCOME' ? 'active' : ''}">Income</a>
+<a href="${pageContext.request.contextPath}/transactions?filter=EXPENSE"
+   class="tab expense ${param.filter == 'EXPENSE' ? 'active' : ''}">Expenses</a>
 </div>
 
 <%-- Helper function to preserve filter params when switching tabs --%>
