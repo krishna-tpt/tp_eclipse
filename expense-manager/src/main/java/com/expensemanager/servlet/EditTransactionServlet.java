@@ -52,6 +52,7 @@ public class EditTransactionServlet extends HttpServlet {
 			req.setAttribute("incomeCategories", catDAO.findByType("INCOME"));
 			req.setAttribute("expenseCategories", catDAO.findByType("EXPENSE"));
 			req.setAttribute("subCategories", scDAO.findAll());
+			req.setAttribute("receipts", scDAO);
 
 		} catch (Exception e) {
 			req.setAttribute("dbError", e.getMessage());
