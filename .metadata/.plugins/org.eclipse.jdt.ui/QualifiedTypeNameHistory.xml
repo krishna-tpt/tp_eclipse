@@ -8,4 +8,5 @@
     <fullyQualifiedTypeName name="com.movies.db.UploadFileAPI"/>
     <fullyQualifiedTypeName name="com.movies.db.DeleteFileAPI"/>
     <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="com.expensemanager.dao.ReceiptDAO"/>
 </qualifiedTypeNameHistroy>
