@@ -2950,3 +2950,992 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main c93612a] Auto sync - 2026-06-09 20:30:02
+ 1 file changed, 19 insertions(+)
+To https://github.com/krishna-tpt/tp_eclipse.git
+   3649b67..c93612a  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-09 20:30:04[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-09 21:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[1;33mRemote changes is there, Pull the changes...[0m
+From https://github.com/krishna-tpt/tp_eclipse
+ * branch            main       -> FETCH_HEAD
+Updating c93612a..41ab124
+Fast-forward
+ .metadata/.lock                                    |     0
+ .metadata/.lock_info                               |     5 -
+ .metadata/.log                                     |  8100 ---------------
+ .metadata/.mylyn/.taskListIndex/segments_1         |   Bin 69 -> 0 bytes
+ .metadata/.mylyn/.taskListIndex/write.lock         |     0
+ .metadata/.mylyn/.tasks.xml.zip                    |   Bin 235 -> 0 bytes
+ .metadata/.mylyn/repositories.xml.zip              |   Bin 592 -> 0 bytes
+ .metadata/.mylyn/tasks.xml.zip                     |   Bin 235 -> 0 bytes
+ .../gradle/versions.json                           | 10413 -------------------
+ .../.history/10/202e24f409600011130c8e59d6cf9156   |   131 -
+ .../.history/12/80b80cd109600011130c8e59d6cf9156   |   131 -
+ .../.history/12/902805e6315f0011183c87125c17da20   |     0
+ .../.history/13/103c3542305f0011183c87125c17da20   |   150 -
+ .../.history/13/70591a690a600011130c8e59d6cf9156   |   155 -
+ .../.history/14/40a7920b325f0011183c87125c17da20   |    69 -
+ .../.history/17/806adc6c0a600011130c8e59d6cf9156   |   155 -
+ .../.history/19/c3e7c9c0154200111177a849ed4674cb   |   140 -
+ .../.history/1a/a08299d808600011130c8e59d6cf9156   |   145 -
+ .../.history/1b/1049bd34164200111177a849ed4674cb   |   264 -
+ .../.history/1e/30853db009600011130c8e59d6cf9156   |   126 -
+ .../.history/1f/e07ac1f6305f0011183c87125c17da20   |   150 -
+ .../.history/21/10348b69b15900111a47e1490e25ca0b   |    13 -
+ .../.history/22/30b888f108600011130c8e59d6cf9156   |   142 -
+ .../.history/22/80f02a7fb15900111a47e1490e25ca0b   |     0
+ .../.history/23/f0ad8d71b15900111a47e1490e25ca0b   |     0
+ .../.history/27/102eb23f09600011130c8e59d6cf9156   |   126 -
+ .../.history/27/5023e68806600011130c8e59d6cf9156   |    19 -
+ .../.history/2b/20263abf08600011130c8e59d6cf9156   |   145 -
+ .../.history/2c/401d3dfb07600011130c8e59d6cf9156   |   144 -
+ .../.history/2f/0087a9911c4200111a29be5d0db07b14   |    37 -
+ .../.history/2f/d03e9e4d07600011130c8e59d6cf9156   |   149 -
+ .../.history/2f/d0a4f2cc375f0011183c87125c17da20   |    78 -
+ .../.history/31/0080338906600011130c8e59d6cf9156   |     4 -
+ .../.history/37/40a8da1a154200111177a849ed4674cb   |    73 -
+ .../.history/37/f0ebde460a600011130c8e59d6cf9156   |   145 -
+ .../.history/3a/806acaf209600011130c8e59d6cf9156   |   131 -
+ .../.history/3a/d0447cb4bd5900111a47e1490e25ca0b   |    54 -
+ .../.history/3d/508f5b0a0d600011130c8e59d6cf9156   |   133 -
+ .../.history/3e/20577d2c09600011130c8e59d6cf9156   |   142 -
+ .../.history/3f/50b5428e1c4200111a29be5d0db07b14   |    49 -
+ .../.history/40/901ef6963a5f0011183c87125c17da20   |    61 -
+ .../.history/43/300e43a008600011130c8e59d6cf9156   |   141 -
+ .../.history/44/00fffdd2fa5f0011130c8e59d6cf9156   |   150 -
+ .../.history/49/706d904b07600011130c8e59d6cf9156   |   151 -
+ .../.history/49/a05d62330a600011130c8e59d6cf9156   |   277 -
+ .../.history/4c/b0c22dfabd5900111a47e1490e25ca0b   |    67 -
+ .../.history/4d/2009f5c2355f0011183c87125c17da20   |   186 -
+ .../.history/4f/80e8f25e154200111177a849ed4674cb   |   140 -
+ .../.history/4f/c0581a3508600011130c8e59d6cf9156   |   142 -
+ .../.history/51/d0e719d807600011130c8e59d6cf9156   |   146 -
+ .../.history/53/20ecc4e108600011130c8e59d6cf9156   |   141 -
+ .../.history/54/903d51ca09600011130c8e59d6cf9156   |   130 -
+ .../.history/57/50640ad207600011130c8e59d6cf9156   |   144 -
+ .../.history/57/808d78c2325f0011183c87125c17da20   |   460 -
+ .../.history/5a/706039750a600011130c8e59d6cf9156   |   277 -
+ .../.history/5b/50b12fe207600011130c8e59d6cf9156   |   152 -
+ .../.history/5c/80a693e9315f0011183c87125c17da20   |     5 -
+ .../.history/6/105bdc5609600011130c8e59d6cf9156    |   126 -
+ .../.history/60/50e8c6cb325f0011183c87125c17da20   |   567 -
+ .../.history/60/e00f9c090d600011130c8e59d6cf9156   |   133 -
+ .../.history/61/802cb766b15900111a47e1490e25ca0b   |    13 -
+ .../.history/63/3010055008600011130c8e59d6cf9156   |   141 -
+ .../.history/63/801c1ad1395f0011183c87125c17da20   |    61 -
+ .../.history/64/f0b823f409600011130c8e59d6cf9156   |   131 -
+ .../.history/65/10d2b1f20c600011130c8e59d6cf9156   |   131 -
+ .../.history/69/8022540c325f0011183c87125c17da20   |    78 -
+ .../.history/6d/c5e7c9c0154200111177a849ed4674cb   |  4740 ---------
+ .../.history/6e/00b3c44b3a5f0011183c87125c17da20   |    77 -
+ .../.history/7/1051d2da07600011130c8e59d6cf9156    |   152 -
+ .../.history/7/1149bd34164200111177a849ed4674cb    |   210 -
+ .../.history/70/207aa1e8385f0011183c87125c17da20   |    78 -
+ .../.history/72/10c7d9a2365f0011183c87125c17da20   |    78 -
+ .../.history/74/f0b0b0e2325f0011183c87125c17da20   |   460 -
+ .../.history/79/50adbd73b15900111a47e1490e25ca0b   |     5 -
+ .../.history/7a/30fa5bd8c25900111a47e1490e25ca0b   |    67 -
+ .../.history/7a/8052b6f4395f0011183c87125c17da20   |   186 -
+ .../.history/7a/b08ae09208600011130c8e59d6cf9156   |   141 -
+ .../.history/7f/401f8f81b15900111a47e1490e25ca0b   |     5 -
+ .../.history/8a/a095490b09600011130c8e59d6cf9156   |   142 -
+ .../.history/8c/50f632c00e600011130c8e59d6cf9156   |   155 -
+ .../.history/8c/8080ffe97e44001111c1accbb9a5f6d6   |    19 -
+ .../.history/8d/d0fd6ee507600011130c8e59d6cf9156   |   148 -
+ .../.history/8e/4074900a08600011130c8e59d6cf9156   |   144 -
+ .../.history/8e/c0bf3ca608600011130c8e59d6cf9156   |   141 -
+ .../.history/8f/e0d3e46107600011130c8e59d6cf9156   |   149 -
+ .../.history/91/b09fec79b15900111a47e1490e25ca0b   |     5 -
+ .../.history/92/1091e9d6fa5f0011130c8e59d6cf9156   |   150 -
+ .../.history/92/205b2fae08600011130c8e59d6cf9156   |   145 -
+ .../.history/94/9000ba1d08600011130c8e59d6cf9156   |   142 -
+ .../.history/94/c0e7c9c0154200111177a849ed4674cb   |   264 -
+ .../.history/96/c00e143f08600011130c8e59d6cf9156   |   141 -
+ .../.history/98/b05e4d402f5f0011183c87125c17da20   |   149 -
+ .../.history/9a/809e46cf09600011130c8e59d6cf9156   |   130 -
+ .../.history/9d/40eecec5bd5900111a47e1490e25ca0b   |    82 -
+ .../.history/9d/f0165f3f07600011130c8e59d6cf9156   |   136 -
+ .../.history/9d/f0dec0a4285f0011183c87125c17da20   |    68 -
+ .../.history/a/901142fc405f0011183c87125c17da20    |    58 -
+ .../.history/a4/a076bfd4154200111177a849ed4674cb   |   140 -
+ .../.history/a7/c4e7c9c0154200111177a849ed4674cb   |    52 -
+ .../.history/a9/201104d308600011130c8e59d6cf9156   |   145 -
+ .../.history/a9/809af959164200111177a849ed4674cb   |    15 -
+ .../.history/ae/90daeed6315f0011183c87125c17da20   |   152 -
+ .../.history/ae/d01705c50e600011130c8e59d6cf9156   |   155 -
+ .../.history/af/a01d30e4355f0011183c87125c17da20   |   186 -
+ .../.history/b/90d28f4209600011130c8e59d6cf9156    |   126 -
+ .../.history/b0/a0c6a5be0e600011130c8e59d6cf9156   |   155 -
+ .../.history/b4/201a1cee08600011130c8e59d6cf9156   |   141 -
+ .../.history/b5/10b54cfb405f0011183c87125c17da20   |    61 -
+ .../.history/b5/c0c5b8cfbd5900111a47e1490e25ca0b   |    67 -
+ .../.history/bd/80c1c6cf395f0011183c87125c17da20   |    62 -
+ .../.history/c6/60f78b8b345f0011183c87125c17da20   |   185 -
+ .../.history/c8/805925490a600011130c8e59d6cf9156   |   152 -
+ .../.history/c8/b0363944164200111177a849ed4674cb   |   140 -
+ .../.history/c9/20229131305f0011183c87125c17da20   |   149 -
+ .../.history/c9/70731c610a600011130c8e59d6cf9156   |   152 -
+ .../.history/c9/90b6b7f5315f0011183c87125c17da20   |    69 -
+ .../.history/cc/b052330abe5900111a47e1490e25ca0b   |    67 -
+ .../.history/cc/d01d3d95b15900111a47e1490e25ca0b   |    54 -
+ .../.history/ce/c2e7c9c0154200111177a849ed4674cb   |    29 -
+ .../.history/d3/90fe85d4fa5f0011130c8e59d6cf9156   |   151 -
+ .../.history/d5/2002053109600011130c8e59d6cf9156   |   126 -
+ .../.history/d5/9090b9203a5f0011183c87125c17da20   |    78 -
+ .../.history/d6/e0498877b15900111a47e1490e25ca0b   |     0
+ .../.history/d7/20bd39f608600011130c8e59d6cf9156   |   142 -
+ .../.history/d9/60ee907007600011130c8e59d6cf9156   |   149 -
+ .../.history/d9/80cd18cc154200111177a849ed4674cb   |   140 -
+ .../.history/dc/f0d51084345f0011183c87125c17da20   |   185 -
+ .../.history/df/303dc89c355f0011183c87125c17da20   |    69 -
+ .../.history/e0/20d44e35355f0011183c87125c17da20   |   185 -
+ .../.history/e0/30fae7e50e600011130c8e59d6cf9156   |   277 -
+ .../.history/e5/7071e24f164200111177a849ed4674cb   |    10 -
+ .../.history/e6/c1e7c9c0154200111177a849ed4674cb   |   210 -
+ .../.history/ea/1249bd34164200111177a849ed4674cb   |    29 -
+ .../.history/ee/1349bd34164200111177a849ed4674cb   |   140 -
+ .../.history/ee/d08546ef07600011130c8e59d6cf9156   |   144 -
+ .../.history/f8/2170bd34164200111177a849ed4674cb   |  4740 ---------
+ .../.history/f9/e08fb97107600011130c8e59d6cf9156   |   144 -
+ .../.history/fa/3086cfbf355f0011183c87125c17da20   |   185 -
+ .../.history/fa/908e7574365f0011183c87125c17da20   |    78 -
+ .../.history/fa/c0ccf61b08600011130c8e59d6cf9156   |   145 -
+ .../.history/fd/2070bd34164200111177a849ed4674cb   |    52 -
+ .../.projects/.org.eclipse.egit.core.cmp/.location |   Bin 146 -> 0 bytes
+ .../CurrencyExchange/.indexes/properties.index     |   Bin 86 -> 0 bytes
+ .../.projects/CurrencyExchange/.markers            |   Bin 321 -> 0 bytes
+ .../.indexes/properties.index                      |   Bin 86 -> 0 bytes
+ .../.projects/Java1/.location                      |   Bin 107 -> 0 bytes
+ .../.projects/Java1/.markers                       |   Bin 95442 -> 0 bytes
+ .../.projects/LLDPrograms/.markers                 |   Bin 1984 -> 0 bytes
+ .../.projects/ReadExcel/.indexes/properties.index  |   Bin 86 -> 0 bytes
+ .../.projects/ReadExcel/.location                  |   Bin 98 -> 0 bytes
+ .../.projects/ReadExcel/.markers                   |   Bin 39667 -> 0 bytes
+ .../.projects/SOD/.markers                         |   Bin 5579996 -> 0 bytes
+ .../SODAuditReport/.indexes/properties.index       |   Bin 86 -> 0 bytes
+ .../.projects/SODAuditReport/.location             |   Bin 99 -> 0 bytes
+ .../.projects/SODAuditReport/.markers              |   Bin 773 -> 0 bytes
+ .../.projects/demo/.indexes/properties.index       |   Bin 86 -> 0 bytes
+ .../.projects/demo/.markers                        |   Bin 339 -> 0 bytes
+ .../inboundfilesread/.indexes/properties.index     |   Bin 86 -> 0 bytes
+ .../.projects/inboundfilesread/.markers            |   Bin 539 -> 0 bytes
+ .../.projects/java/.indexes/properties.index       |   Bin 86 -> 0 bytes
+ .../.projects/java/.location                       |   Bin 125 -> 0 bytes
+ .../.projects/java/.markers                        |   Bin 169 -> 0 bytes
+ .../.projects/junittest/.indexes/properties.index  |   Bin 86 -> 0 bytes
+ .../.projects/junittest/.location                  |   Bin 94 -> 0 bytes
+ .../log-search-swing/.indexes/properties.index     |   Bin 86 -> 0 bytes
+ .../.projects/log-search-swing/.markers            |   Bin 18845 -> 0 bytes
+ .../.projects/moviedb/.indexes/properties.index    |   Bin 157 -> 0 bytes
+ .../.projects/moviedb/.location                    |   Bin 94 -> 0 bytes
+ .../.indexes/e4/b9/22/81/19/d1/b5/history.index    |   Bin 176 -> 0 bytes
+ .../.indexes/e4/b9/b3/a8/history.index             |   Bin 65 -> 0 bytes
+ .../workdrive-organizer/.indexes/properties.index  |   Bin 86 -> 0 bytes
+ .../.projects/workdrive-organizer/.location        |   Bin 118 -> 0 bytes
+ .../.projects/workdrive-organizer/.markers         |   Bin 1716 -> 0 bytes
+ .../.indexes/e4/b9/22/81/19/d1/2/history.index     |   Bin 115 -> 0 bytes
+ .../.indexes/e4/b9/22/81/19/d1/45/history.index    |   Bin 172 -> 0 bytes
+ .../.indexes/e4/b9/22/81/19/d1/b5/history.index    |   Bin 440 -> 0 bytes
+ .../.indexes/e4/b9/b3/a8/history.index             |   Bin 377 -> 0 bytes
+ .../.indexes/e4/b9/b3/history.index                |   Bin 108 -> 0 bytes
+ .../workdrive-organizer2/.indexes/properties.index |   Bin 86 -> 0 bytes
+ .../.projects/workdrive-organizer2/.markers        |   Bin 1711 -> 0 bytes
+ .../.root/.indexes/history.version                 |     1 -
+ .../.root/.indexes/properties.index                |   Bin 333 -> 0 bytes
+ .../.root/.indexes/properties.version              |     1 -
+ .../.safetable/org.eclipse.core.resources          |   Bin 1760 -> 0 bytes
+ .../.settings/org.eclipse.core.resources.prefs     |     2 -
+ .../.settings/org.eclipse.core.variables.prefs     |     2 -
+ .../.settings/org.eclipse.debug.core.prefs         |     3 -
+ .../.settings/org.eclipse.debug.ui.prefs           |    14 -
+ .../.settings/org.eclipse.egit.core.prefs          |     3 -
+ .../.settings/org.eclipse.egit.ui.prefs            |     4 -
+ .../.settings/org.eclipse.epp.mpc.ui.prefs         |     2 -
+ .../.settings/org.eclipse.jdt.core.prefs           |     6 -
+ .../.settings/org.eclipse.jdt.debug.ui.prefs       |     3 -
+ .../.settings/org.eclipse.jdt.junit.core.prefs     |     3 -
+ .../.settings/org.eclipse.jdt.junit.prefs          |     3 -
+ .../.settings/org.eclipse.jdt.launching.prefs      |     2 -
+ .../.settings/org.eclipse.jdt.ui.prefs             |    13 -
+ .../.settings/org.eclipse.jst.jsp.core.prefs       |     2 -
+ .../org.eclipse.jst.server.tomcat.core.prefs       |     2 -
+ .../.settings/org.eclipse.m2e.discovery.prefs      |     2 -
+ .../.settings/org.eclipse.mylyn.context.core.prefs |     2 -
+ .../.settings/org.eclipse.mylyn.java.ui.prefs      |     3 -
+ .../.settings/org.eclipse.mylyn.monitor.ui.prefs   |     2 -
+ .../.settings/org.eclipse.mylyn.tasks.ui.prefs     |     5 -
+ .../.settings/org.eclipse.pde.api.tools.prefs      |     2 -
+ .../.settings/org.eclipse.search.prefs             |     2 -
+ .../.settings/org.eclipse.ui.browser.prefs         |     2 -
+ .../.settings/org.eclipse.ui.editors.prefs         |     6 -
+ .../.settings/org.eclipse.ui.ide.prefs             |     6 -
+ .../.settings/org.eclipse.ui.navigator.prefs       |     2 -
+ .../.settings/org.eclipse.ui.prefs                 |     2 -
+ .../.settings/org.eclipse.ui.workbench.prefs       |    12 -
+ .../org.eclipse.wst.internet.monitor.core.prefs    |     2 -
+ .../.settings/org.eclipse.wst.jsdt.ui.prefs        |     9 -
+ .../.settings/org.eclipse.wst.jsdt.web.core.prefs  |     2 -
+ .../.settings/org.eclipse.wst.server.core.prefs    |     3 -
+ .../org.eclipse.wst.server.discovery.prefs         |     2 -
+ .../.settings/org.eclipse.wst.sse.ui.prefs         |     4 -
+ .../org.eclipse.wst.ws.service.policy.prefs        |     3 -
+ .../.settings/org.eclipse.wst.xml.ui.prefs         |     3 -
+ .../.launches/CreateEmptyDocuments.launch          |    15 -
+ .../.launches/CreateEmptyExcel.launch              |    15 -
+ .../.launches/FindDuplicates.launch                |    15 -
+ .../.launches/JwtDemo.launch                       |    15 -
+ .../.launches/LogTestMain.launch                   |    15 -
+ .../.launches/MainForm.launch                      |    15 -
+ .../.launches/MajorityElementII.launch             |    13 -
+ .../.launches/MovieScraperAPI.launch               |    15 -
+ .../.launches/RefreshTokenDemo.launch              |    15 -
+ .../.launches/RemoveTrailingZeros.launch           |    13 -
+ .../.launches/TaxCalculatorApp.launch              |    13 -
+ ...drive_organizer_model_WorkDriveFile.java.launch |    14 -
+ ...run-d27e0f01-d523-4530-9e37-e70cabbc9e06.launch |    18 -
+ .../org.eclipse.debug.ui/dialog_settings.xml       |    10 -
+ .../launchConfigurationHistory.xml                 |    59 -
+ .../dialog_settings.xml                            |    16 -
+ .../org.eclipse.e4.workbench/workbench.xmi         |  3931 -------
+ .../.org.eclipse.egit.core.cmp/.project            |    11 -
+ .../.settings/org.eclipse.core.resources.prefs     |     2 -
+ .../org.eclipse.egit.ui/dialog_settings.xml        |    14 -
+ .../org.eclipse.epp.mpc.ui/dialog_settings.xml     |    10 -
+ .../.plugins/org.eclipse.jdt.core/1013397394.index |   Bin 2392378 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1089239932.index |   Bin 778725 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/115186196.index  |   Bin 293150 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1159935248.index |   Bin 73236 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1160825139.index |   Bin 135816 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1198363237.index |   Bin 1461115 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1313861547.index |   Bin 873245 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1360999417.index |   Bin 3062557 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1411285139.index |   Bin 470623 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1471146940.index |   Bin 14115429 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1500159277.index |   Bin 873245 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1508247815.index |   Bin 4177 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1518804049.index |   Bin 12431 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1548040407.index |   Bin 24650 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1628687906.index |   Bin 74142 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1649051294.index |   Bin 96264 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1718666322.index |   Bin 23037 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1733142329.index |   Bin 33796 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1743273262.index |   Bin 40165610 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1781360851.index |   Bin 344794 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1827477346.index |   Bin 18744 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1827705529.index |   Bin 2392594 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1863624601.index |   Bin 98568 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1865797976.index |   Bin 8305851 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1894742413.index |   Bin 114292 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1899637456.index |   Bin 2424 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1906996355.index |   Bin 602429 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1913265208.index |   Bin 227 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/1924484980.index |   Bin 11142 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2060078213.index |   Bin 43904 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2062237999.index |   Bin 175412 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2076029826.index |   Bin 135816 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2090480978.index |   Bin 337584 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2097683029.index |   Bin 345982 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2158516332.index |   Bin 60892 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2227530254.index |   Bin 8261 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2253745042.index |   Bin 2180093 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2261780460.index |   Bin 223663 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2286388794.index |   Bin 99666 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2292845589.index |   Bin 16126 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2319070659.index |   Bin 9881 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2343687622.index |   Bin 64503 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2345075836.index |   Bin 60314 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2359322674.index |   Bin 96572 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2362070718.index |   Bin 364554 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2364285897.index |   Bin 257218 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2379375771.index |   Bin 14115429 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/244584223.index  |   Bin 262711 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/246264339.index  |   Bin 379694 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2516091715.index |   Bin 597107 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2518523314.index |   Bin 27347 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/256927163.index  |   Bin 15619 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2602684.index    |   Bin 1124254 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2629057594.index |   Bin 2200329 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2660318334.index |   Bin 191445 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2669985819.index |   Bin 5342 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2722322282.index |   Bin 30796 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2735375230.index |   Bin 425700 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2744583325.index |   Bin 9795 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2744878784.index |   Bin 102 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2790319576.index |   Bin 64503 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2814862481.index |   Bin 21755 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2830587353.index |   Bin 1112379 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2879752432.index |   Bin 299523 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2917877643.index |   Bin 240030 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2918473307.index |   Bin 9795 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2936317641.index |   Bin 2399 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2949097923.index |   Bin 40175933 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/2982094558.index |   Bin 2250526 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3066711521.index |   Bin 174099 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3117980990.index |   Bin 2143773 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/312822257.index  |   Bin 220033 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3143465664.index |   Bin 7888 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3159949645.index |   Bin 117645 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3207123653.index |   Bin 257218 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3338181955.index |   Bin 7740 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/344580750.index  |   Bin 2224920 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3469650420.index |   Bin 30031 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3480916246.index |   Bin 147947 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3485262699.index |   Bin 175217 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3506532927.index |   Bin 2133849 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3512161136.index |   Bin 475582 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3530540584.index |   Bin 8244 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3536471080.index |   Bin 288944 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3539432263.index |   Bin 215084 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3552214741.index |   Bin 814518 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3552502232.index |   Bin 183636 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/360587504.index  |   Bin 2399 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3689772550.index |   Bin 25 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/381713745.index  |   Bin 952066 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/382460976.index  |   Bin 54774 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3835931297.index |   Bin 2008031 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3883508318.index |   Bin 80008 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3902971256.index |   Bin 387531 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3949919968.index |   Bin 26787 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3964928494.index |   Bin 55440 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/3966111278.index |   Bin 166904 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/4052747923.index |   Bin 4736778 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/4093308142.index |   Bin 234428 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/4107638007.index |   Bin 462390 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/4160209304.index |   Bin 26299 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/4164047269.index |   Bin 1623636 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/4187282319.index |   Bin 89998 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/4213617326.index |   Bin 528867 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/4220280661.index |   Bin 881172 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/4233064801.index |   Bin 18158 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/4267689554.index |   Bin 325066 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/454624871.index  |   Bin 1109387 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/457335978.index  |   Bin 123221 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/459421456.index  |   Bin 2140363 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/494928951.index  |   Bin 227 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/502732891.index  |   Bin 30788491 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/547135666.index  |   Bin 13031 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/562822517.index  |   Bin 964186 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/625085141.index  |   Bin 79007 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/639570213.index  |   Bin 387531 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/698138431.index  |   Bin 256452 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/731720271.index  |   Bin 256452 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/785057416.index  |   Bin 84859 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/813341167.index  |   Bin 75810 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/816061121.index  |   Bin 16852 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/821608291.index  |   Bin 231596 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/900586112.index  |   Bin 42464712 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/925982370.index  |   Bin 41562 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/929950891.index  |   Bin 295933 -> 0 bytes
+ .../.plugins/org.eclipse.jdt.core/980131868.index  |   Bin 822333 -> 0 bytes
+ .../org.eclipse.jdt.core/assumedExternalFilesCache |   Bin 4 -> 0 bytes
+ .../org.eclipse.jdt.core/externalFilesCache        |   Bin 20861 -> 0 bytes
+ .../org.eclipse.jdt.core/externalLibsTimeStamps    |   Bin 11811 -> 0 bytes
+ .../org.eclipse.jdt.core/indexNamesMap.txt         |     1 -
+ .../org.eclipse.jdt.core/nonChainingJarsCache      |   Bin 8576 -> 0 bytes
+ .../participantsIndexNames.txt                     |     9 -
+ .../org.eclipse.jdt.core/savedIndexNames.txt       |   149 -
+ .../variablesAndContainers.dat                     |   Bin 75915 -> 0 bytes
+ .../org.eclipse.jdt.debug.ui/dialog_settings.xml   |    13 -
+ .../org.eclipse.jdt.debug.ui/stackTraceConsole.txt |     1 -
+ .../org.eclipse.jdt.launching/.install.xml         |    10 -
+ .../org.eclipse.jdt.launching/libraryInfos.xml     |    56 -
+ .../org.eclipse.jdt.ui/OpenTypeHistory.xml         |     2 -
+ .../QualifiedTypeNameHistory.xml                   |    12 -
+ .../org.eclipse.jdt.ui/dialog_settings.xml         |   219 -
+ .../jspsearch/2091661566.index                     |   Bin 2076 -> 0 bytes
+ .../dialog_settings.xml                            |     3 -
+ .../.workspace/2026/5/22/refactorings.history      |     3 -
+ .../.workspace/2026/5/22/refactorings.index        |     2 -
+ .../.workspace/2026/6/23/refactorings.history      |     3 -
+ .../.workspace/2026/6/23/refactorings.index        |     3 -
+ .../LLDPrograms/2026/4/18/refactorings.history     |     3 -
+ .../LLDPrograms/2026/4/18/refactorings.index       |     3 -
+ .../ReadExcel/2026/4/18/refactorings.history       |     3 -
+ .../ReadExcel/2026/4/18/refactorings.index         |     2 -
+ .../SOD/2026/4/18/refactorings.history             |     4 -
+ .../.refactorings/SOD/2026/4/18/refactorings.index |     1 -
+ .../SOD/2026/5/21/refactorings.history             |     3 -
+ .../.refactorings/SOD/2026/5/21/refactorings.index |     2 -
+ .../SOD/2026/5/22/refactorings.history             |     4 -
+ .../.refactorings/SOD/2026/5/22/refactorings.index |     1 -
+ .../2026/5/20/refactorings.history                 |     3 -
+ .../log-search-swing/2026/5/20/refactorings.index  |     4 -
+ .../moviedb/2026/6/23/refactorings.history         |     3 -
+ .../moviedb/2026/6/23/refactorings.index           |     3 -
+ .../2026/4/18/refactorings.history                 |     2 -
+ .../2026/4/18/refactorings.index                   |     5 -
+ .../2026/6/23/refactorings.history                 |     4 -
+ .../2026/6/23/refactorings.index                   |     1 -
+ .../2026/6/23/refactorings.history                 |     3 -
+ .../2026/6/23/refactorings.index                   |     2 -
+ .../dialog_settings.xml                            |    12 -
+ .../org.eclipse.m2e.core.ui/dialog_settings.xml    |   104 -
+ .../org.eclipse.m2e.core/demo.lifecyclemapping     |   Bin 17191 -> 0 bytes
+ .../org.eclipse.m2e.core/java.lifecyclemapping     |   Bin 17191 -> 0 bytes
+ .../workdrive-organizer.lifecyclemapping           |   Bin 19287 -> 0 bytes
+ .../org.eclipse.m2e.core/workspaceState.ser        |   Bin 105596 -> 0 bytes
+ .../org.eclipse.m2e.core/workspacestate.properties |    36 -
+ .../org.eclipse.m2e.jdt/CurrencyExchange.container |   Bin 1880 -> 0 bytes
+ .../ExcelToOracleInserter.container                |   Bin 8300 -> 0 bytes
+ .../org.eclipse.m2e.jdt/ReadExcel.container        |   Bin 5190 -> 0 bytes
+ .../org.eclipse.m2e.jdt/SODAuditReport.container   |   Bin 9760 -> 0 bytes
+ .../.plugins/org.eclipse.m2e.jdt/demo.container    |   Bin 3445 -> 0 bytes
+ .../org.eclipse.m2e.jdt/inboundfilesread.container |   Bin 3914 -> 0 bytes
+ .../.plugins/org.eclipse.m2e.jdt/java.container    |   Bin 3968 -> 0 bytes
+ .../org.eclipse.m2e.jdt/junittest.container        |   Bin 4246 -> 0 bytes
+ .../org.eclipse.m2e.jdt/log-search-swing.container |   Bin 4400 -> 0 bytes
+ .../.plugins/org.eclipse.m2e.jdt/moviedb.container |   Bin 6530 -> 0 bytes
+ .../workdrive-organizer.container                  |   Bin 2807 -> 0 bytes
+ .../workdrive-organizer2.container                 |   Bin 2807 -> 0 bytes
+ .metadata/.plugins/org.eclipse.m2e.logback/0.log   |  4093 --------
+ .../logback.2.7.0.20241001-1350.xml                |    41 -
+ .../org.eclipse.mylyn.github.ui/avatars.ser        |   Bin 175 -> 0 bytes
+ .../org.eclipse.oomph.setup/workspace.setup        |     6 -
+ .../.cache/clean-cache.properties                  |     2 -
+ .../org.eclipse.search/dialog_settings.xml         |    93 -
+ .../org.eclipse.tips.ide/dialog_settings.xml       |     3 -
+ .../dialog_settings.xml                            |     9 -
+ .../org.eclipse.ui.editors/dialog_settings.xml     |     5 -
+ .../org.eclipse.ui.ide/dialog_settings.xml         |    42 -
+ .../dialog_settings.xml                            |    43 -
+ .../org.eclipse.ui.workbench/dialog_settings.xml   |    23 -
+ .../org.eclipse.ui.workbench/workingsets.xml       |     6 -
+ .../system-catalog.xml                             |   237 -
+ .../org.eclipse.wst.internet.cache/cache.xml       |     1 -
+ .../externalLibsTimeStamps                         |   Bin 493 -> 0 bytes
+ .../indexes/2736950028.index                       |   Bin 9376 -> 0 bytes
+ .../indexes/2754763797.index                       |   Bin 7533 -> 0 bytes
+ .../indexes/2843256674.index                       |   Bin 23103 -> 0 bytes
+ .../indexes/4147395917.index                       |   Bin 1333 -> 0 bytes
+ .../indexes/4233064801.index                       |   Bin 23 -> 0 bytes
+ .../indexes/547135666.index                        |   Bin 23 -> 0 bytes
+ .../indexes/668228816.index                        |   Bin 6565 -> 0 bytes
+ .../indexes/savedIndexNames.txt                    |    10 -
+ .../libraries/baseBrowserLibrary.js                |  5393 ----------
+ .../libraries/browserWindow.js                     |   618 --
+ .../org.eclipse.wst.jsdt.core/libraries/dom5.js    |   922 --
+ .../org.eclipse.wst.jsdt.core/libraries/system.js  |  1458 ---
+ .../org.eclipse.wst.jsdt.core/libraries/xhr.js     |   104 -
+ .../variablesAndContainers.dat                     |   Bin 1018 -> 0 bytes
+ .../org.eclipse.wst.jsdt.ui/OpenTypeHistory.xml    |     2 -
+ .../QualifiedTypeNameHistory.xml                   |     2 -
+ .../jssearch/1767572306.index                      |   Bin 1755 -> 0 bytes
+ .../org.eclipse.wst.server.core/monitors.xml       |     2 -
+ .../org.eclipse.wst.server.core/publish.xml        |     4 -
+ .../publish/publish0.dat                           |   Bin 2798 -> 0 bytes
+ .../org.eclipse.wst.server.core/servers.xml        |     6 -
+ .../org.eclipse.wst.server.core/tmp-data.xml       |     4 -
+ .../tmp0/conf/catalina.policy                      |   264 -
+ .../tmp0/conf/catalina.properties                  |   210 -
+ .../tmp0/conf/context.xml                          |    29 -
+ .../tmp0/conf/server.xml                           |   140 -
+ .../tmp0/conf/tomcat-users.xml                     |    52 -
+ .../org.eclipse.wst.server.core/tmp0/conf/web.xml  |  4740 ---------
+ .../tmp0/logs/localhost_access_log.2026-04-27.txt  |    10 -
+ .../tmp0/logs/localhost_access_log.2026-04-28.txt  |    88 -
+ .../tmp0/logs/localhost_access_log.2026-04-30.txt  |    20 -
+ .../tmp0/logs/localhost_access_log.2026-05-05.txt  |    23 -
+ .../tmp0/logs/localhost_access_log.2026-06-03.txt  |    64 -
+ .../tmp0/wtpwebapps/ROOT/WEB-INF/web.xml           |     3 -
+ .../org.eclipse.wst.sse.core/task-tags.properties  |     3 -
+ .../org.eclipse.wst.sse.ui/dialog_settings.xml     |     5 -
+ .../org.eclipse.wst.xml.core/default_catalog.xml   |     5 -
+ .../org.eclipse.wst.xml.core/system_catalog.xml    |   242 -
+ .metadata/version.ini                              |     3 -
+ 482 files changed, 68379 deletions(-)
+ delete mode 100644 .metadata/.lock
+ delete mode 100644 .metadata/.lock_info
+ delete mode 100644 .metadata/.log
+ delete mode 100644 .metadata/.mylyn/.taskListIndex/segments_1
+ delete mode 100644 .metadata/.mylyn/.taskListIndex/write.lock
+ delete mode 100644 .metadata/.mylyn/.tasks.xml.zip
+ delete mode 100644 .metadata/.mylyn/repositories.xml.zip
+ delete mode 100644 .metadata/.mylyn/tasks.xml.zip
+ delete mode 100644 .metadata/.plugins/org.eclipse.buildship.core/gradle/versions.json
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/10/202e24f409600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/12/80b80cd109600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/12/902805e6315f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/13/103c3542305f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/13/70591a690a600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/14/40a7920b325f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/17/806adc6c0a600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/19/c3e7c9c0154200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/1a/a08299d808600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/1b/1049bd34164200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/1e/30853db009600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/1f/e07ac1f6305f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/21/10348b69b15900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/22/30b888f108600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/22/80f02a7fb15900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/23/f0ad8d71b15900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/27/102eb23f09600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/27/5023e68806600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/2b/20263abf08600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/2c/401d3dfb07600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/2f/0087a9911c4200111a29be5d0db07b14
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/2f/d03e9e4d07600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/2f/d0a4f2cc375f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/31/0080338906600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/37/40a8da1a154200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/37/f0ebde460a600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/3a/806acaf209600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/3a/d0447cb4bd5900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/3d/508f5b0a0d600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/3e/20577d2c09600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/3f/50b5428e1c4200111a29be5d0db07b14
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/40/901ef6963a5f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/43/300e43a008600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/44/00fffdd2fa5f0011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/49/706d904b07600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/49/a05d62330a600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/4c/b0c22dfabd5900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/4d/2009f5c2355f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/4f/80e8f25e154200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/4f/c0581a3508600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/51/d0e719d807600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/53/20ecc4e108600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/54/903d51ca09600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/57/50640ad207600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/57/808d78c2325f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/5a/706039750a600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/5b/50b12fe207600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/5c/80a693e9315f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/6/105bdc5609600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/60/50e8c6cb325f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/60/e00f9c090d600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/61/802cb766b15900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/63/3010055008600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/63/801c1ad1395f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/64/f0b823f409600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/65/10d2b1f20c600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/69/8022540c325f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/6d/c5e7c9c0154200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/6e/00b3c44b3a5f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/7/1051d2da07600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/7/1149bd34164200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/70/207aa1e8385f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/72/10c7d9a2365f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/74/f0b0b0e2325f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/79/50adbd73b15900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/7a/30fa5bd8c25900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/7a/8052b6f4395f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/7a/b08ae09208600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/7f/401f8f81b15900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/8a/a095490b09600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/8c/50f632c00e600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/8c/8080ffe97e44001111c1accbb9a5f6d6
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/8d/d0fd6ee507600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/8e/4074900a08600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/8e/c0bf3ca608600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/8f/e0d3e46107600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/91/b09fec79b15900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/92/1091e9d6fa5f0011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/92/205b2fae08600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/94/9000ba1d08600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/94/c0e7c9c0154200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/96/c00e143f08600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/98/b05e4d402f5f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/9a/809e46cf09600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/9d/40eecec5bd5900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/9d/f0165f3f07600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/9d/f0dec0a4285f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/a/901142fc405f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/a4/a076bfd4154200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/a7/c4e7c9c0154200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/a9/201104d308600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/a9/809af959164200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/ae/90daeed6315f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/ae/d01705c50e600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/af/a01d30e4355f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/b/90d28f4209600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/b0/a0c6a5be0e600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/b4/201a1cee08600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/b5/10b54cfb405f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/b5/c0c5b8cfbd5900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/bd/80c1c6cf395f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/c6/60f78b8b345f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/c8/805925490a600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/c8/b0363944164200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/c9/20229131305f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/c9/70731c610a600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/c9/90b6b7f5315f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/cc/b052330abe5900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/cc/d01d3d95b15900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/ce/c2e7c9c0154200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d3/90fe85d4fa5f0011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d5/2002053109600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d5/9090b9203a5f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d6/e0498877b15900111a47e1490e25ca0b
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d7/20bd39f608600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d9/60ee907007600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/d9/80cd18cc154200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/dc/f0d51084345f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/df/303dc89c355f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/e0/20d44e35355f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/e0/30fae7e50e600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/e5/7071e24f164200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/e6/c1e7c9c0154200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/ea/1249bd34164200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/ee/1349bd34164200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/ee/d08546ef07600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/f8/2170bd34164200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/f9/e08fb97107600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/fa/3086cfbf355f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/fa/908e7574365f0011183c87125c17da20
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/fa/c0ccf61b08600011130c8e59d6cf9156
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.history/fd/2070bd34164200111177a849ed4674cb
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/.org.eclipse.egit.core.cmp/.location
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/CurrencyExchange/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/CurrencyExchange/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/ExcelToOracleInserter/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/Java1/.location
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/Java1/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/LLDPrograms/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/ReadExcel/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/ReadExcel/.location
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/ReadExcel/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SOD/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SODAuditReport/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SODAuditReport/.location
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/SODAuditReport/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/demo/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/demo/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/inboundfilesread/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/inboundfilesread/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/java/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/java/.location
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/java/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/junittest/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/junittest/.location
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/log-search-swing/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/log-search-swing/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/moviedb/.location
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer/.indexes/e4/b9/22/81/19/d1/b5/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer/.indexes/e4/b9/b3/a8/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer/.location
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/.indexes/e4/b9/22/81/19/d1/2/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/.indexes/e4/b9/22/81/19/d1/45/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/.indexes/e4/b9/22/81/19/d1/b5/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/.indexes/e4/b9/b3/a8/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/.indexes/e4/b9/b3/history.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.projects/workdrive-organizer2/.markers
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.root/.indexes/history.version
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.root/.indexes/properties.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.root/.indexes/properties.version
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.resources/.safetable/org.eclipse.core.resources
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.core.resources.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.core.variables.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.debug.core.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.debug.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.egit.core.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.egit.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.epp.mpc.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.debug.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.junit.core.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.junit.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.launching.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jst.jsp.core.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jst.server.tomcat.core.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.m2e.discovery.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.mylyn.context.core.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.mylyn.java.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.mylyn.monitor.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.mylyn.tasks.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.pde.api.tools.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.search.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.browser.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.editors.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.ide.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.navigator.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.ui.workbench.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.internet.monitor.core.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.jsdt.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.jsdt.web.core.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.server.core.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.server.discovery.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.sse.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.ws.service.policy.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.ui.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/CreateEmptyDocuments.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/CreateEmptyExcel.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/FindDuplicates.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/JwtDemo.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/LogTestMain.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/MainForm.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/MajorityElementII.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/MovieScraperAPI.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/RefreshTokenDemo.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/RemoveTrailingZeros.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/TaxCalculatorApp.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/_WEB-INF_classes_com_workdrive_organizer_model_WorkDriveFile.java.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.core/.launches/mavenrun-d27e0f01-d523-4530-9e37-e70cabbc9e06.launch
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.ui/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.debug.ui/launchConfigurationHistory.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.e4.ui.workbench.swt/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.e4.workbench/workbench.xmi
+ delete mode 100644 .metadata/.plugins/org.eclipse.egit.core/.org.eclipse.egit.core.cmp/.project
+ delete mode 100644 .metadata/.plugins/org.eclipse.egit.core/.org.eclipse.egit.core.cmp/.settings/org.eclipse.core.resources.prefs
+ delete mode 100644 .metadata/.plugins/org.eclipse.egit.ui/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.epp.mpc.ui/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1013397394.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1089239932.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/115186196.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1159935248.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1160825139.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1198363237.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1313861547.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1360999417.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1411285139.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1471146940.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1500159277.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1508247815.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1518804049.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1548040407.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1628687906.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1649051294.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1718666322.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1733142329.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1743273262.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1781360851.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1827477346.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1827705529.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1863624601.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1865797976.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1894742413.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1899637456.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1906996355.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1913265208.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/1924484980.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2060078213.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2062237999.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2076029826.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2090480978.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2097683029.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2158516332.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2227530254.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2253745042.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2261780460.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2286388794.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2292845589.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2319070659.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2343687622.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2345075836.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2359322674.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2362070718.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2364285897.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2379375771.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/244584223.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/246264339.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2516091715.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2518523314.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/256927163.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2602684.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2629057594.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2660318334.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2669985819.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2722322282.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2735375230.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2744583325.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2744878784.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2790319576.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2814862481.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2830587353.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2879752432.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2917877643.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2918473307.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2936317641.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2949097923.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/2982094558.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3066711521.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3117980990.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/312822257.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3143465664.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3159949645.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3207123653.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3338181955.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/344580750.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3469650420.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3480916246.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3485262699.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3506532927.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3512161136.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3530540584.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3536471080.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3539432263.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3552214741.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3552502232.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/360587504.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3689772550.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/381713745.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/382460976.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3835931297.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3883508318.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3902971256.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3949919968.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3964928494.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/3966111278.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/4052747923.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/4093308142.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/4107638007.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/4160209304.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/4164047269.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/4187282319.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/4213617326.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/4220280661.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/4233064801.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/4267689554.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/454624871.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/457335978.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/459421456.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/494928951.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/502732891.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/547135666.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/562822517.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/625085141.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/639570213.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/698138431.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/731720271.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/785057416.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/813341167.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/816061121.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/821608291.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/900586112.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/925982370.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/929950891.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/980131868.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/assumedExternalFilesCache
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/externalFilesCache
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/externalLibsTimeStamps
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/indexNamesMap.txt
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/nonChainingJarsCache
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/participantsIndexNames.txt
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/savedIndexNames.txt
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.core/variablesAndContainers.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.debug.ui/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.debug.ui/stackTraceConsole.txt
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.launching/.install.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.launching/libraryInfos.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/OpenTypeHistory.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/QualifiedTypeNameHistory.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.jdt.ui/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.jst.jsp.core/jspsearch/2091661566.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.jst.ws.jaxrs.ui/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/.workspace/2026/5/22/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/.workspace/2026/5/22/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/.workspace/2026/6/23/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/.workspace/2026/6/23/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/LLDPrograms/2026/4/18/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/LLDPrograms/2026/4/18/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/ReadExcel/2026/4/18/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/ReadExcel/2026/4/18/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/SOD/2026/4/18/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/SOD/2026/4/18/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/SOD/2026/5/21/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/SOD/2026/5/21/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/SOD/2026/5/22/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/SOD/2026/5/22/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/log-search-swing/2026/5/20/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/log-search-swing/2026/5/20/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/moviedb/2026/6/23/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/moviedb/2026/6/23/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/workdrive-organizer/2026/4/18/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/workdrive-organizer/2026/4/18/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/workdrive-organizer/2026/6/23/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/workdrive-organizer/2026/6/23/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/workdrive-organizer2/2026/6/23/refactorings.history
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.core.refactoring/.refactorings/workdrive-organizer2/2026/6/23/refactorings.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.ltk.ui.refactoring/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.core.ui/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.core/demo.lifecyclemapping
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.core/java.lifecyclemapping
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.core/workdrive-organizer.lifecyclemapping
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.core/workspaceState.ser
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.core/workspacestate.properties
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/CurrencyExchange.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/ExcelToOracleInserter.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/ReadExcel.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/SODAuditReport.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/demo.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/inboundfilesread.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/java.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/junittest.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/log-search-swing.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/moviedb.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/workdrive-organizer.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.jdt/workdrive-organizer2.container
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.logback/0.log
+ delete mode 100644 .metadata/.plugins/org.eclipse.m2e.logback/logback.2.7.0.20241001-1350.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.mylyn.github.ui/avatars.ser
+ delete mode 100644 .metadata/.plugins/org.eclipse.oomph.setup/workspace.setup
+ delete mode 100644 .metadata/.plugins/org.eclipse.pde.core/.cache/clean-cache.properties
+ delete mode 100644 .metadata/.plugins/org.eclipse.search/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.tips.ide/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.tm.terminal.view.ui/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.ui.editors/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.ui.ide/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.ui.workbench.texteditor/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.ui.workbench/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.ui.workbench/workingsets.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wildwebdeveloper.xml/system-catalog.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.internet.cache/cache.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/externalLibsTimeStamps
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/indexes/2736950028.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/indexes/2754763797.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/indexes/2843256674.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/indexes/4147395917.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/indexes/4233064801.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/indexes/547135666.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/indexes/668228816.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/indexes/savedIndexNames.txt
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/libraries/baseBrowserLibrary.js
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/libraries/browserWindow.js
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/libraries/dom5.js
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/libraries/system.js
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/libraries/xhr.js
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.core/variablesAndContainers.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.ui/OpenTypeHistory.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.ui/QualifiedTypeNameHistory.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.jsdt.web.core/jssearch/1767572306.index
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/monitors.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/publish.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/publish/publish0.dat
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/servers.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp-data.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/conf/catalina.policy
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/conf/catalina.properties
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/conf/context.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/conf/server.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/conf/tomcat-users.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/conf/web.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/logs/localhost_access_log.2026-04-27.txt
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/logs/localhost_access_log.2026-04-28.txt
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/logs/localhost_access_log.2026-04-30.txt
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/logs/localhost_access_log.2026-05-05.txt
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/logs/localhost_access_log.2026-06-03.txt
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ROOT/WEB-INF/web.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.sse.core/task-tags.properties
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.sse.ui/dialog_settings.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.xml.core/default_catalog.xml
+ delete mode 100644 .metadata/.plugins/org.eclipse.wst.xml.core/system_catalog.xml
+ delete mode 100644 .metadata/version.ini
+[0;32m✓ Pull success.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
