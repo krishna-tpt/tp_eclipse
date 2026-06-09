@@ -10,6 +10,8 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="receipt"/>
+			<item value="param.success"/>
 			<item value="receipts"/>
 			<item value="Attachments"/>
 			<item value="auditLogs"/>
@@ -23,8 +25,6 @@
 			<item value="filterQS"/>
 			<item value="activeBookId"/>
 			<item value="editSubCatSelect"/>
-			<item value="categoryId"/>
-			<item value="subCategories"/>
 		</list>
 		<list key="replacehistory">
 		</list>
