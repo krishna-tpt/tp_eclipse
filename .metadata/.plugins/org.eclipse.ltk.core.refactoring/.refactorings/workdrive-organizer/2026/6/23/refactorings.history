@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Copy element &apos;WorkDriveApiService.java&apos; to &apos;moviedb/src/main/java/com.movies.db&apos;&#x0A;- Original project: &apos;workdrive-organizer&apos;&#x0A;- Destination element: &apos;moviedb/src/main/java/com.movies.db&apos;&#x0A;- Original element: &apos;com.workdrive.organizer.service.WorkDriveApiService.java&apos;" description="Copy compilation unit" destination="=moviedb/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.movies.db" element1="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.workdrive.organizer.service{WorkDriveApiService.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1780572227750" units="1" version="1.0"/>
-</session>

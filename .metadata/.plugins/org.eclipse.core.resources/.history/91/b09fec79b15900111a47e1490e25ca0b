@@ -1,5 +1,0 @@
-package com.jwt.demo;
-
-public class JwtDecoder {
-
-}
