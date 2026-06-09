@@ -7,6 +7,7 @@ import java.util.Enumeration;
 
 import com.expensemanager.dao.AuditLogDAO;
 import com.expensemanager.dao.CategoryDAO;
+import com.expensemanager.dao.ReceiptDAO;
 import com.expensemanager.dao.SubCategoryDAO;
 import com.expensemanager.dao.TransactionDAO;
 import com.expensemanager.model.Transaction;
@@ -40,6 +41,7 @@ public class EditTransactionServlet extends HttpServlet {
 			AuditLogDAO auditDAO = new AuditLogDAO();
 			CategoryDAO catDAO = new CategoryDAO();
 			SubCategoryDAO scDAO = new SubCategoryDAO();
+			ReceiptDAO rDAO= new ReceiptDAO();
 
 			Transaction t = txnDAO.findById(id);
 			if (t == null) {
@@ -52,7 +54,7 @@ public class EditTransactionServlet extends HttpServlet {
 			req.setAttribute("incomeCategories", catDAO.findByType("INCOME"));
 			req.setAttribute("expenseCategories", catDAO.findByType("EXPENSE"));
 			req.setAttribute("subCategories", scDAO.findAll());
-			req.setAttribute("receipts", scDAO);
+			req.setAttribute("receipts", rDAO.findByTransactionId(id));
 
 		} catch (Exception e) {
 			req.setAttribute("dbError", e.getMessage());
