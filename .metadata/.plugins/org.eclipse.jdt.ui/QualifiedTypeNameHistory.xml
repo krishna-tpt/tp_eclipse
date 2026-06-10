@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="javax.naming.LimitExceededException"/>
+    <fullyQualifiedTypeName name="java.lang.ArrayStoreException"/>
+    <fullyQualifiedTypeName name="java.util.ArrayList"/>
+    <fullyQualifiedTypeName name="java.util.Arrays"/>
+    <fullyQualifiedTypeName name="com.adventnet.swissqlapi.sql.functions.date.makeduration"/>
+    <fullyQualifiedTypeName name="com.movies.db.UploadFileAPI"/>
+    <fullyQualifiedTypeName name="com.movies.db.DeleteFileAPI"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="com.expensemanager.dao.ReceiptDAO"/>
+</qualifiedTypeNameHistroy>

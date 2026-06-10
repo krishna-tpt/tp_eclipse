@@ -1,0 +1,145 @@
+package com.movies.db;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.time.Instant;
+import java.util.UUID;
+
+import org.json.JSONObject;
+
+public class UploadFileAPI {
+
+	// Zoho API Configuration
+	static final String CLIENT_ID = "1000.I7L8AIDAW8EIVJ0PW0O84NKMHAXBFV";
+	static final String CLIENT_SECRET = "1c2192e08af94e368a964ac490624ef803f91f14ab";
+	static final String REFRESH_TOKEN = "1000.9d4e497d53cc405e642a92b737c28691.98dc964d39701f6a15ddcd66057c84da";
+	static final String ZOHO_ACCOUNTS_URL = "https://accounts.zoho.com/oauth/v2/token";
+	static final String WORDRIVE_API_URL = "https://workdrive.zoho.com/api/v1/upload";
+	private static final String WORKDRIVE_FOLDER_ID = "e8cpf113df0584d5b419d984b185e2df899bf";
+	static String ACCESS_TOKEN = null;
+	static final long EXPIRY_BUFFER_SECONDS = 60; // refresh 1 min early
+	volatile Instant expiresAt = Instant.EPOCH;
+
+	public void uploadToWorkDrive(File file) throws Exception {
+		if (!file.exists()) {
+			throw new FileNotFoundException("File not found: " + file.getAbsolutePath());
+		}
+
+//		refreshAccessToken();
+
+		String boundary = "Boundary-" + UUID.randomUUID().toString().replace("-", "");
+
+		// Multipart body manually build (no external library)
+		ByteArrayOutputStream bodyStream = new ByteArrayOutputStream();
+		PrintWriter writer = new PrintWriter(new OutputStreamWriter(bodyStream));
+
+		// -- parent_id field
+		writer.append("--").append(boundary).append("\r\n");
+		writer.append("Content-Disposition: form-data; name=\"parent_id\"").append("\r\n\r\n");
+		writer.append(WORKDRIVE_FOLDER_ID).append("\r\n");
+
+		// -- override-name-exist field
+		writer.append("--").append(boundary).append("\r\n");
+		writer.append("Content-Disposition: form-data; name=\"override-name-exist\"").append("\r\n\r\n");
+		writer.append("true").append("\r\n");
+
+		// -- file content field header
+		writer.append("--").append(boundary).append("\r\n");
+		writer.append("Content-Disposition: form-data; name=\"content\"; filename=\"").append(file.getName())
+				.append("\"").append("\r\n");
+		writer.append("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+				.append("\r\n\r\n");
+		writer.flush();
+
+		// File bytes
+		bodyStream.write(Files.readAllBytes(file.toPath()));
+
+		// Closing boundary
+		writer = new PrintWriter(new OutputStreamWriter(bodyStream));
+		writer.append("\r\n--").append(boundary).append("--\r\n");
+		writer.flush();
+
+		byte[] body = bodyStream.toByteArray();
+
+		// HTTP Request
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(WORDRIVE_API_URL))
+				.header("Authorization", "Zoho-oauthtoken " + getAccessToken())
+				.header("Content-Type", "multipart/form-data; boundary=" + boundary)
+				.POST(HttpRequest.BodyPublishers.ofByteArray(body)).build();
+
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+		System.out.println("HTTP Status : " + response.statusCode());
+		System.out.println("Response    : " + response.body());
+
+		if (response.statusCode() == 200 || response.statusCode() == 201) {
+			JSONObject json = new JSONObject(response.body());
+			System.out.println("✅ Upload Success!");
+
+			JSONObject fileData = json.getJSONArray("data").getJSONObject(0);
+			JSONObject attributes = fileData.getJSONObject("attributes");
+			System.out.println(attributes);
+
+			System.out.println("File Name   : " + attributes.optString("FileName", "N/A"));
+			System.out.println("Resource ID : " + attributes.optString("resource_id", "N/A"));
+			System.out.println("Parent ID   : " + attributes.optString("parent_id", "N/A"));
+		}
+	}
+
+	private void static refreshAccessToken() throws IOException {
+
+		String body = "grant_type=refresh_token" + "&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET
+				+ "&refresh_token=" + REFRESH_TOKEN;
+
+		HttpURLConnection conn = (HttpURLConnection) new URL(ZOHO_ACCOUNTS_URL).openConnection();
+		conn.setRequestMethod("POST");
+		conn.setDoOutput(true);
+		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		conn.setConnectTimeout(10_000);
+		conn.setReadTimeout(10_000);
+
+		try (OutputStream os = conn.getOutputStream()) {
+			os.write(body.getBytes(StandardCharsets.UTF_8));
+		}
+
+		int status = conn.getResponseCode();
+		InputStream is = (status == 200) ? conn.getInputStream() : conn.getErrorStream();
+		String response = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+
+		if (status != 200) {
+			throw new IOException("Token refresh failed [HTTP " + status + "]: " + response);
+		}
+
+		JSONObject json = new JSONObject(response);
+		ACCESS_TOKEN = json.getString("access_token");
+		int expiresIn = json.optInt("expires_in", 3600);
+		this.expiresAt = Instant.now().plusSeconds(expiresIn);
+
+		System.out.println("✅ Access Token refreshed successfully.");
+	}
+
+	public synchronized static String getAccessToken() throws IOException {
+
+		if (ACCESS_TOKEN == null || Instant.now().isAfter(expiresAt.minusSeconds(EXPIRY_BUFFER_SECONDS))) {
+			refreshAccessToken();
+		}
+		return ACCESS_TOKEN;
+	}
+	
+
+}

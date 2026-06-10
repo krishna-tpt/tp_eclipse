@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="MavenProjectWizardLocationPage">
+		<list key="location">
+			<item value="/home/dev021/eclipse/workdrive-organizer"/>
+			<item value="/home/dev021/eclipse/workdriveorganizer/"/>
+			<item value="/home/dev021/eclipse/ReadExcel/ReadExcel"/>
+			<item value="/home/dev021/eclipse/log-search-swing"/>
+			<item value="/home/dev021/eclipse/Junit"/>
+			<item value="/home/dev021/eclipse/ReadExcel"/>
+			<item value="/home/dev021/eclipse/ExcelToOracleInserter"/>
+			<item value="/home/dev021/eclipse/SODAuditReport"/>
+			<item value="/home/dev168/eclipse/Testproject"/>
+			<item value="/home/dev168/eclipse/sodreport/pom.xml"/>
+		</list>
+		<list key="projectNameTemplate">
+			<item value="[artifactId]"/>
+			<item value="[artifactId]-TRUNK"/>
+			<item value="[artifactId]-[version]"/>
+			<item value="[groupId].[artifactId]"/>
+			<item value="[groupId].[artifactId]-[version]"/>
+			<item value="[name]"/>
+		</list>
+	</section>
+	<section name="MavenProjectWizardArchetypePage">
+		<item key="catalog" value="internal"/>
+		<list key="projectNameTemplate">
+			<item value="[artifactId]"/>
+			<item value="[artifactId]-TRUNK"/>
+			<item value="[artifactId]-[version]"/>
+			<item value="[groupId].[artifactId]"/>
+			<item value="[groupId].[artifactId]-[version]"/>
+			<item value="[name]"/>
+		</list>
+	</section>
+	<section name="Maven2ProjectWizardArchifactPage">
+		<list key="package">
+			<item value="com.workdrive.workdrive_organizer"/>
+			<item value="com.workdrive.organizer"/>
+			<item value="com.currencyrate.CurrencyExchange"/>
+			<item value="com.einvoice.inboundfilesread"/>
+			<item value="com.junittest"/>
+			<item value="com.ReadExcel"/>
+		</list>
+		<list key="groupId">
+			<item value="com.workdrive"/>
+			<item value="com.currencyrate"/>
+			<item value="com.einvoice"/>
+			<item value="com."/>
+			<item value="com"/>
+		</list>
+		<list key="artifactId">
+			<item value="workdrive-organizer"/>
+			<item value="organizer"/>
+			<item value="CurrencyExchange"/>
+			<item value="inboundfilesread"/>
+			<item value="junittest"/>
+			<item value="ReadExcel"/>
+		</list>
+		<list key="projectNameTemplate">
+			<item value="[artifactId]"/>
+			<item value="[artifactId]-TRUNK"/>
+			<item value="[artifactId]-[version]"/>
+			<item value="[groupId].[artifactId]"/>
+			<item value="[groupId].[artifactId]-[version]"/>
+			<item value="[name]"/>
+		</list>
+		<list key="version">
+			<item value="0.0.1-SNAPSHOT"/>
+			<item value="1.0-SNAPSHOT"/>
+		</list>
+	</section>
+	<section name="MavenProjectWizardArtifactPage">
+		<list key="groupId">
+		</list>
+		<list key="name">
+		</list>
+		<list key="artifactId">
+		</list>
+		<list key="projectNameTemplate">
+			<item value="[artifactId]"/>
+			<item value="[artifactId]-TRUNK"/>
+			<item value="[artifactId]-[version]"/>
+			<item value="[groupId].[artifactId]"/>
+			<item value="[groupId].[artifactId]-[version]"/>
+			<item value="[name]"/>
+		</list>
+		<list key="version">
+			<item value="0.0.1-SNAPSHOT"/>
+		</list>
+	</section>
+	<section name="org.eclipse.m2e.core.pom.overview">
+		<list key="ciManagementUrl">
+		</list>
+		<list key="ciManagementSystem">
+		</list>
+		<list key="issueManagementSystem">
+		</list>
+		<list key="issueManagementUrl">
+		</list>
+	</section>
+	<section name="org.eclipse.m2e.core.pom.dependencies">
+	</section>
+</section>
