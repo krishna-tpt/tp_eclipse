@@ -19,7 +19,7 @@ if (request.getAttribute("incomeCategories") == null) {
 %>
 
 <c:if test="${not empty param.msg}">
-  <div class="alert alert-success">&#10003; ${param.msg == 'saved' ? 'Transaction Saved!.' : ''}</div>
+  <div class="alert alert-success">&#10003; ${param.msg == 'saved' ? 'Transaction Saved!' : 'not saved'}</div>
 </c:if>
 
 <c:if test="${not empty dbError}">
@@ -94,7 +94,7 @@ if (request.getAttribute("incomeCategories") == null) {
 			<button class="modal-close" onclick="closeModal('incomeModal')">&#x2715;</button>
 		</div>
 		<form id="incomeForm"
-			action="${pageContext.request.contextPath}/transactions"
+			action="${pageContext.request.contextPath}/home"
 			method="post" enctype="multipart/form-data"
 			onsubmit="return prepareSubmit('incomeForm')">
 			<input type="hidden" name="type" value="INCOME">
@@ -234,6 +234,31 @@ if (request.getAttribute("incomeCategories") == null) {
 					</div>
 				</div>
 			</c:if>
+			
+			<!-- Receipts -->
+			<div class="card mt-2">
+				<div class="flex mb-2">
+					<span class="card-title" style="margin-bottom: 0">&#128248;
+						Receipts &amp; Attachments</span> <span class="text-muted"
+						style="font-size: .75rem; margin-left: .5rem">(max 5 MB
+						each)</span>
+				</div>
+
+
+				<input type="file" id="receiptFile" name="receipt"
+					accept="image/*,application/pdf" onchange="validateFileSize(this)"
+					style="font-size: .82rem; flex: 1" > <small
+					id="fileError" style="color: red; display: none;"> File
+					size should not exceed 5 MB. </small>
+			</div>
+
+			<div id="incExtras"></div>
+			<div class="flex gap-1 mt-2">
+				<!-- <button type="button" class="btn btn-outline btn-sm"
+                onclick="addCustomField('incExtras')">+ Ad-hoc Field</button> -->
+				<button type="submit" class="btn btn-success ml-auto">Save
+					Income</button>
+			</div>
 
 			<div id="expExtras"></div>
 			<div class="flex gap-1 mt-2">

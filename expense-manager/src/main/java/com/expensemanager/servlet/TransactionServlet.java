@@ -134,7 +134,7 @@ public class TransactionServlet extends HttpServlet {
 		} catch (Exception e) {
 			System.out.println("File upload : " + e.getMessage());
 		}
-		resp.sendRedirect(req.getContextPath() + "/transactions?msg=saved");
+		resp.sendRedirect(req.getContextPath() + "/home?msg=saved");
 	}
 
 	private String getFileName(Part part) {

@@ -108,7 +108,7 @@ tbody tr.clickable:hover {
 	<div class="alert alert-success">
 		&#10003;
 		<c:choose>
-			<c:when test="${param.success=='1'}">Transaction saved!</c:when>
+			<c:when test="${param.success=='saved'}">Transaction saved!</c:when>
 			<c:when test="${param.success=='deleted'}">Transaction deleted.</c:when>
 		</c:choose>
 	</div>
@@ -206,8 +206,7 @@ tbody tr.clickable:hover {
 						<option value="=" ${filter.amountOp1 == '=' ? 'selected' : ''}>=</option>
 						<option value=">" ${filter.amountOp1 == '>' ? 'selected' : ''}>&#62;</option>
 						<option value=">=" ${filter.amountOp1 == '>=' ? 'selected' : ''}>&#62;=</option>
-						<option
-							value="<" ${filter.amountOp1 == '<' ? 'selected' : ''}>&#60;</option>
+						<option value="<" ${filter.amountOp1 == '<' ? 'selected' : ''}>&#60;</option>
             <option value="<=" ${filter.amountOp1 == '<=' ? 'selected' : ''}>&#60;=</option>
           </select>
           <input type="number" name="amount1" step="0.01" min="0"

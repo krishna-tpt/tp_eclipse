@@ -385,7 +385,7 @@
 									<c:if test="${not empty log.fieldDisplay}">
 										<div class="diff-row">
 											<span class="diff-field">${log.fieldDisplay}</span>
-											<span class="receipt-new">${log.newValue}</span>
+											<span class="diff-new">${log.newValue}</span>
 										</div>
 									</c:if>
 								</c:when>
@@ -394,7 +394,7 @@
 									<c:if test="${not empty log.fieldDisplay}">
 										<div class="diff-row">
 											<span class="diff-field">${log.fieldDisplay}</span>
-											<span class="diff-old">${log.newValue}</span>
+											<span class="diff-old">${log.oldValue}</span>
 										</div>
 									</c:if>
 								</c:when>
