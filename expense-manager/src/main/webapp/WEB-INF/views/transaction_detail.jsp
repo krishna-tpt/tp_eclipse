@@ -123,6 +123,15 @@
 	padding: .08rem .35rem;
 	border-radius: 4px;
 }
+
+.receipt-new {
+	color: #b91c1c;
+	background: #fee2e2;
+	padding: .08rem .35rem;
+	border-radius: 4px;
+}
+
+
 /* Receipts */
 .receipt-grid {
 	display: grid;
@@ -373,10 +382,21 @@
 								</c:when>
 								<c:when test="${log.action=='RECEIPT_ADD'}">
 									<span class="tl-action act-create">&#10010; Receipt uploaded</span>
-									<div style="font-size: .8rem; color: var(--text-2)">Receipt uploaded</div>
+									<c:if test="${not empty log.fieldDisplay}">
+										<div class="diff-row">
+											<span class="diff-field">${log.fieldDisplay}</span>
+											<span class="receipt-new">${log.newValue}</span>
+										</div>
+									</c:if>
 								</c:when>
 								<c:when test="${log.action=='RECEIPT_DEL'}">
 									<span class="tl-action act-delete">&#x1F5D1; Receipt deleted</span>
+									<c:if test="${not empty log.fieldDisplay}">
+										<div class="diff-row">
+											<span class="diff-field">${log.fieldDisplay}</span>
+											<span class="diff-old">${log.newValue}</span>
+										</div>
+									</c:if>
 								</c:when>
 								<c:otherwise>
 									<span class="tl-action act-update">&#9998; Updated</span>
