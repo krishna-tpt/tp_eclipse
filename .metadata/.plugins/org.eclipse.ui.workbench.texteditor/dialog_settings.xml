@@ -10,21 +10,21 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="alert alert-success"/>
+			<item value="income"/>
+			<item value="receipt_uploaded"/>
+			<item value="Attachment"/>
+			<item value="diff-new"/>
+			<item value="Category *"/>
+			<item value="transact"/>
+			<item value="auditLogs"/>
+			<item value="getActionClass"/>
+			<item value="Change History"/>
+			<item value="delete"/>
+			<item value="sa"/>
+			<item value="book delete"/>
 			<item value="receipt"/>
 			<item value="param.success"/>
-			<item value="receipts"/>
-			<item value="Attachments"/>
-			<item value="auditLogs"/>
-			<item value="Change History"/>
-			<item value="access_token"/>
-			<item value="reset"/>
-			<item value="clear"/>
-			<item value="&lt;a href=&quot;${pageContext.request.contextPath}/transactions${filterQS(&apos;&apos;)}&quot;"/>
-			<item value="fmt"/>
-			<item value="&lt;div&gt;${fmt(someVar)}&lt;/div&gt;"/>
-			<item value="filterQS"/>
-			<item value="activeBookId"/>
-			<item value="editSubCatSelect"/>
 		</list>
 		<list key="replacehistory">
 		</list>
