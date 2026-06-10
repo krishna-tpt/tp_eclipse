@@ -2,6 +2,9 @@ package com.expensemanager.servlet;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.expensemanager.dao.AuditLogDAO;
 import com.expensemanager.dao.ReceiptDAO;
 import com.expensemanager.model.Receipt;
@@ -21,7 +24,7 @@ import jakarta.servlet.http.Part;
 @WebServlet("/receipt")
 @MultipartConfig(maxFileSize = 5_242_880, maxRequestSize = 10_485_760) // 5MB file, 10MB request
 public class ReceiptServlet extends HttpServlet {
-
+	private static final Logger log = LoggerFactory.getLogger(ReceiptServlet.class);
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
@@ -57,7 +60,7 @@ public class ReceiptServlet extends HttpServlet {
 			try {
 				ReceiptDAO receiptDAO = new ReceiptDAO();
 				Receipt existing = receiptDAO.findById(Integer.parseInt(receiptId)); // fetch before delete
-				receiptDAO.delete(Integer.parseInt(receiptId));
+				receiptDAO.delete(Integer.parseInt(receiptId), existing.getFileName());
 				if (existing != null) {
 					new AuditLogDAO().logReceiptDelete(Integer.parseInt(txnId), "user", existing.getFileName());
 				}

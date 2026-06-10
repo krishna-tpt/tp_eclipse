@@ -359,7 +359,7 @@
 			<div class="timeline">
 				<c:forEach var="log" items="${auditLogs}">
 					<div
-						class="tl-item ${log.action=='CREATE'?'create':log.action=='UPDATE'?'update':'delete'}">
+						class="tl-item ${log.action=='CREATE'?'create':log.action=='UPDATE'?'update':log.action=='RECEIPT_ADD'?'Receipt uploaded':log.action=='RECEIPT_DEL'?'Receipt deleted':'delete'}">
 						<div class="tl-time">${log.formattedChangedAt}</div>
 						<div class="tl-card">
 							<c:choose>
@@ -370,6 +370,13 @@
 								</c:when>
 								<c:when test="${log.action=='DELETE'}">
 									<span class="tl-action act-delete">&#x1F5D1; Deleted</span>
+								</c:when>
+								<c:when test="${log.action=='RECEIPT_ADD'}">
+									<span class="tl-action act-create">&#10010; Receipt uploaded</span>
+									<div style="font-size: .8rem; color: var(--text-2)">Receipt uploaded</div>
+								</c:when>
+								<c:when test="${log.action=='RECEIPT_DEL'}">
+									<span class="tl-action act-delete">&#x1F5D1; Receipt deleted</span>
 								</c:when>
 								<c:otherwise>
 									<span class="tl-action act-update">&#9998; Updated</span>

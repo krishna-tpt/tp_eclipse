@@ -1,13 +1,20 @@
 package com.expensemanager.servlet;
 
-import com.expensemanager.dao.CashBookDAO;
-import com.expensemanager.model.CashBook;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-import jakarta.servlet.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.expensemanager.dao.CashBookDAO;
+import com.expensemanager.model.CashBook;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * /books GET → list all books /books POST → create new book /books?edit=id GET
@@ -16,6 +23,7 @@ import java.util.List;
  */
 @WebServlet("/books")
 public class CashBookServlet extends HttpServlet {
+	private static final Logger log = LoggerFactory.getLogger(CashBookServlet.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

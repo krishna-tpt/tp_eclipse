@@ -1,15 +1,23 @@
 package com.expensemanager.dao;
 
-import com.expensemanager.model.AuditLog;
-import com.expensemanager.util.DBConnection;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.expensemanager.model.AuditLog;
+import com.expensemanager.util.DBConnection;
 
 public class AuditLogDAO {
 
     private final DBConnection db = DBConnection.getInstance();
+    private static final Logger log = LoggerFactory.getLogger(AuditLogDAO.class);
 
     /** Log a CREATE event */
     public void logCreate(int transactionId, String changedBy) throws SQLException {
