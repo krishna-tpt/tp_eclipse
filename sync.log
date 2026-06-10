@@ -4414,3 +4414,69 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main ec14d90] Auto sync - 2026-06-10 09:30:02
+ 55 files changed, 260 insertions(+), 7 deletions(-)
+ rename {expense-manager/target/classes => LLDPrograms/bin}/.gitignore (100%)
+ create mode 100644 MovieWebsite/db/target/classes/META-INF/MANIFEST.MF
+ create mode 100644 MovieWebsite/db/target/classes/META-INF/maven/com.movies/db/pom.properties
+ create mode 100644 MovieWebsite/db/target/classes/META-INF/maven/com.movies/db/pom.xml
+ create mode 100644 MovieWebsite/db/target/classes/com/movies/db/Movie.class
+ create mode 100644 MovieWebsite/db/target/classes/com/movies/db/MovieScraperAPI.class
+ create mode 100644 MovieWebsite/db/target/classes/com/movies/db/UploadFileAPI.class
+ create mode 100644 Testproject/sodtest/.classpath
+ create mode 100644 Testproject/sodtest/.gitignore
+ create mode 100644 Testproject/sodtest/.project
+ create mode 100644 Testproject/sodtest/.settings/org.eclipse.jdt.core.prefs
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/AuditLogDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/CashBookDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/CategoryDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/ColumnDefinitionDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/ReceiptDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/SubCategoryDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/TransactionDAO$BuildResult.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/dao/TransactionDAO.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/AuditLog.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/CashBook.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/Category.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/ColumnDefinition.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/Receipt.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/SubCategory.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/Transaction$Type.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/Transaction.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/model/TransactionFilter.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/service/ExportService.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/service/GmailService$1.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/service/GmailService.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/CalendarServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/CashBookServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/CategoryServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ColumnServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/EditTransactionServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ExportServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/HomeServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ReceiptServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/ReportServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/SettingsServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/servlet/TransactionServlet.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/util/AppContextListener.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/util/BookFilter.class
+ create mode 100644 expense-manager/target/classes/com/expensemanager/util/DBConnection.class
+ rename {MovieWebsite/db => log-search-swing}/target/classes/.gitignore (70%)
+ create mode 100644 workdrive-organizer2/target/m2e-wtp/web-resources/.gitignore
+To https://github.com/krishna-tpt/tp_eclipse.git
+   6b2857a..ec14d90  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-10 09:30:05[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-10 10:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m

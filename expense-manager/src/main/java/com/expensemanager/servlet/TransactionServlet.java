@@ -1,18 +1,33 @@
 package com.expensemanager.servlet;
 
-import com.expensemanager.dao.*;
-import com.expensemanager.model.*;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-import jakarta.servlet.*;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.expensemanager.dao.AuditLogDAO;
+import com.expensemanager.dao.CategoryDAO;
+import com.expensemanager.dao.ColumnDefinitionDAO;
+import com.expensemanager.dao.ReceiptDAO;
+import com.expensemanager.dao.SubCategoryDAO;
+import com.expensemanager.dao.TransactionDAO;
+import com.expensemanager.model.Receipt;
+import com.expensemanager.model.Transaction;
+import com.expensemanager.model.TransactionFilter;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 @WebServlet("/transactions")
+@MultipartConfig(maxFileSize = 5_242_880, maxRequestSize = 10_485_760) // 5MB file, 10MB request
 public class TransactionServlet extends HttpServlet {
 
 	@Override
@@ -56,7 +71,7 @@ public class TransactionServlet extends HttpServlet {
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
 		String typeStr = req.getParameter("type");
 		String amountStr = req.getParameter("amount");
-		String catIdStr = req.getParameter("categoryId");
+		String catIdStr = req.getParameter("categoryid");
 		String subcatStr = req.getParameter("subcategoryId");
 		String note = req.getParameter("note");
 		String dateStr = req.getParameter("dateTime");
@@ -86,12 +101,44 @@ public class TransactionServlet extends HttpServlet {
 		});
 		t.setCustomValues(customs);
 
+		System.out.println("Transaction saving...");
+		int txnId;
 		try {
-			new TransactionDAO().insert(t);
-			resp.sendRedirect(req.getContextPath() + "/home");
+			txnId = new TransactionDAO().insert(t);
+
+			String contentType = req.getContentType();
+
+			if (contentType != null && contentType.toLowerCase().startsWith("multipart/")) {
+
+				Part filePart = req.getPart("receipt");
+				if (filePart != null && filePart.getSize() >= 0) {
+					System.out.println("File uploading...");
+					Receipt r = new Receipt();
+					r.setTransactionId(txnId);
+					r.setFileName(getFileName(filePart));
+					r.setFileType(filePart.getContentType());
+					r.setFileData(filePart.getInputStream().readAllBytes());
+					r.setFileSize((int) filePart.getSize());
+					new AuditLogDAO().logReceiptUpload(txnId, "user", r.getFileName());
+					new ReceiptDAO().insert(r);
+					System.out.println("File uploaded...");
+				}
+			}
 		} catch (Exception e) {
-			resp.sendRedirect(req.getContextPath() + "/transactions?error=" + e.getMessage());
+			System.out.println("File upload : " + e.getMessage());
 		}
+	}
+
+	private String getFileName(Part part) {
+		String cd = part.getHeader("content-disposition");
+		if (cd != null) {
+			for (String s : cd.split(";")) {
+				if (s.trim().startsWith("filename")) {
+					return s.substring(s.indexOf('=') + 1).trim().replace("\"", "");
+				}
+			}
+		}
+		return "receipt_" + System.currentTimeMillis();
 	}
 
 	// ── Filter parsing ────────────────────────────────────
