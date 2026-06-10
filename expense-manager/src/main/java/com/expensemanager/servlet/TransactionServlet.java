@@ -20,6 +20,7 @@ import com.expensemanager.dao.TransactionDAO;
 import com.expensemanager.model.Receipt;
 import com.expensemanager.model.Transaction;
 import com.expensemanager.model.TransactionFilter;
+import com.expensemanager.util.AppContextListener;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -106,7 +107,7 @@ public class TransactionServlet extends HttpServlet {
 		});
 		t.setCustomValues(customs);
 
-		log.debug("Transaction saving...");
+		log.info("Transaction saving...");
 		int txnId;
 		try {
 			txnId = new TransactionDAO().insert(t);
@@ -116,7 +117,8 @@ public class TransactionServlet extends HttpServlet {
 			if (contentType != null && contentType.toLowerCase().startsWith("multipart/")) {
 
 				Part filePart = req.getPart("receipt");
-				if (filePart != null && filePart.getSize() >= 0) {
+				log.debug("File size : {}",filePart.getSize());
+				if (filePart != null && filePart.getSize() > 0) {
 					log.debug("File uploading...");
 					Receipt r = new Receipt();
 					r.setTransactionId(txnId);
@@ -124,7 +126,7 @@ public class TransactionServlet extends HttpServlet {
 					r.setFileType(filePart.getContentType());
 					r.setFileData(filePart.getInputStream().readAllBytes());
 					r.setFileSize((int) filePart.getSize());
-					new AuditLogDAO().logReceiptUpload(txnId, "user", r.getFileName());
+//					new AuditLogDAO().logReceiptUpload(txnId, "user", r.getFileName());
 					new ReceiptDAO().insert(r);
 					log.debug("File uploaded...");
 				}
@@ -132,7 +134,7 @@ public class TransactionServlet extends HttpServlet {
 		} catch (Exception e) {
 			System.out.println("File upload : " + e.getMessage());
 		}
-		req.getRequestDispatcher("/home").forward(req, resp);
+		resp.sendRedirect(req.getContextPath() + "/transactions?msg=saved");
 	}
 
 	private String getFileName(Part part) {

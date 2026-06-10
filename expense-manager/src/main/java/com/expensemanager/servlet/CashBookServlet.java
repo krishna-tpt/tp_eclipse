@@ -23,14 +23,14 @@ public class CashBookServlet extends HttpServlet {
 		String deleteId = req.getParameter("delete");
 		String selectId = req.getParameter("select");
 
-//		if (deleteId != null) {
-//			try {
-//				new CashBookDAO().delete(Integer.parseInt(deleteId));
-//			} catch (Exception e) {
-//				/* ignore */ }
-//			resp.sendRedirect(req.getContextPath() + "/books?msg=deleted");
-//			return;
-//		}
+		if (deleteId != null) {
+			try {
+				new CashBookDAO().delete(Integer.parseInt(deleteId));
+			} catch (Exception e) {
+				/* ignore */ }
+			resp.sendRedirect(req.getContextPath() + "/books?msg=deleted");
+			return;
+		}
 
 		if (selectId != null) {
 			// Store selected book in session

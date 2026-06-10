@@ -26,7 +26,7 @@ public class ReceiptDAO {
 			ps.setBytes(4, r.getFileData());
 			ps.setInt(5, r.getFileSize());
 			ps.executeUpdate();
-			auditDAO.logCreate(r.getTransactionId(), "user");
+			auditDAO.logReceiptUpload(r.getTransactionId(), "user");
 		} finally {
 			db.releaseConnection(conn);
 		}

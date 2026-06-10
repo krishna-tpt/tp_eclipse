@@ -10,9 +10,9 @@
   <logger name="org.postgresql"   level="WARN"/>
 
   <!-- App logs -->
-  <logger name="com.expensemanager" level="INFO"/>
+  <logger name="com.expensemanager" level="TRACE"/>
 
-  <root level="WARN">
+  <root level="INFO">
     <appender-ref ref="CONSOLE"/>
   </root>
 </configuration>

@@ -18,6 +18,14 @@ if (request.getAttribute("incomeCategories") == null) {
 }
 %>
 
+<c:if test="${not empty param.msg}">
+  <div class="alert alert-success">&#10003; ${param.msg == 'saved' ? 'Transaction Saved!.' : ''}</div>
+</c:if>
+
+<c:if test="${not empty dbError}">
+  <div class="alert alert-error">&#10007; ${dbError}</div>
+</c:if>
+
 <style>
 /* Receipts */
 .receipt-grid {
@@ -151,7 +159,7 @@ if (request.getAttribute("incomeCategories") == null) {
 
 				<input type="file" id="receiptFile" name="receipt"
 					accept="image/*,application/pdf" onchange="validateFileSize(this)"
-					style="font-size: .82rem; flex: 1" required> <small
+					style="font-size: .82rem; flex: 1" > <small
 					id="fileError" style="color: red; display: none;"> File
 					size should not exceed 5 MB. </small>
 			</div>

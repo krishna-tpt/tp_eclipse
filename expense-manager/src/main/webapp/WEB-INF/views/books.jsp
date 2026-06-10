@@ -70,13 +70,13 @@
             <a href="${pageContext.request.contextPath}/books?select=${book.id}" class="btn btn-primary btn-sm">Open Book</a>
           </c:otherwise>
         </c:choose>
-  <!-- <button class="btn btn-outline btn-sm"
+   <button class="btn btn-outline btn-sm"
                 onclick="openEditModal(${book.id},'${book.name}','${book.description}')">Edit</button>
-        <c:if test="${!isActive}">
+        <%-- <c:if test="${!isActive}">
           <a href="${pageContext.request.contextPath}/books?delete=${book.id}"
              class="btn btn-danger btn-sm ml-auto"
              onclick="return confirm('Delete this book? Only empty books can be deleted.')">&#x2715;</a>
-        </c:if>  --> 
+        </c:if>  --%>  
       </div>
     </div>
   </c:forEach>
