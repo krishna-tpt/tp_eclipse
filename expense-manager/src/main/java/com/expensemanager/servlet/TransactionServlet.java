@@ -8,6 +8,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.expensemanager.dao.AuditLogDAO;
 import com.expensemanager.dao.CategoryDAO;
 import com.expensemanager.dao.ColumnDefinitionDAO;
@@ -29,6 +32,8 @@ import jakarta.servlet.http.Part;
 @WebServlet("/transactions")
 @MultipartConfig(maxFileSize = 5_242_880, maxRequestSize = 10_485_760) // 5MB file, 10MB request
 public class TransactionServlet extends HttpServlet {
+
+	private static final Logger log = LoggerFactory.getLogger(TransactionServlet.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -101,7 +106,7 @@ public class TransactionServlet extends HttpServlet {
 		});
 		t.setCustomValues(customs);
 
-		System.out.println("Transaction saving...");
+		log.debug("Transaction saving...");
 		int txnId;
 		try {
 			txnId = new TransactionDAO().insert(t);
@@ -112,7 +117,7 @@ public class TransactionServlet extends HttpServlet {
 
 				Part filePart = req.getPart("receipt");
 				if (filePart != null && filePart.getSize() >= 0) {
-					System.out.println("File uploading...");
+					log.debug("File uploading...");
 					Receipt r = new Receipt();
 					r.setTransactionId(txnId);
 					r.setFileName(getFileName(filePart));
@@ -121,12 +126,13 @@ public class TransactionServlet extends HttpServlet {
 					r.setFileSize((int) filePart.getSize());
 					new AuditLogDAO().logReceiptUpload(txnId, "user", r.getFileName());
 					new ReceiptDAO().insert(r);
-					System.out.println("File uploaded...");
+					log.debug("File uploaded...");
 				}
 			}
 		} catch (Exception e) {
 			System.out.println("File upload : " + e.getMessage());
 		}
+		req.getRequestDispatcher("/home").forward(req, resp);
 	}
 
 	private String getFileName(Part part) {
