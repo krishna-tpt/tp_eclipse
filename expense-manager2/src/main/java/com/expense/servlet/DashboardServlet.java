@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-@WebServlet({ "/", "/dashboard" })
+@WebServlet(urlPatterns = { "/dashboard", "/dashboard/*" })
 public class DashboardServlet extends HttpServlet {
 
 	private final TransactionDAO dao = new TransactionDAO();
@@ -19,7 +19,6 @@ public class DashboardServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		try {
-			// Current month range
 			LocalDate now = LocalDate.now();
 			String fromDate = now.withDayOfMonth(1).toString();
 			String toDate = now.toString();
@@ -28,10 +27,8 @@ public class DashboardServlet extends HttpServlet {
 			BigDecimal totalExpense = dao.getTotalAmount("expense", fromDate, toDate);
 			BigDecimal balance = totalIncome.subtract(totalExpense);
 
-			// Recent 5 of each
 			List<Transaction> recentIncome = dao.getAll("income", null, null, null, "transaction_date", "DESC");
 			List<Transaction> recentExpense = dao.getAll("expense", null, null, null, "transaction_date", "DESC");
-
 			if (recentIncome.size() > 5)
 				recentIncome = recentIncome.subList(0, 5);
 			if (recentExpense.size() > 5)
@@ -43,6 +40,8 @@ public class DashboardServlet extends HttpServlet {
 			req.setAttribute("recentIncome", recentIncome);
 			req.setAttribute("recentExpense", recentExpense);
 			req.setAttribute("currentMonth", now.getMonth().toString());
+			req.setAttribute("activePage", "dashboard");
+			req.setAttribute("pageTitle", "Dashboard");
 
 			req.getRequestDispatcher("/WEB-INF/jsp/dashboard.jsp").forward(req, res);
 		} catch (Exception e) {

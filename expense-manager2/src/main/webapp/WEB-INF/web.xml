@@ -2,12 +2,12 @@
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
-         https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
-         version="6.0">
+         https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
 
     <display-name>ExpenseIQ</display-name>
 
-    <!-- ── Backup Schedule Config ── -->
+    <!-- Backup Schedule -->
     <context-param>
         <param-name>backup.schedule.hour</param-name>
         <param-value>0</param-value>
@@ -17,12 +17,11 @@
         <param-value>0</param-value>
     </context-param>
 
-    <!-- ── Welcome File ── -->
+    <!-- Welcome file → redirects to DashboardServlet -->
     <welcome-file-list>
-        <welcome-file>dashboard</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
-    <!-- ── Error Pages ── -->
     <error-page>
         <error-code>404</error-code>
         <location>/WEB-INF/jsp/error.jsp</location>
@@ -32,7 +31,6 @@
         <location>/WEB-INF/jsp/error.jsp</location>
     </error-page>
 
-    <!-- ── Session Timeout: 30 min ── -->
     <session-config>
         <session-timeout>30</session-timeout>
     </session-config>

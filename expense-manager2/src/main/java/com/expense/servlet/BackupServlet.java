@@ -4,8 +4,10 @@ import com.expense.backup.BackupService;
 import com.expense.dao.BackupDAO;
 import com.expense.model.BackupMetadata;
 import com.expense.model.BackupMetadata.BackupType;
+
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.*;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.*;
 import java.util.List;
@@ -13,14 +15,13 @@ import java.util.List;
 @WebServlet("/backup/*")
 @MultipartConfig(maxFileSize = 50 * 1024 * 1024)
 public class BackupServlet extends HttpServlet {
+
 	private final BackupService svc = new BackupService();
 	private final BackupDAO dao = new BackupDAO();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		String path = req.getPathInfo();
-		if (path == null)
-			path = "/list";
 		if ("/download".equals(path)) {
 			handleDownload(req, res);
 			return;
@@ -42,7 +43,7 @@ public class BackupServlet extends HttpServlet {
 		req.setCharacterEncoding("UTF-8");
 		String path = req.getPathInfo();
 		if (path == null)
-			path = "/list";
+			path = "";
 		switch (path) {
 		case "/create":
 			handleCreate(req, res);
@@ -93,15 +94,15 @@ public class BackupServlet extends HttpServlet {
 	private void handleDownload(HttpServletRequest req, HttpServletResponse res) throws IOException {
 		String idStr = req.getParameter("id");
 		if (idStr == null) {
-			res.sendError(400);
+			res.sendError(400, "Missing id");
 			return;
 		}
 		try {
 			int id = Integer.parseInt(idStr);
 			byte[] bytes = svc.getBackupBytes(id);
-			BackupMetadata m = dao.getById(id);
+			BackupMetadata meta = dao.getById(id);
 			res.setContentType("application/zip");
-			res.setHeader("Content-Disposition", "attachment; filename=\"" + m.getFileName() + "\"");
+			res.setHeader("Content-Disposition", "attachment; filename=\"" + meta.getFileName() + "\"");
 			res.setContentLength(bytes.length);
 			res.getOutputStream().write(bytes);
 		} catch (Exception e) {
@@ -126,7 +127,7 @@ public class BackupServlet extends HttpServlet {
 			byte[] bytes = filePart.getInputStream().readAllBytes();
 			BackupMetadata m = svc.registerUploadedBackup(bytes, name, req.getParameter("description"));
 			req.getSession().setAttribute("successMsg",
-					"✅ Backup uploaded! " + m.getFileName() + " (" + m.getFileSizeFormatted() + ")");
+					"✅ Uploaded: " + m.getFileName() + " (" + m.getFileSizeFormatted() + ")");
 		} catch (Exception e) {
 			req.getSession().setAttribute("errorMsg", "❌ Upload failed: " + e.getMessage());
 		}

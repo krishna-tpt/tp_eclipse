@@ -8,62 +8,60 @@
 	<artifactId>ExpenseManager</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>war</packaging>
-	<name>ExpenseIQ – Expense Manager</name>
+	<name>ExpenseIQ</name>
 
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<failOnMissingWebXml>false</failOnMissingWebXml>
 	</properties>
 
 	<dependencies>
 
-		<!-- ── Jakarta Servlet API (Tomcat 10+ / Jakarta EE 10) ── -->
+		<!-- Servlet API - Tomcat 10.0.x -->
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
-			<version>6.0.0</version>
+			<version>5.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- ── Jakarta JSP API ── -->
+		<!-- JSP API - Tomcat 10.0.x -->
 		<dependency>
 			<groupId>jakarta.servlet.jsp</groupId>
 			<artifactId>jakarta.servlet.jsp-api</artifactId>
-			<version>3.1.0</version>
+			<version>3.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- ── Jakarta JSTL API ── -->
+		<!-- JSTL - Apache Taglibs (classic URI:
+		http://java.sun.com/jsp/jstl/core) -->
 		<dependency>
-			<groupId>jakarta.servlet.jsp.jstl</groupId>
-			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
-			<version>3.0.0</version>
+			<groupId>org.apache.taglibs</groupId>
+			<artifactId>taglibs-standard-spec</artifactId>
+			<version>1.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.taglibs</groupId>
+			<artifactId>taglibs-standard-impl</artifactId>
+			<version>1.2.5</version>
 		</dependency>
 
-		<!-- ── JSTL Implementation (Glassfish/Eclipse) ── -->
-		<dependency>
-			<groupId>org.glassfish.web</groupId>
-			<artifactId>jakarta.servlet.jsp.jstl</artifactId>
-			<version>3.0.1</version>
-		</dependency>
-
-		<!-- ── PostgreSQL JDBC Driver ── -->
+		<!-- PostgreSQL JDBC -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.7.3</version>
 		</dependency>
 
-		<!-- ── Gson (JSON for AJAX) ── -->
+		<!-- Gson -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.10.1</version>
 		</dependency>
 
-		<!-- Logging -->
+		<!--Logging-->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -74,26 +72,21 @@
 			<artifactId>logback-classic</artifactId>
 			<version>1.5.3</version>
 		</dependency>
+	</dependencies>
 
-		<!-- Jakarta EE 9 -->
-		<dependency>
-			<groupId>jakarta.platform</groupId>
-			<artifactId>jakarta.jakartaee-api</artifactId>
-			<version>9.1.0</version>
-			<scope>provided</scope>
-		</dependency>
 
 	</dependencies>
 
 	<build>
-		<finalName>ExpenseManager</finalName>
+		<!-- ✅ Match your WAR deployment name exactly -->
+		<finalName>expense-manager</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>3.4.0</version>
 				<configuration>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
+					<failOnMissingWebXml>true</failOnMissingWebXml>
 				</configuration>
 			</plugin>
 			<plugin>
