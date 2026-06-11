@@ -5999,3 +5999,36 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 6131ea7] Auto sync - 2026-06-11 16:30:02
+ 34 files changed, 3622 insertions(+), 2502 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/externalFilesCache (98%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/nonChainingJarsCache (81%)
+ rewrite .metadata/.plugins/org.eclipse.m2e.core/workspaceState.ser (91%)
+ rewrite .metadata/.plugins/org.eclipse.wst.server.core/publish/publish0.dat (74%)
+ rewrite expense-manager2/src/main/java/com/expense/util/DBConnection.java (81%)
+ create mode 100644 expense-manager2/target/classes/.gitignore
+ rewrite expense-manager2/target/classes/com/expense/backup/BackupScheduler.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/servlet/BackupServlet.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/servlet/DashboardServlet.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/servlet/ExpenseServlet.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/servlet/IncomeServlet.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/servlet/ReportServlet.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/util/DBConnection.class (92%)
+ create mode 100644 expense-manager2/target/classes/logback.xml
+To https://github.com/krishna-tpt/tp_eclipse.git
+   64c09b1..6131ea7  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-11 16:30:08[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-11 17:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
