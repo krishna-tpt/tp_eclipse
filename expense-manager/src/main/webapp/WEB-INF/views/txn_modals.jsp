@@ -253,14 +253,6 @@ if (request.getAttribute("incomeCategories") == null) {
 					size should not exceed 5 MB. </small>
 			</div>
 
-			<div id="incExtras"></div>
-			<div class="flex gap-1 mt-2">
-				<!-- <button type="button" class="btn btn-outline btn-sm"
-                onclick="addCustomField('incExtras')">+ Ad-hoc Field</button> -->
-				<button type="submit" class="btn btn-success ml-auto">Save
-					Income</button>
-			</div>
-
 			<div id="expExtras"></div>
 			<div class="flex gap-1 mt-2">
 				<!-- <button type="button" class="btn btn-outline btn-sm"

@@ -189,13 +189,33 @@
 	font-size: .75rem;
 	color: var(--primary);
 }
+
+.back-btn {
+    display: inline-block;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #43B6F0, #7B7EF0, #D91EF0);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 25px;
+    font-size: .9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0,0,0,.15);
+    transition: transform .2s ease;
+}
+
+.back-btn:hover {
+    transform: translateY(-2px);
+}
 </style>
 
 <div class="page-header flex">
 	<div>
-		<a href="${pageContext.request.contextPath}/transactions"
+		<%-- <a href="${pageContext.request.contextPath}/transactions"
 			style="color: var(--text-2); text-decoration: none; font-size: .85rem">&#8592;
-			Back</a>
+			Back</a> --%>
+		<a href="${pageContext.request.contextPath}/transactions"
+   			class="back-btn"> Back
+		</a>
 		<h1 style="margin-top: .2rem">Transaction Detail</h1>
 	</div>
 </div>
