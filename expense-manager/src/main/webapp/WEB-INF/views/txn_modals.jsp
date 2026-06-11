@@ -184,7 +184,8 @@ if (request.getAttribute("incomeCategories") == null) {
 		</div>
 		<form id="expenseForm"
 			action="${pageContext.request.contextPath}/transactions"
-			method="post" onsubmit="return prepareSubmit('expenseForm')">
+			method="post" enctype="multipart/form-data" 
+			onsubmit="return prepareSubmit('expenseForm')">
 			<input type="hidden" name="type" value="EXPENSE">
 			<div class="form-grid">
 				<div class="form-group">
@@ -196,7 +197,7 @@ if (request.getAttribute("incomeCategories") == null) {
 						name="amount" min="0.01" step="0.01" placeholder="0.00" required>
 				</div>
 				<div class="form-group">
-					<label>Category *</label> <select name="categoryId"
+					<label>Category *</label> <select name="categoryid"
 						id="expCategorySelect" required onchange="filterSubCat('exp')">
 						<option value="">Select&#8230;</option>
 						<c:forEach var="cat" items="${expenseCategories}">
