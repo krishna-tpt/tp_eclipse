@@ -5958,3 +5958,44 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 64c09b1] Auto sync - 2026-06-11 16:00:02
+ 63 files changed, 4463 insertions(+), 4653 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.m2e.core/workspaceState.ser (91%)
+ rewrite .metadata/.plugins/org.eclipse.wst.server.core/publish/publish0.dat (100%)
+ create mode 100644 expense-manager2/.settings/org.eclipse.wst.ws.service.policy.prefs
+ rewrite expense-manager2/src/main/java/com/expense/backup/BackupScheduler.java (90%)
+ rewrite expense-manager2/src/main/java/com/expense/backup/BackupService.java (90%)
+ rewrite expense-manager2/src/main/java/com/expense/dao/BackupDAO.java (93%)
+ rewrite expense-manager2/src/main/java/com/expense/model/BackupMetadata.java (96%)
+ rewrite expense-manager2/src/main/java/com/expense/model/Transaction.java (89%)
+ rewrite expense-manager2/src/main/java/com/expense/servlet/ExpenseServlet.java (91%)
+ rewrite expense-manager2/src/main/java/com/expense/servlet/IncomeServlet.java (91%)
+ rewrite expense-manager2/src/main/java/com/expense/servlet/ReportServlet.java (87%)
+ rewrite expense-manager2/src/main/java/com/expense/util/DBConnection.java (79%)
+ rewrite expense-manager2/src/main/webapp/WEB-INF/views/reports.jsp (69%)
+ rewrite expense-manager2/src/main/webapp/css/style.css (100%)
+ create mode 100644 expense-manager2/src/main/webapp/index.jsp
+ rewrite expense-manager2/target/classes/com/expense/backup/BackupScheduler.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/servlet/BackupServlet.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/servlet/DashboardServlet.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/servlet/ExpenseServlet.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/servlet/IncomeServlet.class (99%)
+ rewrite expense-manager2/target/classes/com/expense/servlet/ReportServlet.class (99%)
+ delete mode 100644 expense-manager2/target/classes/logback.xml
+To https://github.com/krishna-tpt/tp_eclipse.git
+   0f37fd1..64c09b1  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-11 16:00:08[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-11 16:30:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m

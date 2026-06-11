@@ -12,10 +12,14 @@ import jakarta.servlet.http.*;
 import java.io.*;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @WebServlet("/backup/*")
 @MultipartConfig(maxFileSize = 50 * 1024 * 1024)
 public class BackupServlet extends HttpServlet {
 
+	private static final Logger log = LoggerFactory.getLogger(BackupServlet.class);
 	private final BackupService svc = new BackupService();
 	private final BackupDAO dao = new BackupDAO();
 

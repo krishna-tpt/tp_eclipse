@@ -13,9 +13,13 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @WebServlet("/expense/*")
 public class ExpenseServlet extends HttpServlet {
 
+	private static final Logger log = LoggerFactory.getLogger(ExpenseServlet.class);
     private final TransactionDAO dao = new TransactionDAO();
     private static final String TYPE = "expense";
 

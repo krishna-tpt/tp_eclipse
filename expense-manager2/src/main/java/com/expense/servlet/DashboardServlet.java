@@ -1,20 +1,27 @@
 package com.expense.servlet;
 
-import com.expense.dao.TransactionDAO;
-import com.expense.model.Transaction;
-
-import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.expense.dao.TransactionDAO;
+import com.expense.model.Transaction;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @WebServlet(urlPatterns = { "/dashboard", "/dashboard/*" })
 public class DashboardServlet extends HttpServlet {
 
 	private final TransactionDAO dao = new TransactionDAO();
+	private static final Logger log = LoggerFactory.getLogger(DashboardServlet.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
