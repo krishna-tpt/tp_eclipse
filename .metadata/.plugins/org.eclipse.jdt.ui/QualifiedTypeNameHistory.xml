@@ -7,6 +7,9 @@
     <fullyQualifiedTypeName name="com.adventnet.swissqlapi.sql.functions.date.makeduration"/>
     <fullyQualifiedTypeName name="com.movies.db.UploadFileAPI"/>
     <fullyQualifiedTypeName name="com.movies.db.DeleteFileAPI"/>
-    <fullyQualifiedTypeName name="java.util.List"/>
     <fullyQualifiedTypeName name="com.expensemanager.dao.ReceiptDAO"/>
+    <fullyQualifiedTypeName name="java.sql.Statement"/>
+    <fullyQualifiedTypeName name="java.sql.Timestamp"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="java.util.logging.Logger"/>
 </qualifiedTypeNameHistroy>

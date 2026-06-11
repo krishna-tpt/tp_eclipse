@@ -10,21 +10,21 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="DBConnection"/>
+			<item value="type === &apos;success&apos;"/>
+			<item value="submitForm"/>
+			<item value="prepareSubmit"/>
+			<item value="System.out.println"/>
+			<item value="sql --"/>
+			<item value="sql"/>
+			<item value="SQL"/>
+			<item value="back"/>
 			<item value="alert alert-success"/>
 			<item value="income"/>
 			<item value="receipt_uploaded"/>
 			<item value="Attachment"/>
 			<item value="diff-new"/>
 			<item value="Category *"/>
-			<item value="transact"/>
-			<item value="auditLogs"/>
-			<item value="getActionClass"/>
-			<item value="Change History"/>
-			<item value="delete"/>
-			<item value="sa"/>
-			<item value="book delete"/>
-			<item value="receipt"/>
-			<item value="param.success"/>
 		</list>
 		<list key="replacehistory">
 		</list>
