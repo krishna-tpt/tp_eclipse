@@ -21,6 +21,9 @@ public class HomeServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+		HttpSession session = req.getSession();
+		log.debug("Session Timeout: {}", session.getMaxInactiveInterval());
+
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
 //		System.out.println("Book ID: "+bookId);
 		try {
@@ -42,6 +45,7 @@ public class HomeServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	    // Delegate to TransactionServlet
+		log.debug("HomeServlet debug");
 	    req.getRequestDispatcher("/transactions").forward(req, resp);
 	}
 }

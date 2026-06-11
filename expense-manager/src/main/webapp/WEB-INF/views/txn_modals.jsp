@@ -19,11 +19,11 @@ if (request.getAttribute("incomeCategories") == null) {
 %>
 
 <c:if test="${not empty param.msg}">
-  <div class="alert alert-success">&#10003; ${param.msg == 'saved' ? 'Transaction Saved!' : 'not saved'}</div>
+	<div class="alert alert-success">&#10003; ${param.msg == 'saved' ? 'Transaction Saved!' : 'not saved'}</div>
 </c:if>
 
 <c:if test="${not empty dbError}">
-  <div class="alert alert-error">&#10007; ${dbError}</div>
+	<div class="alert alert-error">&#10007; ${dbError}</div>
 </c:if>
 
 <style>
@@ -94,7 +94,7 @@ if (request.getAttribute("incomeCategories") == null) {
 			<button class="modal-close" onclick="closeModal('incomeModal')">&#x2715;</button>
 		</div>
 		<form id="incomeForm"
-			action="${pageContext.request.contextPath}/home"
+			action="${pageContext.request.contextPath}/transactions"
 			method="post" enctype="multipart/form-data"
 			onsubmit="return prepareSubmit('incomeForm')">
 			<input type="hidden" name="type" value="INCOME">
@@ -159,9 +159,9 @@ if (request.getAttribute("incomeCategories") == null) {
 
 				<input type="file" id="receiptFile" name="receipt"
 					accept="image/*,application/pdf" onchange="validateFileSize(this)"
-					style="font-size: .82rem; flex: 1" > <small
-					id="fileError" style="color: red; display: none;"> File
-					size should not exceed 5 MB. </small>
+					style="font-size: .82rem; flex: 1"> <small id="fileError"
+					style="color: red; display: none;"> File size should not
+					exceed 5 MB. </small>
 			</div>
 
 			<div id="incExtras"></div>
@@ -182,9 +182,11 @@ if (request.getAttribute("incomeCategories") == null) {
 			<h3 style="color: var(--red)">+ Add Expense</h3>
 			<button class="modal-close" onclick="closeModal('expenseModal')">&#x2715;</button>
 		</div>
+
+		<!-- onsubmit="return submitForm(event, 'expenseForm')"> -->
 		<form id="expenseForm"
 			action="${pageContext.request.contextPath}/transactions"
-			method="post" enctype="multipart/form-data" 
+			method="post" enctype="multipart/form-data"
 			onsubmit="return prepareSubmit('expenseForm')">
 			<input type="hidden" name="type" value="EXPENSE">
 			<div class="form-grid">
@@ -235,7 +237,7 @@ if (request.getAttribute("incomeCategories") == null) {
 					</div>
 				</div>
 			</c:if>
-			
+
 			<!-- Receipts -->
 			<div class="card mt-2">
 				<div class="flex mb-2">
@@ -248,9 +250,9 @@ if (request.getAttribute("incomeCategories") == null) {
 
 				<input type="file" id="receiptFile" name="receipt"
 					accept="image/*,application/pdf" onchange="validateFileSize(this)"
-					style="font-size: .82rem; flex: 1" > <small
-					id="fileError" style="color: red; display: none;"> File
-					size should not exceed 5 MB. </small>
+					style="font-size: .82rem; flex: 1"> <small id="fileError"
+					style="color: red; display: none;"> File size should not
+					exceed 5 MB. </small>
 			</div>
 
 			<div id="expExtras"></div>
@@ -366,5 +368,58 @@ if (request.getAttribute("incomeCategories") == null) {
 
 		// Existing submit logic
 		return prepareSubmit('incomeForm');
+	}
+	
+	async function submitForm(e, formId) {
+	    e.preventDefault();
+	    prepareSubmit(formId);
+
+	    const form = document.getElementById(formId);
+	    const formData = new FormData(form);
+
+	    try {
+	        const resp = await fetch(form.action, {
+	            method: 'POST',
+	            body: formData
+	        });
+
+	        // Success — message show, form reset, open modal
+	        showInlineMsg(formId, '✓ Transaction Saved!', 'success');
+	        form.reset();
+
+	        // datetime auto-fill  set
+	        const now = new Date();
+	        const local = new Date(now - now.getTimezoneOffset() * 60000)
+	                        .toISOString().slice(0, 16);
+	        form.querySelector('input[type="datetime-local"]').value = local;
+
+	        // Dashboard totals refresh
+	        loadSummary();
+
+	    } catch (err) {
+	        showInlineMsg(formId, '✗ Save failed: ' + err.message, 'error');
+	    }
+	    return false;
+	}
+
+	function showInlineMsg(formId, msg, type) {
+	    const form = document.getElementById(formId);
+	    let msgDiv = form.querySelector('.inline-msg');
+	    if (!msgDiv) {
+	        msgDiv = document.createElement('div');
+	        msgDiv.className = 'inline-msg';
+	        form.prepend(msgDiv);
+	    }
+	    msgDiv.textContent = msg;
+	    
+	 // plain if/else for colors
+const bg    = (type === 'success') ? '#d1fae5' : '#fee2e2';
+const color = (type === 'success') ? '#065f46' : '#991b1b';
+
+msgDiv.style.cssText = 'padding:.5rem .75rem;border-radius:6px;'
+    + 'margin-bottom:.75rem;font-size:.85rem;'
+    + 'background:' + bg + ';color:' + color + ';';
+	    
+	    setTimeout(() => msgDiv.remove(), 3000);
 	}
 </script>

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.expensemanager.dao.AuditLogDAO;
 import com.expensemanager.dao.CategoryDAO;
 import com.expensemanager.dao.ColumnDefinitionDAO;
 import com.expensemanager.dao.ReceiptDAO;
@@ -20,7 +20,6 @@ import com.expensemanager.dao.TransactionDAO;
 import com.expensemanager.model.Receipt;
 import com.expensemanager.model.Transaction;
 import com.expensemanager.model.TransactionFilter;
-import com.expensemanager.util.AppContextListener;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -75,6 +74,16 @@ public class TransactionServlet extends HttpServlet {
 
 		req.setCharacterEncoding("UTF-8");
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
+
+		Enumeration<String> paramNames = req.getParameterNames();
+
+		while (paramNames.hasMoreElements()) {
+			String key = paramNames.nextElement();
+			String value = req.getParameter(key);
+
+			log.debug("Key: {} --> Value: {}", key, value);
+		}
+
 		String typeStr = req.getParameter("type");
 		String amountStr = req.getParameter("amount");
 		String catIdStr = req.getParameter("categoryid");
@@ -117,7 +126,7 @@ public class TransactionServlet extends HttpServlet {
 			if (contentType != null && contentType.toLowerCase().startsWith("multipart/")) {
 
 				Part filePart = req.getPart("receipt");
-				log.debug("File size : {}",filePart.getSize());
+				log.debug("File size : {}", filePart.getSize());
 				if (filePart != null && filePart.getSize() > 0) {
 					log.debug("File uploading...");
 					Receipt r = new Receipt();
@@ -135,6 +144,9 @@ public class TransactionServlet extends HttpServlet {
 			System.out.println("File upload : " + e.getMessage());
 		}
 		resp.sendRedirect(req.getContextPath() + "/home?msg=saved");
+//		resp.setContentType("application/json");
+//		resp.setCharacterEncoding("UTF-8");
+//		resp.getWriter().write("{\"status\":\"saved\"}");
 	}
 
 	private String getFileName(Part part) {

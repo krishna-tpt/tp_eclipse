@@ -38,7 +38,7 @@
 	</context-param>
 
 	<session-config>
-		<session-timeout>60</session-timeout>
+		<session-timeout>80</session-timeout>
 	</session-config>
 
 	<welcome-file-list>

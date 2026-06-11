@@ -1,18 +1,33 @@
 package com.expensemanager.dao;
 
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.StringJoiner;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.expensemanager.model.Transaction;
 import com.expensemanager.model.TransactionFilter;
 import com.expensemanager.util.DBConnection;
-
-import java.math.BigDecimal;
-import java.sql.*;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 public class TransactionDAO {
 
 	private final DBConnection db = DBConnection.getInstance();
 	private final AuditLogDAO auditDAO = new AuditLogDAO();
+	private static final Logger log = LoggerFactory.getLogger(TransactionDAO.class);
 
 	private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
 
@@ -239,7 +254,7 @@ public class TransactionDAO {
 		if (bookId != null && bookId > 0)
 			sql.append(" AND book_id=").append(bookId);
 		sql.append(" GROUP BY DATE_TRUNC('month',txn_datetime) ORDER BY DATE_TRUNC('month',txn_datetime)");
-		System.out.println("SQL -->"+sql);
+//		System.out.println("SQL -->"+sql);
 		Connection conn = db.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 			ps.setInt(1, months);
@@ -253,12 +268,11 @@ public class TransactionDAO {
 				rows.add(m);
 			}
 			return rows;
-		} catch(Exception e) {
-			
-			System.out.println("monthlyTrend -->"+e.getMessage());
+		} catch (Exception e) {
+			log.info("monthlyTrend(); --> {}", e.getMessage());
+//			System.out.println("monthlyTrend -->"+e.getMessage());
 			return null;
-		}
-		finally {
+		} finally {
 			db.releaseConnection(conn);
 		}
 	}
