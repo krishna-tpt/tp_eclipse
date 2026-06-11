@@ -5,9 +5,9 @@
 <%
 if (request.getAttribute("incomeCategories") == null) {
 	try {
-		com.expensemanager.dao.CategoryDAO cDao = new com.expensemanager.dao.CategoryDAO();
-		com.expensemanager.dao.ColumnDefinitionDAO colDao = new com.expensemanager.dao.ColumnDefinitionDAO();
-		com.expensemanager.dao.SubCategoryDAO scDao = new com.expensemanager.dao.SubCategoryDAO();
+		com.expense.dao.CategoryDAO cDao = new com.expense.dao.CategoryDAO();
+		com.expense.dao.ColumnDefinitionDAO colDao = new com.expense.dao.ColumnDefinitionDAO();
+		com.expense.dao.SubCategoryDAO scDao = new com.expense.dao.SubCategoryDAO();
 		request.setAttribute("incomeCategories", cDao.findByType("INCOME"));
 		request.setAttribute("expenseCategories", cDao.findByType("EXPENSE"));
 		request.setAttribute("incomeColumns", colDao.findByType("INCOME"));

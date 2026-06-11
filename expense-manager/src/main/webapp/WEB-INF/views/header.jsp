@@ -2,10 +2,10 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%-- Load all cashbooks for dropdown --%>
 <%
-  if (request.getAttribute("_allBooks") == null) {
+if (request.getAttribute("_allBooks") == null) {
     try {
-      java.util.List<com.expensemanager.model.CashBook> allBooks =
-          new com.expensemanager.dao.CashBookDAO().findAll();
+      java.util.List<com.expense.model.CashBook> allBooks =
+     com.expense.daonager.dao.CashBookDAO().findAll();
       request.setAttribute("_allBooks", allBooks);
     } catch (Exception ignored) {}
   }
