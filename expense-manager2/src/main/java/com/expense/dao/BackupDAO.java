@@ -1,19 +1,12 @@
 package com.expense.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.expense.model.BackupMetadata;
 import com.expense.model.BackupMetadata.BackupStatus;
 import com.expense.model.BackupMetadata.BackupType;
 import com.expense.util.DBConnection;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class BackupDAO {
 	public void createTableIfNotExists() throws SQLException {
@@ -24,15 +17,14 @@ public class BackupDAO {
 				+ "income_count INT DEFAULT 0, expense_count INT DEFAULT 0,"
 				+ "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, completed_at TIMESTAMP);"
 				+ "CREATE INDEX IF NOT EXISTS idx_backup_created ON backup_history(created_at DESC);";
-		try (Connection con = DBConnection.getInstance().getConnection(); Statement st = con.createStatement()) {
+		try (Connection con = DBConnection.getConnection(); Statement st = con.createStatement()) {
 			st.execute(ddl);
 		}
 	}
 
 	public int insert(BackupMetadata m) throws SQLException {
 		String sql = "INSERT INTO backup_history (file_name,file_path,file_size_bytes,backup_type,status,description,income_count,expense_count,created_at) VALUES (?,?,?,?,?,?,?,?,?) RETURNING id";
-		try (Connection con = DBConnection.getInstance().getConnection();
-				PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, m.getFileName());
 			ps.setString(2, m.getFilePath());
 			ps.setLong(3, m.getFileSizeBytes());
@@ -50,8 +42,7 @@ public class BackupDAO {
 	public void updateCompletion(int id, BackupStatus status, long size, int inc, int exp, String err)
 			throws SQLException {
 		String sql = "UPDATE backup_history SET status=?,file_size_bytes=?,income_count=?,expense_count=?,error_message=?,completed_at=NOW() WHERE id=?";
-		try (Connection con = DBConnection.getInstance().getConnection();
-				PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, status.name());
 			ps.setLong(2, size);
 			ps.setInt(3, inc);
@@ -63,7 +54,7 @@ public class BackupDAO {
 	}
 
 	public void updateStatus(int id, BackupStatus status) throws SQLException {
-		try (Connection con = DBConnection.getInstance().getConnection();
+		try (Connection con = DBConnection.getConnection();
 				PreparedStatement ps = con
 						.prepareStatement("UPDATE backup_history SET status=?,completed_at=NOW() WHERE id=?")) {
 			ps.setString(1, status.name());
@@ -74,7 +65,7 @@ public class BackupDAO {
 
 	public List<BackupMetadata> getAll() throws SQLException {
 		List<BackupMetadata> list = new ArrayList<>();
-		try (Connection con = DBConnection.getInstance().getConnection();
+		try (Connection con = DBConnection.getConnection();
 				Statement st = con.createStatement();
 				ResultSet rs = st.executeQuery("SELECT * FROM backup_history ORDER BY created_at DESC")) {
 			while (rs.next())
@@ -84,7 +75,7 @@ public class BackupDAO {
 	}
 
 	public BackupMetadata getById(int id) throws SQLException {
-		try (Connection con = DBConnection.getInstance().getConnection();
+		try (Connection con = DBConnection.getConnection();
 				PreparedStatement ps = con.prepareStatement("SELECT * FROM backup_history WHERE id=?")) {
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -93,7 +84,7 @@ public class BackupDAO {
 	}
 
 	public void delete(int id) throws SQLException {
-		try (Connection con = DBConnection.getInstance().getConnection();
+		try (Connection con = DBConnection.getConnection();
 				PreparedStatement ps = con.prepareStatement("DELETE FROM backup_history WHERE id=?")) {
 			ps.setInt(1, id);
 			ps.executeUpdate();
@@ -101,7 +92,7 @@ public class BackupDAO {
 	}
 
 	public int countRows(String table) throws SQLException {
-		try (Connection con = DBConnection.getInstance().getConnection();
+		try (Connection con = DBConnection.getConnection();
 				Statement st = con.createStatement();
 				ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM " + table)) {
 			return rs.next() ? rs.getInt(1) : 0;

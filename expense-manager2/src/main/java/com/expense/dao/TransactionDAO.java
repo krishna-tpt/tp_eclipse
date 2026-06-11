@@ -2,6 +2,7 @@ package com.expense.dao;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.expense.model.CustomColumn;
 import com.expense.model.Transaction;
 import com.expense.util.DBConnection;
 
