@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import com.expensemanager.model.BackupMetadata.BackupType;
-import com.expensemanager.service.BackupService;
 
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;

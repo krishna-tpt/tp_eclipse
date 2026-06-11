@@ -13,6 +13,24 @@
 		</context-param> <context-param> <param-name>DB_PASSWORD</param-name> <param-value>npg_30bZIuKdaFvM</param-value> 
 		</context-param> -->
 
+    <context-param>
+        <param-name>backup.schedule.hour</param-name>
+        <param-value>0</param-value>  <!-- midnight -->
+    </context-param>
+    <context-param>
+        <param-name>backup.schedule.minute</param-name>
+        <param-value>0</param-value>
+    </context-param>
+    
+        <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/jsp/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/WEB-INF/jsp/error.jsp</location>
+    </error-page>
+    
 	<context-param>
 		<param-name>DB_URL</param-name>
 		<param-value>jdbc:postgresql://localhost/mydb</param-value>
