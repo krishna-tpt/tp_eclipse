@@ -7,12 +7,6 @@
 
 	<display-name>Expense Manager</display-name>
 
-	<!-- ══ DB Config — update with your cloud DB URL ══ -->
-	<!--<context-param> <param-name>DB_URL</param-name> <param-value>jdbc:postgresql://ep-plain-meadow-apr9n2ix.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require</param-value> 
-		</context-param> <context-param> <param-name>DB_USER</param-name> <param-value>neondb_owner</param-value> 
-		</context-param> <context-param> <param-name>DB_PASSWORD</param-name> <param-value>npg_30bZIuKdaFvM</param-value> 
-		</context-param> -->
-
     <context-param>
         <param-name>backup.schedule.hour</param-name>
         <param-value>0</param-value>  <!-- midnight -->
