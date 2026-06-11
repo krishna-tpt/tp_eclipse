@@ -6051,3 +6051,81 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 2c377df] Auto sync - 2026-06-11 17:30:04
+ 85 files changed, 2648 insertions(+), 2435 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.wst.server.core/publish/publish0.dat (64%)
+ delete mode 100644 expense-manager2/target/classes/.gitignore
+ delete mode 100644 expense-manager2/target/m2e-wtp/web-resources/.gitignore
+ rename {expense-manager2 => expensemanager}/.classpath (69%)
+ create mode 100644 expensemanager/.gitignore
+ rename {expense-manager2 => expensemanager}/.project (97%)
+ rename {expense-manager2 => expensemanager}/.settings/.jsdtscope (100%)
+ rename {expense-manager2 => expensemanager}/.settings/org.eclipse.core.resources.prefs (76%)
+ rename {expense-manager2 => expensemanager}/.settings/org.eclipse.jdt.apt.core.prefs (100%)
+ rename {expense-manager2 => expensemanager}/.settings/org.eclipse.jdt.core.prefs (100%)
+ rename {expense-manager2 => expensemanager}/.settings/org.eclipse.m2e.core.prefs (100%)
+ rename {expense-manager2 => expensemanager}/.settings/org.eclipse.wst.common.component (100%)
+ rename {expense-manager2 => expensemanager}/.settings/org.eclipse.wst.common.project.facet.core.xml (100%)
+ rename {expense-manager2 => expensemanager}/.settings/org.eclipse.wst.jsdt.ui.superType.container (100%)
+ rename {expense-manager2 => expensemanager}/.settings/org.eclipse.wst.jsdt.ui.superType.name (100%)
+ rename {expense-manager2 => expensemanager}/.settings/org.eclipse.wst.validation.prefs (100%)
+ rename {expense-manager2 => expensemanager}/.settings/org.eclipse.wst.ws.service.policy.prefs (100%)
+ rename {expense-manager2 => expensemanager}/pom.xml (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/backup/BackupScheduler.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/backup/BackupService.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/dao/BackupDAO.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/dao/TransactionDAO.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/model/BackupMetadata.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/model/CustomColumn.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/model/Transaction.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/servlet/BackupServlet.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/servlet/DashboardServlet.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/servlet/ExpenseServlet.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/servlet/IncomeServlet.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/servlet/ReportServlet.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/java/com/expense/util/DBConnection.java (100%)
+ rename {expense-manager2 => expensemanager}/src/main/resources/logback.xml (100%)
+ rename {expense-manager2 => expensemanager}/src/main/webapp/WEB-INF/views/backup.jsp (100%)
+ rename {expense-manager2 => expensemanager}/src/main/webapp/WEB-INF/views/dashboard.jsp (100%)
+ rename {expense-manager2 => expensemanager}/src/main/webapp/WEB-INF/views/error.jsp (100%)
+ rename {expense-manager2 => expensemanager}/src/main/webapp/WEB-INF/views/header.jsp (100%)
+ rename {expense-manager2 => expensemanager}/src/main/webapp/WEB-INF/views/reports.jsp (100%)
+ rename {expense-manager2 => expensemanager}/src/main/webapp/WEB-INF/views/transaction-form.jsp (100%)
+ rename {expense-manager2 => expensemanager}/src/main/webapp/WEB-INF/views/transaction-list.jsp (100%)
+ rename {expense-manager2 => expensemanager}/src/main/webapp/WEB-INF/web.xml (100%)
+ rename {expense-manager2 => expensemanager}/src/main/webapp/css/style.css (100%)
+ rename {expense-manager2 => expensemanager}/src/main/webapp/index.jsp (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/backup/BackupScheduler.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/backup/BackupService$RM.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/backup/BackupService.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/dao/BackupDAO.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/dao/TransactionDAO.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/model/BackupMetadata$BackupStatus.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/model/BackupMetadata$BackupType.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/model/BackupMetadata.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/model/CustomColumn.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/model/Transaction.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/servlet/BackupServlet.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/servlet/DashboardServlet.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/servlet/ExpenseServlet.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/servlet/IncomeServlet.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/servlet/ReportServlet.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/com/expense/util/DBConnection.class (100%)
+ rename {expense-manager2 => expensemanager}/target/classes/logback.xml (100%)
+To https://github.com/krishna-tpt/tp_eclipse.git
+   af183cd..2c377df  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-11 17:30:12[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-11 18:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
