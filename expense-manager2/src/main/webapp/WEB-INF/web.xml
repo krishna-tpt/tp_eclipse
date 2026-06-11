@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+	version="6.0">
+
+	<display-name>Expense Manager</display-name>
+
+	<!-- ══ DB Config — update with your cloud DB URL ══ -->
+	<!--<context-param> <param-name>DB_URL</param-name> <param-value>jdbc:postgresql://ep-plain-meadow-apr9n2ix.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require</param-value> 
+		</context-param> <context-param> <param-name>DB_USER</param-name> <param-value>neondb_owner</param-value> 
+		</context-param> <context-param> <param-name>DB_PASSWORD</param-name> <param-value>npg_30bZIuKdaFvM</param-value> 
+		</context-param> -->
+
+	<context-param>
+		<param-name>DB_URL</param-name>
+		<param-value>jdbc:postgresql://localhost/mydb</param-value>
+	</context-param>
+	<context-param>
+		<param-name>DB_USER</param-name>
+		<param-value>postgres</param-value>
+	</context-param>
+	<context-param>
+		<param-name>DB_PASSWORD</param-name>
+		<param-value>postgres</param-value>
+	</context-param>
+	<!-- Gmail Config — ADD to web.xml context-params section -->
+	<context-param>
+		<param-name>GMAIL_FROM</param-name>
+		<param-value>krishnakumar1971997@gmail.com</param-value>
+	</context-param>
+	<context-param>
+		<param-name>GMAIL_APP_PASS</param-name>
+		<!-- App Password — NOT your regular Gmail password! -->
+		<!-- Format: xxxx xxxx xxxx xxxx (16 chars, spaces optional) -->
+		<param-value>yfma ubac bmql ziyo</param-value>
+	</context-param>
+
+	<session-config>
+		<session-timeout>80</session-timeout>
+	</session-config>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+</web-app>

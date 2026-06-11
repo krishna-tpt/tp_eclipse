@@ -5483,3 +5483,26 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main d3a1c0c] Auto sync - 2026-06-11 10:30:02
+ 25 files changed, 2621 insertions(+), 2392 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.wst.server.core/publish/publish0.dat (87%)
+ rewrite expense-manager/target/classes/com/expensemanager/dao/TransactionDAO.class (77%)
+ rewrite expense-manager/target/classes/com/expensemanager/servlet/HomeServlet.class (68%)
+ rewrite expense-manager/target/classes/com/expensemanager/servlet/TransactionServlet.class (64%)
+To https://github.com/krishna-tpt/tp_eclipse.git
+   07c1550..d3a1c0c  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-11 10:30:06[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-11 11:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
