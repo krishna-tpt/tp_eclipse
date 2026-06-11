@@ -6129,3 +6129,31 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 51edbbc] Auto sync - 2026-06-11 18:00:02
+ 33 files changed, 2597 insertions(+), 2419 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/externalFilesCache (97%)
+ rename expensemanager/src/main/webapp/WEB-INF/{views => jsp}/backup.jsp (100%)
+ rename expensemanager/src/main/webapp/WEB-INF/{views => jsp}/dashboard.jsp (100%)
+ rename expensemanager/src/main/webapp/WEB-INF/{views => jsp}/error.jsp (100%)
+ rename expensemanager/src/main/webapp/WEB-INF/{views => jsp}/header.jsp (100%)
+ rename expensemanager/src/main/webapp/WEB-INF/{views => jsp}/reports.jsp (100%)
+ rename expensemanager/src/main/webapp/WEB-INF/{views => jsp}/transaction-form.jsp (100%)
+ rename expensemanager/src/main/webapp/WEB-INF/{views => jsp}/transaction-list.jsp (100%)
+ rewrite expensemanager/src/main/webapp/WEB-INF/web.xml (86%)
+To https://github.com/krishna-tpt/tp_eclipse.git
+   2c377df..51edbbc  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-11 18:00:08[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-11 18:30:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
