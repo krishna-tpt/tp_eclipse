@@ -18,33 +18,31 @@
 
 	<dependencies>
 
-		<!-- Servlet API - Tomcat 10.0.x -->
+		<!-- Tomcat 10.1.x → Servlet 6.0 / JSP 3.1 / JSTL 3.0 -->
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
-			<version>5.0.0</version>
+			<version>6.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- JSP API - Tomcat 10.0.x -->
 		<dependency>
 			<groupId>jakarta.servlet.jsp</groupId>
 			<artifactId>jakarta.servlet.jsp-api</artifactId>
-			<version>3.0.0</version>
+			<version>3.1.0</version>
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- JSTL - Apache Taglibs (classic URI:
-		http://java.sun.com/jsp/jstl/core) -->
+		<!-- JSTL 3.0 - fully Jakarta, works on Tomcat 10.1.x -->
 		<dependency>
-			<groupId>org.apache.taglibs</groupId>
-			<artifactId>taglibs-standard-spec</artifactId>
-			<version>1.2.5</version>
+			<groupId>jakarta.servlet.jsp.jstl</groupId>
+			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+			<version>3.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.taglibs</groupId>
-			<artifactId>taglibs-standard-impl</artifactId>
-			<version>1.2.5</version>
+			<groupId>org.glassfish.web</groupId>
+			<artifactId>jakarta.servlet.jsp.jstl</artifactId>
+			<version>3.0.1</version>
 		</dependency>
 
 		<!-- PostgreSQL JDBC -->
@@ -76,7 +74,6 @@
 	</dependencies>
 
 	<build>
-		<!-- ✅ Match your WAR deployment name exactly -->
 		<finalName>expense-manager</finalName>
 		<plugins>
 			<plugin>
