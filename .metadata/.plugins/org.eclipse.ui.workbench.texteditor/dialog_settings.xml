@@ -10,6 +10,14 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="By"/>
+			<item value="Session Timeout"/>
+			<item value="summaryCards"/>
+			<item value="&lt;div&gt;₹${fmt(data.income)}&lt;/div&gt;"/>
+			<item value="h += `&lt;div class=&quot;cal-income&quot;&gt;+₹${fmt(data.income)}&lt;/div&gt;`;"/>
+			<item value="&lt;div style=&quot;font-size:1rem;font-weight:700;color:${net&gt;=0?&apos;#15803d&apos;:&apos;#b91c1c&apos;}&quot;&gt;var netColor = (net &gt;= 0) ? &apos;#15803d&apos; : &apos;#b91c1c&apos;;&#x0A;// string concat use பண்ணுங்கள்&#x0A;&apos;&lt;div style=&quot;font-size:1rem;font-weight:700;color:&apos; + netColor + &apos;&quot;&gt;&apos;"/>
+			<item value="h += `&lt;div class=&quot;cal-bar&quot; style=&quot;background:${+data.income&gt;+data.expense?&apos;#dcfce7&apos;:&apos;#fee2e2&apos;}&quot;&gt;&lt;/div&gt;`;&#x0A;"/>
+			<item value="com.expense"/>
 			<item value="DBConnection"/>
 			<item value="type === &apos;success&apos;"/>
 			<item value="submitForm"/>
@@ -17,14 +25,6 @@
 			<item value="System.out.println"/>
 			<item value="sql --"/>
 			<item value="sql"/>
-			<item value="SQL"/>
-			<item value="back"/>
-			<item value="alert alert-success"/>
-			<item value="income"/>
-			<item value="receipt_uploaded"/>
-			<item value="Attachment"/>
-			<item value="diff-new"/>
-			<item value="Category *"/>
 		</list>
 		<list key="replacehistory">
 		</list>

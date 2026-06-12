@@ -61,14 +61,16 @@ public class BackupService {
 			try (ZipOutputStream zos = new ZipOutputStream(
 					new BufferedOutputStream(new FileOutputStream(filePath.toFile())))) {
 				writeInfo(zos, ts, inc, exp, description);
-				writeCSV(zos, con, "income.csv",
-						"SELECT id,transaction_date,transaction_time,amount,category,note,created_at FROM income ORDER BY id");
-				writeCSV(zos, con, "expense.csv",
-						"SELECT id,transaction_date,transaction_time,amount,category,note,created_at FROM expense ORDER BY id");
-				writeCSV(zos, con, "custom_columns.csv", "SELECT * FROM custom_columns ORDER BY id");
-				writeCSV(zos, con, "custom_column_values.csv", "SELECT * FROM custom_column_values ORDER BY id");
-				writeCSV(zos, con, "income_categories.csv", "SELECT * FROM income_categories ORDER BY name");
-				writeCSV(zos, con, "expense_categories.csv", "SELECT * FROM expense_categories ORDER BY name");
+				writeCSV(zos, con, "transactions.csv", "SELECT * FROM transactions ORDER BY id");
+				writeCSV(zos, con, "cash_books.csv", "SELECT * From cash_books ORDER BY id");
+				writeCSV(zos, con, "categories.csv", "SELECT * FROM categories ORDER BY id");
+				writeCSV(zos, con, "column_definitions.csv", "SELECT * FROM column_definitions ORDER BY id");
+				writeCSV(zos, con, "sub_categories.csv", "SELECT * FROM sub_categories ORDER BY id");
+				writeCSV(zos, con, "transaction_audit_log.csv", "SELECT * FROM transaction_audit_log ORDER BY id");
+				writeCSV(zos, con, "transaction_custom_values.csv",
+						"SELECT * FROM transaction_custom_values ORDER BY id");
+				writeCSV(zos, con, "transaction_receipts.csv", "SELECT * FROM transaction_receipts ORDER BY id");
+//				writeCSV(zos, con, "transaction_custom_values.csv", "SELECT * FROM transaction_custom_values ORDER BY id");
 			}
 			long size = Files.size(filePath);
 			dao.updateCompletion(id, BackupStatus.SUCCESS, size, inc, exp, null);
@@ -102,24 +104,40 @@ public class BackupService {
 			con.setAutoCommit(false);
 			try (ZipFile zip = new ZipFile(zipPath.toFile())) {
 				truncate(con);
-				restoreCSV(con, zip, "income_categories.csv",
-						"INSERT INTO income_categories (name) VALUES (?) ON CONFLICT DO NOTHING",
-						r -> new Object[] { r[1] });
-				restoreCSV(con, zip, "expense_categories.csv",
-						"INSERT INTO expense_categories (name) VALUES (?) ON CONFLICT DO NOTHING",
-						r -> new Object[] { r[1] });
-				restoreCSV(con, zip, "income.csv",
-						"INSERT INTO income (id,transaction_date,transaction_time,amount,category,note,created_at) VALUES (?,?,?,?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), r[1], r[2], bdOf(r[3]), r[4], r[5], tsOf(r[6]) });
-				restoreCSV(con, zip, "expense.csv",
-						"INSERT INTO expense (id,transaction_date,transaction_time,amount,category,note,created_at) VALUES (?,?,?,?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), r[1], r[2], bdOf(r[3]), r[4], r[5], tsOf(r[6]) });
-				restoreCSV(con, zip, "custom_columns.csv",
-						"INSERT INTO custom_columns (id,table_name,column_name,column_label,column_type) VALUES (?,?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), r[1], r[2], r[3], r[4] });
-				restoreCSV(con, zip, "custom_column_values.csv",
-						"INSERT INTO custom_column_values (id,table_name,record_id,column_name,column_value) VALUES (?,?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), r[1], iOf(r[2]), r[3], r[4] });
+				restoreCSV(con, zip, "transactions.csv",
+						"INSERT INTO transactions (id, type, txn_datetime, amount, category_id, note, created_at, sub_categories_id, book_id) VALUES (?,?,?,?,?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), r[1], r[2], bdOf(r[3]), iOf(r[4]), r[5], tsOf(r[6]), iOf(r[7]),
+								iOf(r[8]) });
+
+				restoreCSV(con, zip, "cash_books.csv",
+						"INSERT INTO cash_books (id, name, description, created_at, is_active) VALUES (?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), r[1], r[2], tsOf(r[3]), r[4] });
+
+				restoreCSV(con, zip, "categories.csv",
+						"INSERT INTO categories (id, name, type, created_at) VALUES (?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), r[1], r[2], tsOf(r[3]) });
+
+				restoreCSV(con, zip, "column_definitions.csv",
+						"INSERT INTO column_definitions (id, col_name, col_key, type, created_at) VALUES (?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), r[1], r[2], r[3], tsOf(r[4]) });
+
+				restoreCSV(con, zip, "sub_categories.csv",
+						"INSERT INTO sub_categories (sub_categories_id, name, created, category_id) VALUES (?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), r[1], tsOf(r[2]), iOf(r[3]) });
+
+				restoreCSV(con, zip, "transaction_audit_log.csv",
+						"INSERT INTO transaction_audit_log (id, transaction_id, action, changed_by, changed_at, field_name, old_value, new_value, note) VALUES (?,?,?,?,?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), iOf(r[2]), r[3], tsOf(r[4]), r[5], r[6], r[7],
+								r[8] });
+
+				restoreCSV(con, zip, "transaction_custom_values.csv",
+						"INSERT INTO transaction_custom_values (id, transaction_id, col_def_id, value) VALUES (?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), iOf(r[2]), r[3] });
+
+				restoreCSV(con, zip, "transaction_receipts.csv",
+						"INSERT INTO transaction_receipts (id, transaction_id, file_name, file_type, file_size, uploaded_at) VALUES (?,?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), r[2], r[3], iOf(r[4]), tsOf(r[5]) });
+
 				resetSeq(con);
 			}
 			con.commit();
