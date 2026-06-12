@@ -1,0 +1,10 @@
+2026-06-05 16:08:05.456 [http-nio-8080-exec-2] DEBUG c.workdrive.organizer.util.AppConfig - SVC : null
+2026-06-05 16:08:05.617 [http-nio-8080-exec-2] DEBUG c.w.o.servlet.FilesApiServlet - Main folder ID: t9myue5af95240731431ab125f3a45b139ce0
+2026-06-05 16:08:05.624 [http-nio-8080-exec-2] DEBUG c.w.o.service.WorkDriveApiService - Fetching files — offset: 0, limit: 50
+2026-06-05 16:08:06.617 [http-nio-8080-exec-2] INFO  c.w.o.service.ZohoTokenService - Token refreshed. Expires at: 2026-06-05T11:38:06.617969904Z
+2026-06-05 16:08:07.622 [http-nio-8080-exec-2] DEBUG c.w.o.service.WorkDriveApiService - GET https://workdrive.zoho.com/api/v1/files/t9myue5af95240731431ab125f3a45b139ce0/files?50&page%5Boffset%5D=0 → HTTP 200
+2026-06-05 16:08:07.627 [http-nio-8080-exec-2] DEBUG c.w.o.service.WorkDriveApiService - Found: Expense_Manager.xlsx (xlsx)
+2026-06-05 16:08:07.627 [http-nio-8080-exec-2] DEBUG c.w.o.service.WorkDriveApiService - Last page reached at offset: 0
+2026-06-05 16:08:07.627 [http-nio-8080-exec-2] INFO  c.w.o.service.WorkDriveApiService - Total files listed: 1 in folder t9myue5af95240731431ab125f3a45b139ce0
+2026-06-05 16:08:07.627 [http-nio-8080-exec-2] INFO  c.w.o.servlet.FilesApiServlet - Total files fetched: 1
+2026-06-05 16:08:07.627 [http-nio-8080-exec-2] DEBUG c.w.o.servlet.FilesApiServlet - [{"id":"t9myuceba2858813140d29d9bd69e75c896e1","name":"Expense_Manager.xlsx","extension":"xlsx","type":"spreadsheet","sizeInBytes":10704,"modifiedTime":"Jun 5, 12:04 PM","permalink":"https://workdrive.zoho.com/file/t9myuceba2858813140d29d9bd69e75c896e1","targetFolder":"sheet"}]

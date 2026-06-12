@@ -2,39 +2,41 @@ package com.expensemanager.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
-/**
- * Holds all filter criteria for transaction search. Built from HTTP request
- * params, passed to TransactionDAO.
- */
 public class TransactionFilter {
 
-	// Basic
 	private String type; // INCOME | EXPENSE | null = all
 	private Integer bookId;
-
-	// Date range
 	private LocalDate dateFrom;
 	private LocalDate dateTo;
-
-	// Category / SubCategory
-	private Integer categoryId;
-	private Integer subCategoryId;
-
-	// Amount conditions
+	private List<Integer> categoryIds; // multi-select
+	private List<Integer> subCategoryIds;
 	private String amountOp1; // =, >, >=, <, <=
 	private BigDecimal amount1;
-	private String amountOp2; // >=, <= (second condition for range)
+	private String amountOp2;
 	private BigDecimal amount2;
-
-	// Text search (note + custom fields)
 	private String noteSearch;
-
-	// Pagination
 	private int page = 1;
 	private int pageSize = 15;
 
-	// ── Getters / Setters ──────────────────────────────────
+	public boolean isFiltered() {
+		return dateFrom != null || dateTo != null || (categoryIds != null && !categoryIds.isEmpty())
+				|| (subCategoryIds != null && !subCategoryIds.isEmpty()) || amount1 != null
+				|| (noteSearch != null && !noteSearch.isBlank());
+	}
+
+	public static String safeOp(String op) {
+		return switch (op != null ? op.trim() : "") {
+		case ">=" -> ">=";
+		case "<=" -> "<=";
+		case ">" -> ">";
+		case "<" -> "<";
+		default -> "=";
+		};
+	}
+
+	// Getters / Setters
 	public String getType() {
 		return type;
 	}
@@ -67,20 +69,20 @@ public class TransactionFilter {
 		this.dateTo = dateTo;
 	}
 
-	public Integer getCategoryId() {
-		return categoryId;
+	public List<Integer> getCategoryIds() {
+		return categoryIds;
 	}
 
-	public void setCategoryId(Integer categoryId) {
-		this.categoryId = categoryId;
+	public void setCategoryIds(List<Integer> categoryIds) {
+		this.categoryIds = categoryIds;
 	}
 
-	public Integer getSubCategoryId() {
-		return subCategoryId;
+	public List<Integer> getSubCategoryIds() {
+		return subCategoryIds;
 	}
 
-	public void setSubCategoryId(Integer subCategoryId) {
-		this.subCategoryId = subCategoryId;
+	public void setSubCategoryIds(List<Integer> subCategoryIds) {
+		this.subCategoryIds = subCategoryIds;
 	}
 
 	public String getAmountOp1() {
@@ -137,22 +139,5 @@ public class TransactionFilter {
 
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
-	}
-
-	/** True if any filter is active (besides type and book) */
-	public boolean isFiltered() {
-		return dateFrom != null || dateTo != null || categoryId != null || subCategoryId != null || amount1 != null
-				|| (noteSearch != null && !noteSearch.isBlank());
-	}
-
-	/** Build SQL safe amount operator */
-	public static String safeOp(String op) {
-		return switch (op != null ? op.trim() : "") {
-		case ">=" -> ">=";
-		case "<=" -> "<=";
-		case ">" -> ">";
-		case "<" -> "<";
-		default -> "=";
-		};
 	}
 }

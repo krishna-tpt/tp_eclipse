@@ -1,0 +1,83 @@
+package com.workdrive.organizer.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.workdrive.organizer.service.OrganizerService;
+import com.workdrive.organizer.service.WorkDriveApiService;
+import com.workdrive.organizer.service.ZohoTokenService;
+import com.workdrive.organizer.servlet.FilesApiServlet;
+
+import jakarta.servlet.ServletContext;
+
+/**
+ * Builds and caches service instances from web.xml context-params. Stored as
+ * ServletContext attributes so all servlets share one instance.
+ */
+public class AppConfig {
+
+	private static final String KEY_ORGANIZER = "app.organizer";
+	private static final String KEY_API = "app.apiService";
+	private static final Logger log = LoggerFactory.getLogger(AppConfig.class);
+
+	private AppConfig() {
+	}
+
+	public static synchronized OrganizerService getOrganizerService(ServletContext ctx) {
+		OrganizerService svc = (OrganizerService) ctx.getAttribute(KEY_ORGANIZER);
+		if (svc == null) {
+			svc = buildOrganizerService(ctx);
+			ctx.setAttribute(KEY_ORGANIZER, svc);
+		}
+		return svc;
+	}
+
+	public static synchronized WorkDriveApiService getApiService(ServletContext ctx) {
+		WorkDriveApiService svc = (WorkDriveApiService) ctx.getAttribute(KEY_API);
+		log.debug("SVC : " + svc);
+		if (svc == null) {
+			ZohoTokenService tokenSvc = buildTokenService(ctx);
+			svc = new WorkDriveApiService(tokenSvc);
+			ctx.setAttribute(KEY_API, svc);
+		}
+		return svc;
+	}
+
+	// ── Private builders ───────────────────────────────────────────────────
+
+	private static OrganizerService buildOrganizerService(ServletContext ctx) {
+		WorkDriveApiService apiSvc = getApiService(ctx);
+
+		String mainFolder = requireParam(ctx, "workdrive.main.folder.id");
+		String sheetFolder = requireParam(ctx, "workdrive.sheet.folder.id");
+		String writerFolder = requireParam(ctx, "workdrive.writer.folder.id");
+
+		return new OrganizerService(apiSvc, mainFolder, sheetFolder, writerFolder);
+	}
+
+	private static ZohoTokenService buildTokenService(ServletContext ctx) {
+		// Env vars take priority over web.xml (better for production secrets)
+		String clientId = envOrContext(ctx, "ZOHO_CLIENT_ID", "zoho.client.id");
+		String clientSecret = envOrContext(ctx, "ZOHO_CLIENT_SECRET", "zoho.client.secret");
+		String refreshToken = envOrContext(ctx, "ZOHO_REFRESH_TOKEN", "zoho.refresh.token");
+		System.out.println("Client id: " + clientId);
+		System.out.println("clientSecret: " + clientSecret);
+		System.out.println("refreshToken: " + refreshToken);
+
+		return new ZohoTokenService(clientId, clientSecret, refreshToken);
+	}
+
+	private static String envOrContext(ServletContext ctx, String envKey, String ctxKey) {
+		String envVal = System.getenv(envKey);
+		return (envVal != null && !envVal.isBlank()) ? envVal : requireParam(ctx, ctxKey);
+	}
+
+	private static String requireParam(ServletContext ctx, String name) {
+		String val = ctx.getInitParameter(name);
+		if (val == null || val.isBlank() || val.startsWith("YOUR_")) {
+			throw new IllegalStateException(
+					"Missing required config: " + name + ". Set via web.xml context-param or environment variable.");
+		}
+		return val;
+	}
+}

@@ -22,7 +22,7 @@ public class HomeServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		HttpSession session = req.getSession();
-		log.debug("Session Timeout: {}", session.getMaxInactiveInterval());
+//		log.debug("Session Timeout: {}", session.getMaxInactiveInterval());
 
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
 //		System.out.println("Book ID: "+bookId);

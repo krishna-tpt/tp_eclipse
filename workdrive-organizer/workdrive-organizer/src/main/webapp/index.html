@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WorkDrive Organizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #161a22;
+      --border: #252b36;
+      --accent: #4f8ef7;
+      --accent2: #27e8a7;
+      --warn: #f7884f;
+      --danger: #f74f4f;
+      --text: #e0e6f0;
+      --muted: #5a6478;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .logo span { color: var(--muted); }
+    .header-meta {
+      margin-left: auto;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* ── Main layout ── */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 0;
+    }
+
+    /* ── Sidebar ── */
+    aside {
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .folder-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .folder-card h4 {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .folder-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+    .folder-ext {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent2);
+    }
+    .folder-card.sheet .folder-ext { color: #4fc98e; }
+    .folder-card.writer .folder-ext { color: #4f8ef7; }
+
+    .btn-organize {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.85rem 1.2rem;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+    }
+    .btn-organize:hover { background: #3a7ae0; transform: translateY(-1px); }
+    .btn-organize:active { transform: translateY(0); }
+    .btn-organize:disabled { background: var(--muted); cursor: not-allowed; transform: none; }
+
+    /* ── Content ── */
+    section {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .section-title {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    /* ── File Table ── */
+    .file-table { width: 100%; border-collapse: collapse; }
+    .file-table th {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .file-table td {
+      padding: 0.75rem;
+      font-size: 0.875rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .file-table tr:last-child td { border-bottom: none; }
+    .file-table tr:hover td { background: var(--surface); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .badge-xlsx { background: #1a3d2b; color: #4fc98e; }
+    .badge-docx { background: #1a2a4a; color: #4f8ef7; }
+    .badge-other { background: #2a2520; color: var(--warn); }
+
+    .target-arrow {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .target-arrow .dest { color: var(--accent2); font-weight: 600; font-size: 0.82rem; }
+    .target-arrow .none { color: var(--muted); font-style: italic; }
+
+    /* ── Result panel ── */
+    .result-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: none;
+    }
+    .result-panel.visible { display: block; }
+
+    .result-stats {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1rem;
+    }
+    .stat { display: flex; flex-direction: column; gap: 0.2rem; }
+    .stat-val {
+      font-family: var(--mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent2);
+    }
+    .stat-val.warn { color: var(--warn); }
+    .stat-val.danger { color: var(--danger); }
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .result-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .result-list li {
+      font-size: 0.83rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-list li:last-child { border-bottom: none; }
+    .tick { color: var(--accent2); }
+    .cross { color: var(--danger); }
+
+    /* ── Loading spinner ── */
+    .spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">WORKDRIVE<span>/</span>ORGANIZER</div>
+  <div class="header-meta">Zoho WorkDrive · Auto File Sorter</div>
+</header>
+
+<main>
+  <!-- Sidebar -->
+  <aside>
+    <div>
+      <p style="font-size:0.82rem; color:var(--muted); margin-bottom:1rem; line-height:1.6;">
+        Scans the <strong style="color:var(--text)">TestProject</strong> folder and moves files to their target folders by extension.
+      </p>
+    </div>
+
+    <div class="folder-card sheet">
+      <h4>Sheet Folder</h4>
+      <div class="folder-name">Sheet</div>
+      <div class="folder-ext">.xlsx · .xls · .csv · .ods</div>
+    </div>
+
+    <div class="folder-card writer">
+      <h4>Writer Folder</h4>
+      <div class="folder-name">Writer</div>
+      <div class="folder-ext">.docx · .doc · .odt · .txt · .rtf</div>
+    </div>
+
+    <button class="btn-organize" id="btnOrganize" onclick="runOrganize()">
+      ▶ RUN ORGANIZER
+    </button>
+
+    <div class="status-row">
+      <div class="spinner" id="spinner"></div>
+      <span id="statusText">Ready</span>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <section>
+    <!-- Files list -->
+    <div>
+      <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Files in TestProject</span>
+        <button onclick="loadFiles()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:0.7rem;">↻ REFRESH</button>
+      </div>
+      <div id="filesContainer" style="margin-top:1rem;">
+        <div class="empty-state">Click REFRESH to load files</div>
+      </div>
+    </div>
+
+    <!-- Result panel -->
+    <div>
+      <div class="section-title">Last Run Result</div>
+      <div class="result-panel" id="resultPanel" style="margin-top:1rem;">
+        <div class="result-stats">
+          <div class="stat">
+            <div class="stat-val" id="statMoved">0</div>
+            <div class="stat-label">Moved</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val warn" id="statSkipped">0</div>
+            <div class="stat-label">Skipped</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val danger" id="statFailed">0</div>
+            <div class="stat-label">Failed</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val" id="statTotal" style="color:var(--text)">0</div>
+            <div class="stat-label">Scanned</div>
+          </div>
+        </div>
+        <ul class="result-list" id="resultList"></ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // ── Load files ────────────────────────────────────────────────────────────
+  async function loadFiles() {
+    const container = document.getElementById('filesContainer');
+    container.innerHTML = '<div class="empty-state">Loading...</div>';
+    try {
+      const resp = await fetch('api/files');
+      const files = await resp.json();
+      if (files.error) {
+        container.innerHTML = `<div class="empty-state" style="color:var(--danger)">${files.error}</div>`;
+        return;
+      }
+      if (files.length === 0) {
+        container.innerHTML = '<div class="empty-state">No files in TestProject folder</div>';
+        return;
+      }
+      container.innerHTML = renderFilesTable(files);
+    } catch (e) {
+      container.innerHTML = `<div class="empty-state" style="color:var(--danger)">Error: ${e.message}</div>`;
+    }
+  }
+
+  function renderFilesTable(files) {
+    const rows = files.map(f => {
+      const extBadge = f.extension === 'xlsx' || f.extension === 'xls' || f.extension === 'csv'
+        ? `<span class="badge badge-xlsx">${f.extension}</span>`
+        : f.extension === 'docx' || f.extension === 'doc'
+          ? `<span class="badge badge-docx">${f.extension}</span>`
+          : `<span class="badge badge-other">${f.extension || '—'}</span>`;
+
+      const target = f.targetFolder !== 'none'
+        ? `<div class="target-arrow">→ <span class="dest">${f.targetFolder}</span></div>`
+        : `<div class="target-arrow"><span class="none">no rule</span></div>`;
+
+      const size = f.sizeInBytes > 0
+        ? (f.sizeInBytes > 1024 ? (f.sizeInBytes / 1024).toFixed(1) + ' KB' : f.sizeInBytes + ' B')
+        : '—';
+
+      return `<tr>
+        <td style="font-family:var(--mono);font-size:0.82rem">${escHtml(f.name)}</td>
+        <td>${extBadge}</td>
+        <td>${target}</td>
+        <td style="color:var(--muted);font-size:0.8rem">${size}</td>
+        <td style="color:var(--muted);font-size:0.78rem;font-family:var(--mono)">${f.modifiedTime || '—'}</td>
+      </tr>`;
+    }).join('');
+
+    return `<table class="file-table">
+      <thead><tr>
+        <th>File Name</th><th>Type</th><th>Will Move To</th><th>Size</th><th>Modified</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  // ── Run organizer ─────────────────────────────────────────────────────────
+  async function runOrganize() {
+    const btn = document.getElementById('btnOrganize');
+    const spinner = document.getElementById('spinner');
+    const statusText = document.getElementById('statusText');
+
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    statusText.textContent = 'Running...';
+
+    try {
+      const resp = await fetch('organize', { method: 'POST' });
+      const result = await resp.json();
+
+      if (result.error) {
+        statusText.textContent = 'Error: ' + result.error;
+        statusText.style.color = 'var(--danger)';
+        return;
+      }
+
+      showResult(result);
+      statusText.textContent = `Done — ${result.moved.length} moved`;
+      statusText.style.color = 'var(--accent2)';
+      loadFiles(); // refresh file list
+
+    } catch (e) {
+      statusText.textContent = 'Error: ' + e.message;
+      statusText.style.color = 'var(--danger)';
+    } finally {
+      btn.disabled = false;
+      spinner.style.display = 'none';
+    }
+  }
+
+  function showResult(result) {
+    document.getElementById('statMoved').textContent   = result.moved.length;
+    document.getElementById('statSkipped').textContent = result.skipped.length;
+    document.getElementById('statFailed').textContent  = result.failed.length;
+    document.getElementById('statTotal').textContent   = result.totalScanned;
+
+    const list = document.getElementById('resultList');
+    list.innerHTML = '';
+
+    result.moved.forEach(r => {
+      list.innerHTML += `<li><span class="tick">✓</span> <strong>${escHtml(r.name)}</strong> → ${r.destination}</li>`;
+    });
+    result.failed.forEach(r => {
+      list.innerHTML += `<li><span class="cross">✗</span> ${escHtml(r.name)} (failed)</li>`;
+    });
+    result.skipped.forEach(r => {
+      list.innerHTML += `<li style="opacity:0.5">— ${escHtml(r.name)} (no rule)</li>`;
+    });
+
+    document.getElementById('resultPanel').classList.add('visible');
+  }
+
+  function escHtml(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Auto-load on page open
+  loadFiles();
+</script>
+</body>
+</html>

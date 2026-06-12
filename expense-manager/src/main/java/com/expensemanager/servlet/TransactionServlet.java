@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,7 +23,6 @@ import com.expensemanager.model.Transaction;
 import com.expensemanager.model.TransactionFilter;
 
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,35 +30,31 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
 @WebServlet("/transactions")
-@MultipartConfig(maxFileSize = 5_242_880, maxRequestSize = 10_485_760) // 5MB file, 10MB request
 public class TransactionServlet extends HttpServlet {
-
 	private static final Logger log = LoggerFactory.getLogger(TransactionServlet.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
-
-		// Build filter from request params
 		TransactionFilter filter = parseFilter(req, bookId);
 
 		try {
-			TransactionDAO txnDao = new TransactionDAO();
-			CategoryDAO catDao = new CategoryDAO();
-			ColumnDefinitionDAO colDao = new ColumnDefinitionDAO();
-			SubCategoryDAO scDao = new SubCategoryDAO();
+			TransactionDAO txnDAO = new TransactionDAO();
+			CategoryDAO catDAO = new CategoryDAO();
+			ColumnDefinitionDAO colDAO = new ColumnDefinitionDAO();
+			SubCategoryDAO scDAO = new SubCategoryDAO();
 
-			List<Transaction> txns = txnDao.findByFilter(filter);
-			int total = txnDao.countByFilter(filter);
+			List<Transaction> txns = txnDAO.findByFilter(filter);
+			int total = txnDAO.countByFilter(filter);
 			int totalPages = (int) Math.ceil((double) total / filter.getPageSize());
 
 			req.setAttribute("transactions", txns);
-			req.setAttribute("incomeCategories", catDao.findByType("INCOME"));
-			req.setAttribute("expenseCategories", catDao.findByType("EXPENSE"));
-			req.setAttribute("incomeColumns", colDao.findByType("INCOME"));
-			req.setAttribute("expenseColumns", colDao.findByType("EXPENSE"));
-			req.setAttribute("subCategories", scDao.findAll());
+			req.setAttribute("incomeCategories", catDAO.findByType("INCOME"));
+			req.setAttribute("expenseCategories", catDAO.findByType("EXPENSE"));
+			req.setAttribute("incomeColumns", colDAO.findByType("INCOME"));
+			req.setAttribute("expenseColumns", colDAO.findByType("EXPENSE"));
+			req.setAttribute("subCategories", scDAO.findAll());
 			req.setAttribute("filter", filter);
 			req.setAttribute("page", filter.getPage());
 			req.setAttribute("totalPages", totalPages);
@@ -75,14 +71,14 @@ public class TransactionServlet extends HttpServlet {
 		req.setCharacterEncoding("UTF-8");
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
 
-		Enumeration<String> paramNames = req.getParameterNames();
-
-		while (paramNames.hasMoreElements()) {
-			String key = paramNames.nextElement();
-			String value = req.getParameter(key);
-
-			log.debug("Key: {} --> Value: {}", key, value);
-		}
+//		Enumeration<String> paramNames = req.getParameterNames();
+//
+//		while (paramNames.hasMoreElements()) {
+//			String key = paramNames.nextElement();
+//			String value = req.getParameter(key);
+//
+//			log.debug("Key: {} --> Value: {}", key, value);
+//		}
 
 		String typeStr = req.getParameter("type");
 		String amountStr = req.getParameter("amount");
@@ -143,7 +139,8 @@ public class TransactionServlet extends HttpServlet {
 		} catch (Exception e) {
 			System.out.println("File upload : " + e.getMessage());
 		}
-		resp.sendRedirect(req.getContextPath() + "/home?msg=saved");
+		// resp.sendRedirect(req.getContextPath() + "/home?msg=saved");
+		resp.sendRedirect(req.getContextPath() + "/home");
 //		resp.setContentType("application/json");
 //		resp.setCharacterEncoding("UTF-8");
 //		resp.getWriter().write("{\"status\":\"saved\"}");
@@ -161,81 +158,91 @@ public class TransactionServlet extends HttpServlet {
 		return "receipt_" + System.currentTimeMillis();
 	}
 
-	// ── Filter parsing ────────────────────────────────────
+	// ── Filter parsing (multi-category aware) ─────────────
 	private TransactionFilter parseFilter(HttpServletRequest req, int bookId) {
 		TransactionFilter f = new TransactionFilter();
 		f.setBookId(bookId);
 
-		// Type (tab filter)
+		// Type tab
 		String type = req.getParameter("filter");
 		if (type != null && !type.isBlank())
 			f.setType(type);
 
 		// Dates
-		String from = req.getParameter("dateFrom");
-		String to = req.getParameter("dateTo");
-		if (from != null && !from.isBlank()) {
-			try {
-				f.setDateFrom(LocalDate.parse(from));
-			} catch (Exception ignored) {
-			}
+		try {
+			String s = req.getParameter("dateFrom");
+			if (s != null && !s.isBlank())
+				f.setDateFrom(LocalDate.parse(s));
+		} catch (Exception ignored) {
 		}
-		if (to != null && !to.isBlank()) {
-			try {
-				f.setDateTo(LocalDate.parse(to));
-			} catch (Exception ignored) {
-			}
+		try {
+			String s = req.getParameter("dateTo");
+			if (s != null && !s.isBlank())
+				f.setDateTo(LocalDate.parse(s));
+		} catch (Exception ignored) {
 		}
 
-		// Category / SubCat
-		String catId = req.getParameter("categoryId");
-		String subcatId = req.getParameter("subCategoryId");
-		if (catId != null && !catId.isBlank()) {
-			try {
-				f.setCategoryId(Integer.parseInt(catId));
-			} catch (Exception ignored) {
+		// Multi-category
+		String[] catIds = req.getParameterValues("categoryId");
+		if (catIds != null && catIds.length > 0) {
+			List<Integer> ids = new ArrayList<>();
+			for (String s : catIds) {
+				try {
+					if (!s.isBlank())
+						ids.add(Integer.parseInt(s));
+				} catch (Exception ignored) {
+				}
 			}
-		}
-		if (subcatId != null && !subcatId.isBlank()) {
-			try {
-				f.setSubCategoryId(Integer.parseInt(subcatId));
-			} catch (Exception ignored) {
-			}
+			if (!ids.isEmpty())
+				f.setCategoryIds(ids);
 		}
 
-		// Amount conditions
-		String op1 = req.getParameter("amountOp1");
-		String amt1 = req.getParameter("amount1");
-		String op2 = req.getParameter("amountOp2");
-		String amt2 = req.getParameter("amount2");
-		if (amt1 != null && !amt1.isBlank()) {
-			try {
+		// Multi-subcategory
+		String[] subIds = req.getParameterValues("subCategoryId");
+		if (subIds != null && subIds.length > 0) {
+			List<Integer> ids = new ArrayList<>();
+			for (String s : subIds) {
+				try {
+					if (!s.isBlank())
+						ids.add(Integer.parseInt(s));
+				} catch (Exception ignored) {
+				}
+			}
+			if (!ids.isEmpty())
+				f.setSubCategoryIds(ids);
+		}
+
+		// Amount
+		String op1 = req.getParameter("amountOp1"), amt1 = req.getParameter("amount1");
+		String op2 = req.getParameter("amountOp2"), amt2 = req.getParameter("amount2");
+		try {
+			if (amt1 != null && !amt1.isBlank()) {
 				f.setAmountOp1(op1);
 				f.setAmount1(new BigDecimal(amt1));
-			} catch (Exception ignored) {
 			}
+		} catch (Exception ignored) {
 		}
-		if (amt2 != null && !amt2.isBlank()) {
-			try {
+		try {
+			if (amt2 != null && !amt2.isBlank()) {
 				f.setAmountOp2(op2);
 				f.setAmount2(new BigDecimal(amt2));
-			} catch (Exception ignored) {
 			}
+		} catch (Exception ignored) {
 		}
 
 		// Note search
-		String note = req.getParameter("search");
-		if (note != null && !note.isBlank())
-			f.setNoteSearch(note);
+		String search = req.getParameter("search");
+		if (search != null && !search.isBlank())
+			f.setNoteSearch(search);
 
 		// Pagination
-		String pageStr = req.getParameter("page");
-		if (pageStr != null) {
-			try {
-				f.setPage(Integer.parseInt(pageStr));
-			} catch (Exception ignored) {
-			}
+		try {
+			String p = req.getParameter("page");
+			if (p != null)
+				f.setPage(Integer.parseInt(p));
+		} catch (Exception ignored) {
 		}
+
 		return f;
 	}
 }

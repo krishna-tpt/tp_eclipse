@@ -1,5 +1,6 @@
 package com.expensemanager.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -15,10 +16,35 @@ public class AuditLog {
 	private String newValue;
 	private String note;
 
+	// Extra context from JOIN (used in global audit view)
+	private BigDecimal txnAmount;
+	private String txnCategoryName;
+	private String txnDate;
+
 	public AuditLog() {
 	}
 
-	// ── Getters / Setters ─────────────────────────────────
+	public String getFormattedChangedAt() {
+		if (changedAt == null)
+			return "";
+		return changedAt.format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss"));
+	}
+
+	public String getFieldDisplay() {
+		if (fieldName == null)
+			return "";
+		return switch (fieldName) {
+		case "amount" -> "Amount";
+		case "note" -> "Note";
+		case "category" -> "Category";
+		case "subcategory" -> "Sub Category";
+		case "datetime" -> "Date & Time";
+		case "type" -> "Type";
+		default -> fieldName;
+		};
+	}
+
+	// Getters / Setters
 	public int getId() {
 		return id;
 	}
@@ -91,34 +117,27 @@ public class AuditLog {
 		this.note = note;
 	}
 
-	public String getFormattedChangedAt() {
-		if (changedAt == null)
-			return "";
-		return changedAt.format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss"));
+	public BigDecimal getTxnAmount() {
+		return txnAmount;
 	}
 
-	/** Human-readable field display name */
-	public String getFieldDisplay() {
-		if (fieldName == null)
-			return "";
-		return switch (fieldName) {
-		case "amount" -> "Amount";
-		case "note" -> "Note";
-		case "category" -> "Category";
-		case "subcategory" -> "Sub Category";
-		case "datetime" -> "Date & Time";
-		case "type" -> "Type";
-		default -> fieldName;
-		};
+	public void setTxnAmount(BigDecimal txnAmount) {
+		this.txnAmount = txnAmount;
 	}
 
-	/** CSS class for action badge */
-	public String getActionClass() {
-		return switch (action) {
-		case "CREATE" -> "badge-create";
-		case "UPDATE" -> "badge-update";
-		case "DELETE" -> "badge-delete";
-		default -> "";
-		};
+	public String getTxnCategoryName() {
+		return txnCategoryName;
+	}
+
+	public void setTxnCategoryName(String txnCategoryName) {
+		this.txnCategoryName = txnCategoryName;
+	}
+
+	public String getTxnDate() {
+		return txnDate;
+	}
+
+	public void setTxnDate(String txnDate) {
+		this.txnDate = txnDate;
 	}
 }

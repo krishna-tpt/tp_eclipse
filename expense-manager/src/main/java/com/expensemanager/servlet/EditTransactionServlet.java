@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Enumeration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.expensemanager.dao.AuditLogDAO;
 import com.expensemanager.dao.CategoryDAO;
 import com.expensemanager.dao.ReceiptDAO;
@@ -18,13 +21,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * GET /transaction?id=X → detail page with audit log POST /transaction
- * (action=update) → update transaction POST /transaction (action=delete) →
- * delete transaction
- */
 @WebServlet("/transaction")
 public class EditTransactionServlet extends HttpServlet {
+	private static final Logger log = LoggerFactory.getLogger(EditTransactionServlet.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -38,10 +37,10 @@ public class EditTransactionServlet extends HttpServlet {
 		try {
 			int id = Integer.parseInt(idStr);
 			TransactionDAO txnDAO = new TransactionDAO();
-			AuditLogDAO auditDAO = new AuditLogDAO();
+			AuditLogDAO audDAO = new AuditLogDAO();
 			CategoryDAO catDAO = new CategoryDAO();
 			SubCategoryDAO scDAO = new SubCategoryDAO();
-			ReceiptDAO rDAO = new ReceiptDAO();
+			ReceiptDAO recDAO = new ReceiptDAO();
 
 			Transaction t = txnDAO.findById(id);
 			if (t == null) {
@@ -50,11 +49,11 @@ public class EditTransactionServlet extends HttpServlet {
 			}
 
 			req.setAttribute("txn", t);
-			req.setAttribute("auditLogs", auditDAO.findByTransactionId(id));
+			req.setAttribute("auditLogs", audDAO.findByTransactionId(id));
+			req.setAttribute("receipts", recDAO.findMetaByTransactionId(id));
 			req.setAttribute("incomeCategories", catDAO.findByType("INCOME"));
 			req.setAttribute("expenseCategories", catDAO.findByType("EXPENSE"));
 			req.setAttribute("subCategories", scDAO.findAll());
-			req.setAttribute("receipts", rDAO.findByTransactionId(id));
 
 		} catch (Exception e) {
 			req.setAttribute("dbError", e.getMessage());
@@ -65,39 +64,41 @@ public class EditTransactionServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		System.out.println("EditTransactionServlet");
-
 		req.setCharacterEncoding("UTF-8");
 		String action = req.getParameter("action");
 		String idStr = req.getParameter("id");
-
-		System.out.println("Action: " + action + " --> id: " + idStr);
-
 		if (idStr == null) {
 			resp.sendRedirect(req.getContextPath() + "/transactions");
 			return;
 		}
 
+		Enumeration<String> paramNames = req.getParameterNames();
+
+		while (paramNames.hasMoreElements()) {
+			String key = paramNames.nextElement();
+			String value = req.getParameter(key);
+
+			log.debug("Key: {} --> Value: {}", key, value);
+		}
 		int id = Integer.parseInt(idStr);
-		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
+//		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
+
+		// Detect panel AJAX call
+		boolean isAjax = "XMLHttpRequest".equals(req.getHeader("X-Requested-With"));
 
 		try {
 			TransactionDAO txnDAO = new TransactionDAO();
 
 			if ("delete".equalsIgnoreCase(action)) {
 				txnDAO.delete(id);
-				resp.sendRedirect(req.getContextPath() + "/transactions?success=deleted");
+				if (isAjax) {
+					resp.setContentType("application/json");
+					resp.getWriter().write("{\"status\":\"deleted\"}");
+				} else {
+					resp.sendRedirect(req.getContextPath() + "/transactions?success=deleted");
+				}
 				return;
 			}
-
-//			Enumeration<String> paramNames = req.getParameterNames();
-//
-//			while (paramNames.hasMoreElements()) {
-//				String key = paramNames.nextElement();
-//				String value = req.getParameter(key);
-//
-//				System.out.println("Key: " + key + ", Value: " + value);
-//			}
 
 			// UPDATE
 			Transaction old = txnDAO.findById(id);
@@ -110,7 +111,7 @@ public class EditTransactionServlet extends HttpServlet {
 			Transaction updated = new Transaction();
 			updated.setId(id);
 			updated.setType(old.getType()); // type cannot change
-			updated.setBookId(bookId);
+			updated.setBookId(old.getBookId());
 
 			String amountStr = req.getParameter("amount");
 			String dateStr = req.getParameter("dateTime");
@@ -137,11 +138,22 @@ public class EditTransactionServlet extends HttpServlet {
 			}
 
 			txnDAO.update(old, updated);
-			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + id + "&success=updated");
+
+			if (isAjax) {
+				resp.setContentType("application/json");
+				resp.getWriter().write("{\"status\":\"ok\"}");
+			} else {
+				resp.sendRedirect(req.getContextPath() + "/transaction?id=" + id + "&success=updated");
+			}
 
 		} catch (Exception e) {
-			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + id + "&error="
-					+ java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
+			if (isAjax) {
+				resp.setContentType("application/json");
+				resp.getWriter().write("{\"status\":\"error\",\"msg\":\"" + e.getMessage().replace("\"", "'") + "\"}");
+			} else {
+				resp.sendRedirect(req.getContextPath() + "/transaction?id=" + id + "&error="
+						+ java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
+			}
 		}
 	}
 }

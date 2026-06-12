@@ -1,27 +1,15 @@
 package com.expensemanager.dao;
 
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.StringJoiner;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.expensemanager.model.Transaction;
 import com.expensemanager.model.TransactionFilter;
 import com.expensemanager.util.DBConnection;
+
+import java.math.BigDecimal;
+import java.sql.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class TransactionDAO {
 
@@ -92,7 +80,6 @@ public class TransactionDAO {
 		} finally {
 			db.releaseConnection(conn);
 		}
-		// Audit each changed field
 		if (oldT.getAmount().compareTo(newT.getAmount()) != 0)
 			auditDAO.logUpdate(oldT.getId(), "user", "amount", "₹" + oldT.getAmount(), "₹" + newT.getAmount());
 		if (!oldT.getDateTime().equals(newT.getDateTime()))
@@ -121,17 +108,9 @@ public class TransactionDAO {
 		}
 	}
 
-	// ── FIND BY ID ─────────────────────────────────────────
+	// ── FIND BY ID ────────────────────────────────────────
 	public Transaction findById(int id) throws SQLException {
-		String sql = """
-				SELECT t.id, t.type, t.txn_datetime, t.amount, t.note, t.book_id,
-				       c.id AS cat_id, c.name AS cat_name,
-				       sc.sub_categories_id AS subcat_id, sc.name AS subcat_name
-				FROM transactions t
-				LEFT JOIN categories c ON t.category_id = c.id
-				LEFT JOIN sub_categories sc ON t.sub_categories_id = sc.sub_categories_id
-				WHERE t.id = ?
-				""";
+		String sql = baseSelect() + " WHERE t.id = ?";
 		Connection conn = db.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setInt(1, id);
@@ -147,7 +126,7 @@ public class TransactionDAO {
 		}
 	}
 
-	// ── FIND ALL (legacy — book + type filter) ────────────
+	// ── LEGACY find (backward compat) ─────────────────────
 	public List<Transaction> findAll(String typeFilter, int page, int pageSize, Integer bookId) throws SQLException {
 		TransactionFilter f = new TransactionFilter();
 		f.setType(typeFilter);
@@ -164,9 +143,9 @@ public class TransactionDAO {
 		return countByFilter(f);
 	}
 
-	// ── FIND BY FILTER (advanced search) ─────────────────
+	// ── FILTER-BASED SEARCH ───────────────────────────────
 	public List<Transaction> findByFilter(TransactionFilter f) throws SQLException {
-		BuildResult q = buildFilterSQL(f, false);
+		BuildResult q = buildSQL(f, false);
 		Connection conn = db.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(q.sql)) {
 			setParams(ps, q.params);
@@ -182,45 +161,13 @@ public class TransactionDAO {
 	}
 
 	public int countByFilter(TransactionFilter f) throws SQLException {
-		BuildResult q = buildFilterSQL(f, true);
+		BuildResult q = buildSQL(f, true);
 		Connection conn = db.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(q.sql)) {
 			setParams(ps, q.params);
 			ResultSet rs = ps.executeQuery();
 			rs.next();
 			return rs.getInt(1);
-		} finally {
-			db.releaseConnection(conn);
-		}
-	}
-
-	/** Calendar: fetch daily totals for a month */
-	public List<Map<String, Object>> dailyTotals(int year, int month, Integer bookId) throws SQLException {
-		String sql = """
-				SELECT DATE(txn_datetime) AS day,
-				       SUM(CASE WHEN type='INCOME'  THEN amount ELSE 0 END) AS income,
-				       SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) AS expense
-				FROM transactions
-				WHERE EXTRACT(YEAR FROM txn_datetime)  = ?
-				  AND EXTRACT(MONTH FROM txn_datetime) = ?
-				""" + (bookId != null && bookId > 0 ? " AND book_id = " + bookId : "") + """
-				GROUP BY DATE(txn_datetime)
-				ORDER BY day
-				""";
-		Connection conn = db.getConnection();
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setInt(1, year);
-			ps.setInt(2, month);
-			ResultSet rs = ps.executeQuery();
-			List<Map<String, Object>> rows = new ArrayList<>();
-			while (rs.next()) {
-				Map<String, Object> m = new LinkedHashMap<>();
-				m.put("day", rs.getDate("day").toString());
-				m.put("income", rs.getBigDecimal("income"));
-				m.put("expense", rs.getBigDecimal("expense"));
-				rows.add(m);
-			}
-			return rows;
 		} finally {
 			db.releaseConnection(conn);
 		}
@@ -307,40 +254,59 @@ public class TransactionDAO {
 		}
 	}
 
-	// ── PRIVATE HELPERS ───────────────────────────────────
+	public List<Map<String, Object>> dailyTotals(int year, int month, Integer bookId) throws SQLException {
+		String sql = """
+				SELECT DATE(txn_datetime) AS day,
+				       SUM(CASE WHEN type='INCOME'  THEN amount ELSE 0 END) AS income,
+				       SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) AS expense
+				FROM transactions
+				WHERE EXTRACT(YEAR FROM txn_datetime)  = ?
+				  AND EXTRACT(MONTH FROM txn_datetime) = ?
+				""" + (bookId != null && bookId > 0 ? " AND book_id = " + bookId : "") + """
+				GROUP BY DATE(txn_datetime)
+				ORDER BY day
+				""";
+		Connection conn = db.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, year);
+			ps.setInt(2, month);
+			ResultSet rs = ps.executeQuery();
+			List<Map<String, Object>> rows = new ArrayList<>();
+			while (rs.next()) {
+				Map<String, Object> m = new LinkedHashMap<>();
+				m.put("day", rs.getDate("day").toString());
+				m.put("income", rs.getBigDecimal("income"));
+				m.put("expense", rs.getBigDecimal("expense"));
+				rows.add(m);
+			}
+			return rows;
+		} finally {
+			db.releaseConnection(conn);
+		}
+	}
 
+	// ── SQL BUILDER ───────────────────────────────────────
 	private record BuildResult(String sql, List<Object> params) {
 	}
 
-	private BuildResult buildFilterSQL(TransactionFilter f, boolean countOnly) {
+	private BuildResult buildSQL(TransactionFilter f, boolean countOnly) {
 		List<Object> params = new ArrayList<>();
 		StringBuilder sql = new StringBuilder();
 
 		if (countOnly) {
 			sql.append("SELECT COUNT(*) FROM transactions t WHERE 1=1");
 		} else {
-			sql.append("""
-					SELECT t.id, t.type, t.txn_datetime, t.amount, t.note, t.book_id,
-					       c.id AS cat_id, c.name AS cat_name,
-					       sc.sub_categories_id AS subcat_id, sc.name AS subcat_name
-					FROM transactions t
-					LEFT JOIN categories c    ON t.category_id = c.id
-					LEFT JOIN sub_categories sc ON t.sub_categories_id = sc.sub_categories_id
-					WHERE 1=1
-					""");
+			sql.append(baseSelect() + " WHERE 1=1");
 		}
 
-		// Book
 		if (f.getBookId() != null && f.getBookId() > 0) {
 			sql.append(" AND t.book_id = ?");
 			params.add(f.getBookId());
 		}
-		// Type
 		if (f.getType() != null && !f.getType().isBlank()) {
 			sql.append(" AND t.type = ?::txn_type");
 			params.add(f.getType());
 		}
-		// Date range
 		if (f.getDateFrom() != null) {
 			sql.append(" AND t.txn_datetime >= ?");
 			params.add(Timestamp.valueOf(f.getDateFrom().atStartOfDay()));
@@ -349,27 +315,34 @@ public class TransactionDAO {
 			sql.append(" AND t.txn_datetime < ?");
 			params.add(Timestamp.valueOf(f.getDateTo().plusDays(1).atStartOfDay()));
 		}
-		// Category
-		if (f.getCategoryId() != null && f.getCategoryId() > 0) {
-			sql.append(" AND t.category_id = ?");
-			params.add(f.getCategoryId());
+		// Multi-category IN clause
+		if (f.getCategoryIds() != null && !f.getCategoryIds().isEmpty()) {
+			sql.append(" AND t.category_id IN (");
+			for (int i = 0; i < f.getCategoryIds().size(); i++) {
+				sql.append(i > 0 ? ",?" : "?");
+				params.add(f.getCategoryIds().get(i));
+			}
+			sql.append(")");
 		}
-		// SubCategory
-		if (f.getSubCategoryId() != null && f.getSubCategoryId() > 0) {
-			sql.append(" AND t.sub_categories_id = ?");
-			params.add(f.getSubCategoryId());
+		// Multi-subcategory IN clause
+		if (f.getSubCategoryIds() != null && !f.getSubCategoryIds().isEmpty()) {
+			sql.append(" AND t.sub_categories_id IN (");
+			for (int i = 0; i < f.getSubCategoryIds().size(); i++) {
+				sql.append(i > 0 ? ",?" : "?");
+				params.add(f.getSubCategoryIds().get(i));
+			}
+			sql.append(")");
 		}
-		// Amount condition 1
+		// Amount conditions
 		if (f.getAmount1() != null && f.getAmountOp1() != null) {
 			sql.append(" AND t.amount ").append(TransactionFilter.safeOp(f.getAmountOp1())).append(" ?");
 			params.add(f.getAmount1());
 		}
-		// Amount condition 2 (range)
 		if (f.getAmount2() != null && f.getAmountOp2() != null) {
 			sql.append(" AND t.amount ").append(TransactionFilter.safeOp(f.getAmountOp2())).append(" ?");
 			params.add(f.getAmount2());
 		}
-		// Note / custom field search (ILIKE)
+		// Note + custom field ILIKE
 		if (f.getNoteSearch() != null && !f.getNoteSearch().isBlank()) {
 			String like = "%" + f.getNoteSearch().trim() + "%";
 			sql.append("""
@@ -382,7 +355,6 @@ public class TransactionDAO {
 			params.add(like);
 			params.add(like);
 		}
-
 		if (!countOnly) {
 			sql.append(" ORDER BY t.txn_datetime DESC");
 			if (f.getPageSize() < Integer.MAX_VALUE) {
@@ -392,6 +364,17 @@ public class TransactionDAO {
 			}
 		}
 		return new BuildResult(sql.toString(), params);
+	}
+
+	private String baseSelect() {
+		return """
+				SELECT t.id, t.type, t.txn_datetime, t.amount, t.note, t.book_id,
+				       c.id AS cat_id, c.name AS cat_name,
+				       sc.sub_categories_id AS subcat_id, sc.name AS subcat_name
+				FROM transactions t
+				LEFT JOIN categories c ON t.category_id=c.id
+				LEFT JOIN sub_categories sc ON t.sub_categories_id=sc.sub_categories_id
+				""";
 	}
 
 	private void setParams(PreparedStatement ps, List<Object> params) throws SQLException {
@@ -413,8 +396,8 @@ public class TransactionDAO {
 	private void insertCustomValues(Connection conn, int txnId, Map<String, String> values) throws SQLException {
 		String sql = """
 				INSERT INTO transaction_custom_values (transaction_id, col_def_id, value)
-				SELECT ?, id, ? FROM column_definitions WHERE col_key = ?
-				ON CONFLICT (transaction_id, col_def_id) DO UPDATE SET value = EXCLUDED.value
+				SELECT ?, id, ? FROM column_definitions WHERE col_key=?
+				ON CONFLICT (transaction_id, col_def_id) DO UPDATE SET value=EXCLUDED.value
 				""";
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			for (Map.Entry<String, String> e : values.entrySet()) {
@@ -454,7 +437,7 @@ public class TransactionDAO {
 		String sql = """
 				SELECT tcv.transaction_id, cd.col_key, tcv.value
 				FROM transaction_custom_values tcv
-				JOIN column_definitions cd ON tcv.col_def_id = cd.id
+				JOIN column_definitions cd ON tcv.col_def_id=cd.id
 				WHERE tcv.transaction_id IN (""" + ids + ")";
 		try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
 			while (rs.next()) {
