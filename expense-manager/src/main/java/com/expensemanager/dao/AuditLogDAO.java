@@ -92,7 +92,7 @@ public class AuditLogDAO {
 	/** Book-scoped audit log with pagination */
 	public List<AuditLog> findRecentByBook(int bookId, int page, int pageSize) throws SQLException {
 		String sql = """
-				SELECT a.id, a.transaction_id, a.action, a.changed_at, 
+				SELECT a.id, a.transaction_id, a.action, a.changed_at,
 				       a.field_name, a.old_value, a.new_value, a.note,
 				       t.amount, c.name AS cat_name,
 				       TO_CHAR(t.txn_datetime,'DD Mon YYYY HH24:MI') AS txn_date
@@ -102,7 +102,7 @@ public class AuditLogDAO {
 				WHERE t.book_id = ?
 				ORDER BY a.changed_at DESC
 				LIMIT ? OFFSET ?
-				""";  //a.changed_by, 
+				"""; // a.changed_by,
 		Connection conn = db.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setInt(1, bookId);

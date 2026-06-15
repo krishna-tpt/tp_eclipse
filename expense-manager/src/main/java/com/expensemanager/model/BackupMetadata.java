@@ -12,6 +12,10 @@ public class BackupMetadata {
 		PENDING, SUCCESS, FAILED, RESTORING, RESTORED
 	}
 
+	public enum BackupMode {
+		OFFLINE, ONLINE
+	}
+
 	private int id;
 	private String fileName;
 	private String filePath;
@@ -24,6 +28,7 @@ public class BackupMetadata {
 	private int expenseCount;
 	private LocalDateTime createdAt;
 	private LocalDateTime completedAt;
+	private BackupMode mode;
 
 	public BackupMetadata() {
 	}
@@ -78,6 +83,14 @@ public class BackupMetadata {
 
 	public void setBackupType(BackupType v) {
 		backupType = v;
+	}
+
+	public BackupMode getMode() {
+		return mode;
+	}
+
+	public void setMode(BackupMode v) {
+		mode = v;
 	}
 
 	public BackupStatus getStatus() {
@@ -135,4 +148,5 @@ public class BackupMetadata {
 	public void setCompletedAt(LocalDateTime v) {
 		completedAt = v;
 	}
+
 }

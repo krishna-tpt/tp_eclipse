@@ -286,6 +286,24 @@ public class TransactionDAO {
 	}
 
 	// ── SQL BUILDER ───────────────────────────────────────
+	/**
+	 * Sum of amounts for transactions matching the given filter. Filter must have
+	 * type set (INCOME or EXPENSE) for meaningful results.
+	 */
+	public BigDecimal sumByFilter(TransactionFilter f) throws SQLException {
+		// Reuse countOnly=true path to get WHERE clause, then replace SELECT
+		BuildResult q = buildSQL(f, true); // gives: SELECT COUNT(*) FROM transactions t WHERE ...
+		String sumSql = q.sql().replace("SELECT COUNT(*)", "SELECT COALESCE(SUM(t.amount), 0)");
+		Connection conn = db.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sumSql)) {
+			setParams(ps, q.params());
+			ResultSet rs = ps.executeQuery();
+			return rs.next() ? rs.getBigDecimal(1) : BigDecimal.ZERO;
+		} finally {
+			db.releaseConnection(conn);
+		}
+	}
+
 	private record BuildResult(String sql, List<Object> params) {
 	}
 

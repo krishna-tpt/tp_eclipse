@@ -26,6 +26,8 @@ public class BackupDAO {
 				+ "CREATE INDEX IF NOT EXISTS idx_backup_created ON backup_history(created_at DESC);";
 		try (Connection con = DBConnection.getInstance().getConnection(); Statement st = con.createStatement()) {
 			st.execute(ddl);
+		} catch (Exception e) {
+			System.out.println("createTableIfNotExists Method : " + e.getMessage());
 		}
 	}
 
@@ -44,6 +46,9 @@ public class BackupDAO {
 			ps.setTimestamp(9, Timestamp.valueOf(m.getCreatedAt() != null ? m.getCreatedAt() : LocalDateTime.now()));
 			ResultSet rs = ps.executeQuery();
 			return rs.next() ? rs.getInt(1) : -1;
+		} catch (Exception e) {
+			System.out.println("insert Method : " + e.getMessage());
+			return 0;
 		}
 	}
 
@@ -59,6 +64,8 @@ public class BackupDAO {
 			ps.setString(5, err);
 			ps.setInt(6, id);
 			ps.executeUpdate();
+		} catch (Exception e) {
+			System.out.println("updateCompletion Method : " + e.getMessage());
 		}
 	}
 
@@ -69,6 +76,8 @@ public class BackupDAO {
 			ps.setString(1, status.name());
 			ps.setInt(2, id);
 			ps.executeUpdate();
+		} catch (Exception e) {
+			System.out.println("updateStatus Method : " + e.getMessage());
 		}
 	}
 
@@ -79,6 +88,8 @@ public class BackupDAO {
 				ResultSet rs = st.executeQuery("SELECT * FROM backup_history ORDER BY created_at DESC")) {
 			while (rs.next())
 				list.add(mapRow(rs));
+		} catch (Exception e) {
+			System.out.println("getAll Method : " + e.getMessage());
 		}
 		return list;
 	}
@@ -89,6 +100,9 @@ public class BackupDAO {
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			return rs.next() ? mapRow(rs) : null;
+		} catch (Exception e) {
+			System.out.println("getAll Method : " + e.getMessage());
+			return null;
 		}
 	}
 
@@ -97,15 +111,22 @@ public class BackupDAO {
 				PreparedStatement ps = con.prepareStatement("DELETE FROM backup_history WHERE id=?")) {
 			ps.setInt(1, id);
 			ps.executeUpdate();
+		} catch (Exception e) {
+			System.out.println("delete Method : " + e.getMessage());
 		}
 	}
 
-	public int countRows(String table) throws SQLException {
-		try (Connection con = DBConnection.getInstance().getConnection();
-				Statement st = con.createStatement();
-				ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM " + table)) {
-			return rs.next() ? rs.getInt(1) : 0;
-		}
+	public int countRows(String type) throws SQLException {
+		String sql = "SELECT COUNT(*) FROM transactions WHERE type = ?::txn_type";
+	    try (Connection con = DBConnection.getInstance().getConnection();
+	         PreparedStatement pt = con.prepareStatement(sql)) {
+	        pt.setString(1, type);
+	        ResultSet rs = pt.executeQuery();
+	        return rs.next() ? rs.getInt(1) : 0;
+	    } catch (Exception e) {
+	        System.out.println("countRows Method : " + e.getMessage());
+	        return 0;
+	    }
 	}
 
 	private BackupMetadata mapRow(ResultSet rs) throws SQLException {

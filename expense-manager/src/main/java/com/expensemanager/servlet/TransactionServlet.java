@@ -23,6 +23,7 @@ import com.expensemanager.model.Transaction;
 import com.expensemanager.model.TransactionFilter;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
 @WebServlet("/transactions")
+@MultipartConfig(maxFileSize = 5_242_880, maxRequestSize = 10_485_760)
 public class TransactionServlet extends HttpServlet {
 	private static final Logger log = LoggerFactory.getLogger(TransactionServlet.class);
 
@@ -68,17 +70,18 @@ public class TransactionServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+		log.info("TransactionServlet doPost");
 		req.setCharacterEncoding("UTF-8");
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
 
-//		Enumeration<String> paramNames = req.getParameterNames();
-//
-//		while (paramNames.hasMoreElements()) {
-//			String key = paramNames.nextElement();
-//			String value = req.getParameter(key);
-//
-//			log.debug("Key: {} --> Value: {}", key, value);
-//		}
+		Enumeration<String> paramNames = req.getParameterNames();
+
+		while (paramNames.hasMoreElements()) {
+			String key = paramNames.nextElement();
+			String value = req.getParameter(key);
+
+			log.debug("Key: {} --> Value: {}", key, value);
+		}
 
 		String typeStr = req.getParameter("type");
 		String amountStr = req.getParameter("amount");
@@ -88,6 +91,8 @@ public class TransactionServlet extends HttpServlet {
 		String dateStr = req.getParameter("dateTime");
 
 		if (typeStr == null || amountStr == null || catIdStr == null || amountStr.isBlank()) {
+			log.debug("Missing details | typeStr --> {} | amountStr --> {} | catIdStr --> {} | amountStr--> {} ",
+					typeStr, amountStr, catIdStr, amountStr);
 			resp.sendRedirect(req.getContextPath() + "/transactions?error=missing");
 			return;
 		}
@@ -159,7 +164,7 @@ public class TransactionServlet extends HttpServlet {
 	}
 
 	// ── Filter parsing (multi-category aware) ─────────────
-	private TransactionFilter parseFilter(HttpServletRequest req, int bookId) {
+	public TransactionFilter parseFilter(HttpServletRequest req, int bookId) {
 		TransactionFilter f = new TransactionFilter();
 		f.setBookId(bookId);
 

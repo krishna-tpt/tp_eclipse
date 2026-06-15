@@ -30,17 +30,25 @@ public class BackupServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		String path = req.getPathInfo();
+
+//		log.debug("Doget method Path :", path);
+
 		if ("/download".equals(path)) {
 			handleDownload(req, res);
 			return;
 		}
 		try {
+//			log.debug("Before calling backups..");
 			List<BackupMetadata> backups = dao.getAll();
 			req.setAttribute("backups", backups);
 			req.setAttribute("activePage", "backup");
 			req.setAttribute("pageTitle", "Backup & Restore");
+
+//			log.debug("Doget Before calling Backup.jsp");
+
 			req.getRequestDispatcher("/WEB-INF/views/backup.jsp").forward(req, res);
 		} catch (Exception e) {
+			log.debug("Exception Block..." + e.getMessage());
 			req.getSession().setAttribute("errorMsg", "Error: " + e.getMessage());
 			res.sendRedirect(req.getContextPath() + "/backup/list");
 		}
@@ -50,26 +58,34 @@ public class BackupServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		req.setCharacterEncoding("UTF-8");
 		String path = req.getPathInfo();
+
+		log.debug("DoPost method Path :", path);
+
 		if (path == null)
 			path = "";
 		switch (path) {
 		case "/create":
+			log.debug("DoPost method Path : create");
 			handleCreate(req, res);
 			break;
 		case "/restore":
+			log.debug("DoPost method Path : restore");
 			handleRestore(req, res);
 			break;
 		case "/upload":
+			log.debug("DoPost method Path : upload");
 			handleUpload(req, res);
 			break;
 		case "/delete":
+			log.debug("DoPost method Path : delete");
 			handleDelete(req, res);
 			break;
 		default:
+			log.debug("doPost Method : Default case ");
 			res.sendRedirect(req.getContextPath() + "/backup/list");
 		}
 	}
-
+	
 	private void handleCreate(HttpServletRequest req, HttpServletResponse res) throws IOException {
 		try {
 			BackupMetadata m = svc.createBackup(req.getParameter("description"), BackupType.MANUAL);
@@ -77,6 +93,7 @@ public class BackupServlet extends HttpServlet {
 					"✅ Backup created! File: " + m.getFileName() + " | Size: " + m.getFileSizeFormatted() + " | "
 							+ m.getIncomeCount() + " income, " + m.getExpenseCount() + " expense records");
 		} catch (Exception e) {
+			log.debug("handleCreate Method : " + e.getMessage());
 			req.getSession().setAttribute("errorMsg", "❌ Backup failed: " + e.getMessage());
 		}
 		res.sendRedirect(req.getContextPath() + "/backup/list");
@@ -91,9 +108,10 @@ public class BackupServlet extends HttpServlet {
 		}
 		try {
 			svc.restoreBackup(Integer.parseInt(idStr));
-			req.getSession().setAttribute("successMsg",
-					"✅ Data restored from backup #" + idStr + ". Safety backup was auto-created before restore.");
+			log.debug("✅ Data restored from backup #" + idStr + ". Safety backup was auto-created before restore.");
+			req.getSession().setAttribute("successMsg", "✅ Data restored from backup #" + idStr + ". Safety backup was auto-created before restore.");
 		} catch (Exception e) {
+			log.debug("handleRestore Method : " + e.getMessage());
 			req.getSession().setAttribute("errorMsg", "❌ Restore failed: " + e.getMessage());
 		}
 		res.sendRedirect(req.getContextPath() + "/backup/list");
@@ -114,6 +132,7 @@ public class BackupServlet extends HttpServlet {
 			res.setContentLength(bytes.length);
 			res.getOutputStream().write(bytes);
 		} catch (Exception e) {
+			log.debug("handleDownload Method : " + e.getMessage());
 			res.sendError(500, "Download failed: " + e.getMessage());
 		}
 	}
@@ -137,6 +156,7 @@ public class BackupServlet extends HttpServlet {
 			req.getSession().setAttribute("successMsg",
 					"✅ Uploaded: " + m.getFileName() + " (" + m.getFileSizeFormatted() + ")");
 		} catch (Exception e) {
+			log.debug("handleUpload Method : " + e.getMessage());
 			req.getSession().setAttribute("errorMsg", "❌ Upload failed: " + e.getMessage());
 		}
 		res.sendRedirect(req.getContextPath() + "/backup/list");
@@ -147,6 +167,7 @@ public class BackupServlet extends HttpServlet {
 			svc.deleteBackup(Integer.parseInt(req.getParameter("backupId")));
 			req.getSession().setAttribute("successMsg", "Backup deleted.");
 		} catch (Exception e) {
+			log.debug("handleDelete Method : " + e.getMessage());
 			req.getSession().setAttribute("errorMsg", "Delete failed: " + e.getMessage());
 		}
 		res.sendRedirect(req.getContextPath() + "/backup/list");

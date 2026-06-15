@@ -41,6 +41,20 @@ public class ReceiptDAO {
 			db.releaseConnection(conn);
 		}
 	}
+	
+	public void uploadReceipt(Receipt r) throws SQLException {
+		String sql="UPDATE transaction_receipts set file_data =? Where id = ?";
+		
+		Connection conn = db.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setBytes(1, r.getFileData());
+			ps.setInt(2, r.getId());
+			ps.executeUpdate();
+			log.info("File Uploading Completed");
+		} finally {
+			db.releaseConnection(conn);
+		}
+	}
 
 	public List<Receipt> findByTransactionId(int txnId) throws SQLException {
 		String sql = """
@@ -103,7 +117,8 @@ public class ReceiptDAO {
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			return rs.next() ? mapRow(rs) : null;
-		} finally {
+		}
+		finally {
 			db.releaseConnection(conn);
 		}
 	}
