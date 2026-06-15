@@ -73,7 +73,7 @@ public class ListFilesService {
 				f.setExtension(attrs.optString("extn"));
 				f.setType(attrs.optString("type"));
 				f.setFolder(false);
-				f.setModifiedTime(attrs.optString("modified_time"));
+				f.setModifiedTime(attrs.optLong("modified_time_in_millisecond"));
 				f.setParentId(attrs.optString("parent_id"));
 				f.setPermalink(attrs.optString("permalink"));
 

@@ -3,7 +3,7 @@ package com.expensemanager.model;
 /**
  * Represents a file/folder in Zoho WorkDrive.
  */
-public class WorkDriveFile {
+public class WorkDriveFile implements Comparable<WorkDriveFile> {
 
 	private String id;
 	private String name;
@@ -11,7 +11,7 @@ public class WorkDriveFile {
 	private String type; // "folder", "spreadsheet", "docs", etc.
 	private boolean isFolder;
 	private long sizeInBytes;
-	private String modifiedTime;
+	private long modifiedTime;
 	private String parentId;
 	private String permalink;
 
@@ -19,7 +19,7 @@ public class WorkDriveFile {
 	}
 
 	public WorkDriveFile(String id, String name, String extension, String type, boolean isFolder, long sizeInBytes,
-			String modifiedTime, String parentId, String permalink) {
+			long modifiedTime, String parentId, String permalink) {
 		this.id = id;
 		this.name = name;
 		this.extension = extension;
@@ -81,11 +81,11 @@ public class WorkDriveFile {
 		this.sizeInBytes = size;
 	}
 
-	public String getModifiedTime() {
+	public long getModifiedTime() {
 		return modifiedTime;
 	}
 
-	public void setModifiedTime(String t) {
+	public void setModifiedTime(long t) {
 		this.modifiedTime = t;
 	}
 
@@ -105,32 +105,6 @@ public class WorkDriveFile {
 		this.permalink = link;
 	}
 
-	/**
-	 * Determine target folder based on extension. Returns null if no rule matches.
-	 */
-	public String resolveTargetFolderKey() {
-		if (isFolder)
-			return null;
-		if (extension == null || extension.isEmpty())
-			return null;
-
-		switch (extension.toLowerCase()) {
-		case "xlsx":
-		case "xls":
-		case "csv":
-		case "ods":
-			return "sheet";
-		case "docx":
-		case "doc":
-		case "odt":
-		case "txt":
-		case "rtf":
-			return "writer";
-		default:
-			return null; // unrecognized — leave in place
-		}
-	}
-
 	@Override
 	public String toString() {
 		return "WorkDriveFile [id=" + id + ", name=" + name + ", extension=" + extension + ", type=" + type
@@ -138,5 +112,14 @@ public class WorkDriveFile {
 				+ ", parentId=" + parentId + ", permalink=" + permalink + "]";
 	}
 
+	@Override
+	public int compareTo(WorkDriveFile file) {
+		long t1=this.modifiedTime;
+		long t2 =file.modifiedTime;
+		
+		return Long.compare(t1, t2);
+	}
+	
+	
 	
 }
