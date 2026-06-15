@@ -6,9 +6,26 @@
 	version="6.0">
 
 	<display-name>Expense Manager</display-name>
+	
+	<context-param>
+		<param-name>zoho.client.id</param-name>
+		<param-value>1000.I7L8AIDAW8EIVJ0PW0O84NKMHAXBFV</param-value>
+	</context-param>
+	<context-param>
+		<param-name>zoho.client.secret</param-name>
+		<param-value>1c2192e08af94e368a964ac490624ef803f91f14ab</param-value>
+	</context-param>
+	<context-param>
+		<param-name>zoho.refresh.token</param-name>
+		<param-value>1000.9d4e497d53cc405e642a92b737c28691.98dc964d39701f6a15ddcd66057c84da</param-value>
+	</context-param>
 
+	<!-- Folder IDs -->
+	<context-param>
+		<param-name>workdrive.folder.id</param-name>
+		<param-value>e8cpf113df0584d5b419d984b185e2df899bf</param-value>
+	</context-param>
 
-	<!-- Backup Schedule -->
 	<context-param>
 		<param-name>backup.schedule.hour</param-name>
 		<param-value>14</param-value>
@@ -17,8 +34,7 @@
 		<param-name>backup.schedule.minute</param-name>
 		<param-value>50</param-value>
 	</context-param>
-	
-	<!-- DB -->
+
 	<context-param>
 		<param-name>DB_URL</param-name>
 		<param-value>jdbc:postgresql://localhost/mydb</param-value>
@@ -40,11 +56,11 @@
 		<param-name>GMAIL_APP_PASS</param-name>
 		<!-- App Password — NOT your regular Gmail password! -->
 		<!-- Format: xxxx xxxx xxxx xxxx (16 chars, spaces optional) -->
-		<param-value>yfma ubac bmql ziyo</param-value>
+		<param-value>xxxx xxxx xxxx xxxx</param-value>
 	</context-param>
 
 	<session-config>
-		<session-timeout>80</session-timeout>
+		<session-timeout>60</session-timeout>
 	</session-config>
 
 	<welcome-file-list>

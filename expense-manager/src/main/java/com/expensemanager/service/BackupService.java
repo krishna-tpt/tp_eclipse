@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.expensemanager.dao.BackupDAO;
 import com.expensemanager.dao.ReceiptDAO;
 import com.expensemanager.model.BackupMetadata;
+import com.expensemanager.model.BackupMetadata.BackupMode;
 import com.expensemanager.model.BackupMetadata.BackupStatus;
 import com.expensemanager.model.BackupMetadata.BackupType;
 import com.expensemanager.model.Receipt;
@@ -51,7 +52,7 @@ public class BackupService {
 	private final BackupDAO dao = new BackupDAO();
 
 	// ── CREATE ────────────────────────────────────────────────────────────────
-	public BackupMetadata createBackup(String description, BackupType type) throws Exception {
+	public BackupMetadata createBackup(String description, BackupType type, BackupMode backupMode) throws Exception {
 		Path dir = Paths.get(System.getProperty("expense.backup.dir", DEFAULT_DIR));
 		log.debug("Backup Path : {} " + dir);
 		Files.createDirectories(dir);
@@ -96,6 +97,10 @@ public class BackupService {
 			dao.updateCompletion(id, BackupStatus.FAILED, 0, 0, 0, ex.getMessage());
 			meta.setStatus(BackupStatus.FAILED);
 			throw ex;
+		}finally {
+			if(backupMode == backupMode.ONLINE) {
+				
+			}
 		}
 		return meta;
 	}
@@ -117,7 +122,7 @@ public class BackupService {
 			throw new Exception("Backup file missing: " + zipPath);
 		}
 
-		createBackup("Auto-backup before restore of #" + backupId, BackupType.AUTO_BEFORE_RESTORE);
+		createBackup("Auto-backup before restore of #" + backupId, BackupType.AUTO_BEFORE_RESTORE, meta.getMode());
 		dao.updateStatus(backupId, BackupStatus.RESTORING);
 
 		try (Connection con = DBConnection.getInstance().getConnection()) {

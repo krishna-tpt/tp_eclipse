@@ -6,6 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import com.expensemanager.model.BackupMetadata.BackupMode;
 import com.expensemanager.model.BackupMetadata.BackupType;
 
 import jakarta.servlet.ServletContextEvent;
@@ -48,7 +49,7 @@ public class BackupScheduler implements ServletContextListener {
 
 	private void run() {
 		try {
-			new BackupService().createBackup("Scheduled daily backup", BackupType.SCHEDULED);
+			new BackupService().createBackup("Scheduled daily backup", BackupType.SCHEDULED, BackupMode.ONLINE);
 			LOG.info("[BackupScheduler] Scheduled backup done.");
 		} catch (Exception e) {
 			LOG.severe("[BackupScheduler] FAILED: " + e.getMessage());

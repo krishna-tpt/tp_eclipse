@@ -3,6 +3,7 @@ package com.expensemanager.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
@@ -11,10 +12,12 @@ import jakarta.servlet.annotation.WebListener;
 public class AppContextListener implements ServletContextListener {
 
 	private static final Logger log = LoggerFactory.getLogger(AppContextListener.class);
-
+	private static ServletContext context;
+	
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-
+        
+		context = sce.getServletContext();
 		String url = sce.getServletContext().getInitParameter("DB_URL");
 		String user = sce.getServletContext().getInitParameter("DB_USER");
 		String pass = sce.getServletContext().getInitParameter("DB_PASSWORD");
@@ -32,6 +35,10 @@ public class AppContextListener implements ServletContextListener {
 			 * finally { com.expensemanager.servlet.AppLogCapture.install(); }
 			 */
 	}
+	
+	public static ServletContext getContext() {
+        return context;
+    }
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {

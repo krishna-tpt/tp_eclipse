@@ -425,6 +425,11 @@
 			<div class="form-group">
 				<label>Description (optional)</label> <input type="text"
 					name="description" placeholder="e.g. Before year-end audit…">
+				<label for="syncMode">Sync Mode</label> <select id="syncMode"
+					name="syncMode">
+					<option value="OFFLINE">Offline Sync</option>
+					<option value="ONLINE">Online Sync</option>
+				</select>
 			</div>
 			<div class="flex gap-1 mt-2" style="justify-content: flex-end">
 				<button type="button" class="btn btn-outline"

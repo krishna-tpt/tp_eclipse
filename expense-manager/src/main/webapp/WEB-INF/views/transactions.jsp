@@ -8,7 +8,7 @@
 <%@ include file="header.jsp"%>
 
 <style>
-/* ── Layout: list + detail side-by-side ── */
+/* Layout: list + detail side-by-side */
 .txn-layout {
 	display: grid;
 	grid-template-columns: 1fr;
@@ -36,7 +36,7 @@
 	display: block;
 }
 
-/* ── Filter panel ── */
+/* Filter panel */
 .filter-panel {
 	background: #f8fafc;
 	border: 1px solid var(--border);
@@ -76,7 +76,7 @@
 	font-weight: 700;
 }
 
-/* ── Multi-select styled ── */
+/* Multi-select styled */
 .multi-select-wrap {
 	position: relative;
 }
@@ -173,7 +173,7 @@
 	line-height: 1;
 }
 
-/* ── Rows ── */
+/* Rows */
 tbody tr.clickable {
 	cursor: pointer;
 }
@@ -188,7 +188,7 @@ tbody tr.selected {
 	outline-offset: -2px;
 }
 
-/* ── Amount filter ── */
+/* â”€â”€ Amount filter â”€â”€ */
 .amt-row {
 	display: flex;
 	gap: .4rem;
@@ -212,7 +212,7 @@ tbody tr.selected {
 	color: var(--text-2);
 }
 
-/* ── Export bar ── */
+/*  Export bar */
 .export-bar {
 	background: #fff;
 	border: 1px solid var(--border);
@@ -243,7 +243,7 @@ tbody tr.selected {
 	<div>
 		<h1>Transactions</h1>
 		<p>
-			<strong>${sessionScope.activeBookName}</strong> — ${total} records
+			<strong>${sessionScope.activeBookName}</strong> ${total} records
 			<c:if test="${filter.filtered}">&nbsp;<span
 					class="filter-badge">&#128269; Filtered</span>
 			</c:if>
@@ -308,7 +308,7 @@ tbody tr.selected {
 		onclick="openModal('emailModal')">&#9993; Email</button>
 </div>
 
-<%-- ═══ FILTER PANEL ═══ --%>
+<%-- FILTER PANEL --%>
 <div class="filter-panel ${filter.filtered ? '' : 'collapsed'}"
 	id="filterPanel">
 	<div class="filter-head" onclick="toggleFilter()">
@@ -416,149 +416,184 @@ tbody tr.selected {
 				<label>Amount Filter</label>
 				<div class="amt-row mt-1">
 					<select name="amountOp1">
-						<option value="" ${empty filter.amountOp1?'selected':''}>Any</option>
-						<option value="=" ${'=='==filter.amountOp1?'selected':''}>=</option>
-						<option value=">" ${'>'==filter.amountOp1?'selected':''}>&#62;</option>
-						<option value=">=" ${'>='==filter.amountOp1?'selected':''}>&#62;=</option>
-						<option
-							value="<"  ${'<'==filter.amountOp1?'selected':''}>&#60;</option>
-            <option value="<=" ${'<='==filter.amountOp1?'selected':''}>&#60;=</option>
-          </select>
-          <input type="number" name="amount1" step="0.01" min="0" placeholder="Amount" value="${filter.amount1}">
-          <span class="amt-and">AND</span>
-          <select name="amountOp2">
-            <option value="" ${empty filter.amountOp2?'selected':''}>(none)</option>
-            <option value=">=" ${'>='==filter.amountOp2?'selected':''}>&#62;=</option>
-            <option value="<=" ${'<='==filter.amountOp2?'selected':''}>&#60;=</option>
-            <option value=">"  ${'>'==filter.amountOp2?'selected':''}>&#62;</option>
-            <option value="<"  ${'<'==filter.amountOp2?'selected':''}>&#60;</option>
-          </select>
-          <input type="number" name="amount2" step="0.01" min="0" placeholder="Range end" value="${filter.amount2}">
-        </div>
-        <div style="font-size:.7rem;color:var(--text-2);margin-top:.25rem">
-          Example: &gt;=10 AND &lt;=50 → amounts between 10 and 50
-        </div>
-      </div>
+						<option value=""
+							<c:if test="${empty filter.amountOp1}">selected</c:if>>Any</option>
+						<option value="="
+							<c:if test="${filter.amountOp1 == '='}">selected</c:if>>=</option>
+						<option value=">"
+							<c:if test="${filter.amountOp1 == '>'}">selected</c:if>>&#62;</option>
+						<option value=">="
+							<c:if test="${filter.amountOp1 == '>='}">selected</c:if>>&#62;=</option>
+						<option value="&lt;"
+							<c:if test="${filter.amountOp1 == '<'}">selected</c:if>>&#60;</option>
+						<option value="&lt;="
+							<c:if test="${filter.amountOp1 == '<='}">selected</c:if>>&#60;=</option>
+					</select> <input type="number" name="amount1" step="0.01" min="0"
+						placeholder="Amount" value="${filter.amount1}"> <span
+						class="amt-and">AND</span> <select name="amountOp2">
+						<option value=""
+							<c:if test="${empty filter.amountOp2}">selected</c:if>>(none)</option>
+						<option value=">="
+							<c:if test="${filter.amountOp2 == '>='}">selected</c:if>>&#62;=</option>
+						<option value="&lt;="
+							<c:if test="${filter.amountOp2 == '<='}">selected</c:if>>&#60;=</option>
+						<option value=">"
+							<c:if test="${filter.amountOp2 == '>'}">selected</c:if>>&#62;</option>
+						<option value="&lt;"
+							<c:if test="${filter.amountOp2 == '<'}">selected</c:if>>&#60;</option>
+					</select> <input type="number" name="amount2" step="0.01" min="0"
+						placeholder="Range end" value="${filter.amount2}">
+				</div>
+				<div
+					style="font-size: .7rem; color: var(--text-2); margin-top: .25rem">
+					Example: &gt;=10 AND &lt;=50 â†’ amounts between 10 and 50</div>
+			</div>
 
-      <div class="flex gap-1 mt-2">
-        <button type="submit" class="btn btn-primary btn-sm">&#128269; Apply</button>
-        <button type="button" class="btn btn-outline btn-sm"
-                onclick="location.href='${pageContext.request.contextPath}/transactions'">Reset</button>
-      </div>
-    </form>
-  </div>
+			<div class="flex gap-1 mt-2">
+				<button type="submit" class="btn btn-primary btn-sm">&#128269;
+					Apply</button>
+				<button type="button" class="btn btn-outline btn-sm"
+					onclick="location.href='${pageContext.request.contextPath}/transactions'">Reset</button>
+			</div>
+		</form>
+	</div>
 </div>
 
 <%-- Type tabs --%>
 <div class="tabs">
-  <a href="${pageContext.request.contextPath}/transactions"               class="tab ${empty param.filter?'active':''}">All</a>
-  <a href="${pageContext.request.contextPath}/transactions?filter=INCOME"  class="tab income  ${param.filter=='INCOME'?'active':''}">Income</a>
-  <a href="${pageContext.request.contextPath}/transactions?filter=EXPENSE" class="tab expense ${param.filter=='EXPENSE'?'active':''}">Expenses</a>
+	<a href="${pageContext.request.contextPath}/transactions"
+		class="tab ${empty param.filter?'active':''}">All</a> <a
+		href="${pageContext.request.contextPath}/transactions?filter=INCOME"
+		class="tab income  ${param.filter=='INCOME'?'active':''}">Income</a> <a
+		href="${pageContext.request.contextPath}/transactions?filter=EXPENSE"
+		class="tab expense ${param.filter=='EXPENSE'?'active':''}">Expenses</a>
 </div>
 
-<%-- ═══ MAIN LAYOUT: table + detail panel ═══ --%>
+<%--  MAIN LAYOUT: table + detail panel  --%>
 <div class="txn-layout" id="txnLayout">
-  <div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th><th>Date &amp; Time</th><th>Type</th>
-            <th>Category</th><th>Sub Cat</th><th>Amount</th><th>Note</th>
-            <th style="width:42px"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <c:forEach var="t" items="${transactions}" varStatus="st">
-            <tr class="clickable" id="row-${t.id}"
-                onclick="loadDetail(${t.id}, this)">
-              <td class="text-muted" style="font-size:.78rem">${total-((page-1)*15)-st.index}</td>
-              <td style="font-size:.82rem;white-space:nowrap">${t.formattedDateTime}</td>
-              <td>
-                <c:choose>
-                  <c:when test="${t.type=='INCOME'}"><span class="badge income">INCOME</span></c:when>
-                  <c:otherwise><span class="badge expense">EXPENSE</span></c:otherwise>
-                </c:choose>
-              </td>
-              <td><span class="chip">${t.categoryName}</span></td>
-              <td><c:if test="${not empty t.subCategoryName}"><span class="chip chip-amber">${t.subCategoryName}</span></c:if></td>
-              <td>
-                <c:choose>
-                  <c:when test="${t.type=='INCOME'}"><span class="amount-pos">+&#8377;${t.amount}</span></c:when>
-                  <c:otherwise><span class="amount-neg">-&#8377;${t.amount}</span></c:otherwise>
-                </c:choose>
-              </td>
-              <td class="text-muted" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.note}</td>
-              <td>
-                <a href="${pageContext.request.contextPath}/transaction?id=${t.id}"
-                   class="btn btn-outline btn-sm" onclick="event.stopPropagation()" title="Full page edit">&#8599;</a>
-              </td>
-            </tr>
-          </c:forEach>
-          <c:if test="${empty transactions}">
-            <tr><td colspan="8" class="empty-state">No transactions match your filter.</td></tr>
-          </c:if>
-        </tbody>
-      </table>
-    </div>
+	<div>
+		<div class="table-wrap">
+			<table>
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Date &amp; Time</th>
+						<th>Type</th>
+						<th>Category</th>
+						<th>Sub Cat</th>
+						<th>Amount</th>
+						<th>Note</th>
+						<th style="width: 42px"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach var="t" items="${transactions}" varStatus="st">
+						<tr class="clickable" id="row-${t.id}"
+							onclick="loadDetail(${t.id}, this)">
+							<td class="text-muted" style="font-size: .78rem">${total-((page-1)*15)-st.index}</td>
+							<td style="font-size: .82rem; white-space: nowrap">${t.formattedDateTime}</td>
+							<td><c:choose>
+									<c:when test="${t.type=='INCOME'}">
+										<span class="badge income">INCOME</span>
+									</c:when>
+									<c:otherwise>
+										<span class="badge expense">EXPENSE</span>
+									</c:otherwise>
+								</c:choose></td>
+							<td><span class="chip">${t.categoryName}</span></td>
+							<td><c:if test="${not empty t.subCategoryName}">
+									<span class="chip chip-amber">${t.subCategoryName}</span>
+								</c:if></td>
+							<td><c:choose>
+									<c:when test="${t.type=='INCOME'}">
+										<span class="amount-pos">+&#8377;${t.amount}</span>
+									</c:when>
+									<c:otherwise>
+										<span class="amount-neg">-&#8377;${t.amount}</span>
+									</c:otherwise>
+								</c:choose></td>
+							<td class="text-muted"
+								style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">${t.note}</td>
+							<td><a
+								href="${pageContext.request.contextPath}/transaction?id=${t.id}"
+								class="btn btn-outline btn-sm" onclick="event.stopPropagation()"
+								title="Full page edit">&#8599;</a></td>
+						</tr>
+					</c:forEach>
+					<c:if test="${empty transactions}">
+						<tr>
+							<td colspan="8" class="empty-state">No transactions match
+								your filter.</td>
+						</tr>
+					</c:if>
+				</tbody>
+			</table>
+		</div>
 
-    <%-- Pagination --%>
-    <c:if test="${totalPages > 1}">
-      <div class="pagination mt-2">
-        <c:forEach begin="1" end="${totalPages}" var="p">
-          <a href="${pageContext.request.contextPath}/transactions?page=${p}<c:if test="${not empty param.filter}">&amp;filter=${param.filter}</c:if>"
-             class="page-btn ${p==page?'active':''}">${p}</a>
-        </c:forEach>
-      </div>
-    </c:if>
-  </div>
+		<%-- Pagination --%>
+		<c:if test="${totalPages > 1}">
+			<div class="pagination mt-2">
+				<c:forEach begin="1" end="${totalPages}" var="p">
+					<a
+						href="${pageContext.request.contextPath}/transactions?page=${p}<c:if test="${not empty param.filter}">&amp;filter=${param.filter}</c:if>"
+						class="page-btn ${p==page?'active':''}">${p}</a>
+				</c:forEach>
+			</div>
+		</c:if>
+	</div>
 
-  <%-- ═══ INLINE DETAIL PANEL ═══ --%>
-  <div class="detail-panel" id="detailPanel">
-    <div style="padding:1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem;background:#f8fafc">
-      <span style="font-weight:700;font-size:.9rem" id="dpTitle">Transaction</span>
-      <a id="dpFullLink" href="#" class="btn btn-outline btn-sm" style="font-size:.72rem">Full Page &#8599;</a>
-      <button onclick="closeDetail()" class="btn btn-outline btn-sm ml-auto" style="font-size:.75rem">&#x2715; Close</button>
-    </div>
-    <div id="dpBody" style="padding:1rem">
-      <div style="text-align:center;color:var(--text-2);padding:2rem;font-size:.9rem">
-        Click a transaction row to view details
-      </div>
-    </div>
-  </div>
+	<%-- INLINE DETAIL PANEL  --%>
+	<div class="detail-panel" id="detailPanel">
+		<div
+			style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .5rem; background: #f8fafc">
+			<span style="font-weight: 700; font-size: .9rem" id="dpTitle">Transaction</span>
+			<a id="dpFullLink" href="#" class="btn btn-outline btn-sm"
+				style="font-size: .72rem">Full Page &#8599;</a>
+			<button onclick="closeDetail()"
+				class="btn btn-outline btn-sm ml-auto" style="font-size: .75rem">&#x2715;
+				Close</button>
+		</div>
+		<div id="dpBody" style="padding: 1rem">
+			<div
+				style="text-align: center; color: var(--text-2); padding: 2rem; font-size: .9rem">
+				Click a transaction row to view details</div>
+		</div>
+	</div>
 </div>
 
 <%-- Email modal --%>
 <div id="emailModal" class="modal-overlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>&#9993; Send Report via Email</h3>
-      <button class="modal-close" onclick="closeModal('emailModal')">&#x2715;</button>
-    </div>
-    <form action="${pageContext.request.contextPath}/export" method="post">
-      <div class="form-group mb-2">
-        <label>Recipient Email *</label>
-        <input type="email" name="email" placeholder="yourname@gmail.com" required autofocus>
-      </div>
-      <div class="form-group mb-2">
-        <label>Format</label>
-        <div class="flex gap-2" style="margin-top:.3rem">
-          <label class="flex gap-1" style="cursor:pointer"><input type="radio" name="format" value="pdf" checked> PDF</label>
-          <label class="flex gap-1" style="cursor:pointer"><input type="radio" name="format" value="excel"> Excel</label>
-        </div>
-      </div>
-      <div class="flex mt-2">
-        <button type="button" class="btn btn-outline" onclick="closeModal('emailModal')">Cancel</button>
-        <button type="submit" class="btn btn-primary ml-auto">Send</button>
-      </div>
-    </form>
-  </div>
+	<div class="modal">
+		<div class="modal-header">
+			<h3>&#9993; Send Report via Email</h3>
+			<button class="modal-close" onclick="closeModal('emailModal')">&#x2715;</button>
+		</div>
+		<form action="${pageContext.request.contextPath}/export" method="post">
+			<div class="form-group mb-2">
+				<label>Recipient Email *</label> <input type="email" name="email"
+					placeholder="yourname@gmail.com" required autofocus>
+			</div>
+			<div class="form-group mb-2">
+				<label>Format</label>
+				<div class="flex gap-2" style="margin-top: .3rem">
+					<label class="flex gap-1" style="cursor: pointer"><input
+						type="radio" name="format" value="pdf" checked> PDF</label> <label
+						class="flex gap-1" style="cursor: pointer"><input
+						type="radio" name="format" value="excel"> Excel</label>
+				</div>
+			</div>
+			<div class="flex mt-2">
+				<button type="button" class="btn btn-outline"
+					onclick="closeModal('emailModal')">Cancel</button>
+				<button type="submit" class="btn btn-primary ml-auto">Send</button>
+			</div>
+		</form>
+	</div>
 </div>
 
 <script>
 const CTX = '${pageContext.request.contextPath}';
 
-// ── Inline detail panel ───────────────────────────────
 function loadDetail(txnId, rowEl) {
   // Highlight row
   document.querySelectorAll('tbody tr.selected').forEach(r => r.classList.remove('selected'));
@@ -611,7 +646,6 @@ function closeDetail() {
   document.querySelectorAll('tbody tr.selected').forEach(r => r.classList.remove('selected'));
 }
 
-// ── Filter panel toggle ────────────────────────────────
 function toggleFilter() {
   var p = document.getElementById('filterPanel');
   var a = document.getElementById('fArrow');
@@ -619,7 +653,6 @@ function toggleFilter() {
   a.style.transform = p.classList.contains('collapsed') ? 'rotate(-90deg)' : '';
 }
 
-// ── Multi-select dropdowns ────────────────────────────
 function toggleMS(id) {
   var dd = document.getElementById(id);
   dd.classList.toggle('show');
@@ -667,7 +700,6 @@ function uncheckTag(btn, ddId, labelId, tagsId, inputName) {
   updateMSTags(ddId, labelId, tagsId, inputName);
 }
 
-// ── Enter key → submit filter ─────────────────────────
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Enter') return;
   if (document.querySelector('.modal-overlay.open')) return;
@@ -678,12 +710,11 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// ── Init multi-select tags on load ────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   updateMSTags('msCat', 'msCatLabel', 'msCatTags', 'categoryId');
   updateMSTags('msSub', 'msSubLabel', 'msSubTags', 'subCategoryId');
 });
 </script>
 
-<%@ include file="txn_modals.jsp" %>
-<%@ include file="footer.jsp" %>
+<%@ include file="txn_modals.jsp"%>
+<%@ include file="footer.jsp"%>

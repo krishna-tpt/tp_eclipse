@@ -192,12 +192,30 @@
 </style>
 
 <div class="page-header flex">
-	<div>
+	<%-- <div>
 		<a href="${pageContext.request.contextPath}/transactions"
 			style="color: var(--text-2); text-decoration: none; font-size: .85rem">&#8592;
 			Back</a>
 		<h1 style="margin-top: .2rem">Transaction Detail</h1>
-	</div>
+	</div> --%>
+	<div>
+    <a href="${pageContext.request.contextPath}/transactions"
+       style="
+            display:inline-block;
+            padding:10px 18px;
+            background:linear-gradient(135deg, #43B6F0, #7B7EF0, #D91EF0);
+            color:white;
+            text-decoration:none;
+            border-radius:25px;
+            font-size:.9rem;
+            font-weight:600;
+            box-shadow:0 4px 10px rgba(0,0,0,.15);
+       ">
+        &#8592; Back
+    </a>
+
+    <h1 style="margin-top:1rem">Transaction Detail</h1>
+</div>
 </div>
 
 <c:if test="${not empty param.success}">

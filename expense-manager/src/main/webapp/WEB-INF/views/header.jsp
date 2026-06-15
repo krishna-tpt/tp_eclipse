@@ -189,7 +189,9 @@ if (request.getAttribute("_allBooks") == null) {
 				href="${pageContext.request.contextPath}/books"
 				class="${activePage=='books'?'active':''}">Books</a><a
 				href="${pageContext.request.contextPath}/backup"
-				class="${activePage=='books'?'active':''}">Backup</a>
+				class="${activePage=='backup'?'active':''}">Backup</a> <a
+				href="${pageContext.request.contextPath}/log"
+				class="${activePage=='log'?'active':''}">&#128203; Log</a>
 		</div>
 
 		<a href="${pageContext.request.contextPath}/settings"

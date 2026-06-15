@@ -6209,3 +6209,61 @@ fatal: unable to access 'https://github.com/krishna-tpt/tp_eclipse.git/': The re
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main f8b3bdc] Auto sync - 2026-06-15 15:00:02
+ 70 files changed, 6402 insertions(+), 2468 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/2814862481.index (98%)
+ create mode 100644 LLDPrograms/src/com/elevator/ElevatorSimulation.java
+ create mode 100644 LLDPrograms/src/com/elevator/controller/ElevatorController.java
+ create mode 100644 LLDPrograms/src/com/elevator/enums/Direction.java
+ create mode 100644 LLDPrograms/src/com/elevator/enums/DoorStatus.java
+ create mode 100644 LLDPrograms/src/com/elevator/enums/ElevatorState.java
+ create mode 100644 LLDPrograms/src/com/elevator/model/Building.java
+ create mode 100644 LLDPrograms/src/com/elevator/model/Door.java
+ create mode 100644 LLDPrograms/src/com/elevator/model/Elevator.java
+ create mode 100644 LLDPrograms/src/com/elevator/model/Floor.java
+ create mode 100644 LLDPrograms/src/com/elevator/observer/ElevatorEventListener.java
+ create mode 100644 LLDPrograms/src/com/elevator/observer/FloorRequestListener.java
+ create mode 100644 LLDPrograms/src/com/elevator/request/ExternalRequest.java
+ create mode 100644 LLDPrograms/src/com/elevator/request/InternalRequest.java
+ create mode 100644 LLDPrograms/src/com/elevator/request/Request.java
+ create mode 100644 LLDPrograms/src/com/elevator/request/RequestQueue.java
+ create mode 100644 LLDPrograms/src/com/elevator/strategy/DispatchStrategy.java
+ create mode 100644 LLDPrograms/src/com/elevator/strategy/NearestCarStrategy.java
+ create mode 100644 LLDPrograms/src/com/elevator/strategy/RoundRobinStrategy.java
+ create mode 100644 LLDPrograms/src/com/elevatorSystem/Elevator.java
+ create mode 100644 LLDPrograms/src/com/elevatorSystem/ElevatorController.java
+ create mode 100644 LLDPrograms/src/com/elevatorSystem/ElevatorSelectionStrategy.java
+ create mode 100644 LLDPrograms/src/com/elevatorSystem/ElevatorSystem.java
+ create mode 100644 LLDPrograms/src/com/elevatorSystem/NearestElevatorStrategy.java
+ create mode 100644 LLDPrograms/src/com/elevatorSystem/Request.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/budget/BudgetWatcher.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/dao/BudgetDAO.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/Budget.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/WorkDriveFile.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/service/UploadFileAPI.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/service/WorkDriveApiService.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/service/ZohoTokenService.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/BudgetServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/DownloadServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/FilesApiServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/LogServlet.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/util/AppConfig.java
+ rewrite expense-manager/target/classes/com/expensemanager/servlet/HomeServlet.class (89%)
+ rewrite expense-manager/target/classes/com/expensemanager/servlet/TransactionServlet.class (65%)
+To https://github.com/krishna-tpt/tp_eclipse.git
+   60e2545..f8b3bdc  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-15 15:00:09[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-15 18:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m

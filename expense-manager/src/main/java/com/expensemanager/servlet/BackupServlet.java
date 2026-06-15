@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.expensemanager.dao.BackupDAO;
 import com.expensemanager.model.BackupMetadata;
+import com.expensemanager.model.BackupMetadata.BackupMode;
 import com.expensemanager.model.BackupMetadata.BackupType;
 import com.expensemanager.service.BackupService;
 
@@ -85,10 +86,12 @@ public class BackupServlet extends HttpServlet {
 			res.sendRedirect(req.getContextPath() + "/backup/list");
 		}
 	}
-	
+
 	private void handleCreate(HttpServletRequest req, HttpServletResponse res) throws IOException {
+
+		BackupMode backupMode = BackupMode.valueOf(req.getParameter("syncMode"));
 		try {
-			BackupMetadata m = svc.createBackup(req.getParameter("description"), BackupType.MANUAL);
+			BackupMetadata m = svc.createBackup(req.getParameter("description"), BackupType.MANUAL, backupMode);
 			req.getSession().setAttribute("successMsg",
 					"✅ Backup created! File: " + m.getFileName() + " | Size: " + m.getFileSizeFormatted() + " | "
 							+ m.getIncomeCount() + " income, " + m.getExpenseCount() + " expense records");
@@ -109,7 +112,8 @@ public class BackupServlet extends HttpServlet {
 		try {
 			svc.restoreBackup(Integer.parseInt(idStr));
 			log.debug("✅ Data restored from backup #" + idStr + ". Safety backup was auto-created before restore.");
-			req.getSession().setAttribute("successMsg", "✅ Data restored from backup #" + idStr + ". Safety backup was auto-created before restore.");
+			req.getSession().setAttribute("successMsg",
+					"✅ Data restored from backup #" + idStr + ". Safety backup was auto-created before restore.");
 		} catch (Exception e) {
 			log.debug("handleRestore Method : " + e.getMessage());
 			req.getSession().setAttribute("errorMsg", "❌ Restore failed: " + e.getMessage());
