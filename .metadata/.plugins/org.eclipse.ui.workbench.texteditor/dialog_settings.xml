@@ -3,28 +3,21 @@
 	<item key="hasShownOverlayPopupBefore" value="true"/>
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="false"/>
-		<item key="selection" value="ACCESS_TOKEN"/>
+		<item key="selection" value="tokenService"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="tokenService"/>
+			<item value="TokenService"/>
+			<item value="BackupStatus"/>
+			<item value="BackupMode"/>
+			<item value="mode"/>
+			<item value="A ZIP file will be created"/>
+			<item value="loadDetail(${t.id},"/>
 			<item value="By"/>
-			<item value="Session Timeout"/>
-			<item value="summaryCards"/>
-			<item value="&lt;div&gt;₹${fmt(data.income)}&lt;/div&gt;"/>
-			<item value="h += `&lt;div class=&quot;cal-income&quot;&gt;+₹${fmt(data.income)}&lt;/div&gt;`;"/>
-			<item value="&lt;div style=&quot;font-size:1rem;font-weight:700;color:${net&gt;=0?&apos;#15803d&apos;:&apos;#b91c1c&apos;}&quot;&gt;var netColor = (net &gt;= 0) ? &apos;#15803d&apos; : &apos;#b91c1c&apos;;&#x0A;// string concat use பண்ணுங்கள்&#x0A;&apos;&lt;div style=&quot;font-size:1rem;font-weight:700;color:&apos; + netColor + &apos;&quot;&gt;&apos;"/>
-			<item value="h += `&lt;div class=&quot;cal-bar&quot; style=&quot;background:${+data.income&gt;+data.expense?&apos;#dcfce7&apos;:&apos;#fee2e2&apos;}&quot;&gt;&lt;/div&gt;`;&#x0A;"/>
-			<item value="com.expense"/>
-			<item value="DBConnection"/>
-			<item value="type === &apos;success&apos;"/>
-			<item value="submitForm"/>
-			<item value="prepareSubmit"/>
-			<item value="System.out.println"/>
-			<item value="sql --"/>
-			<item value="sql"/>
 		</list>
 		<list key="replacehistory">
 		</list>
