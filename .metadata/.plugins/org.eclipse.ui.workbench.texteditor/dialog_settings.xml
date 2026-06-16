@@ -10,6 +10,9 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value=".pagge"/>
+			<item value=".page"/>
+			<item value="restorable"/>
 			<item value="Found"/>
 			<item value="hnfhd1735cabb955b442499f7a72be9e186f7"/>
 			<item value="tokenService"/>

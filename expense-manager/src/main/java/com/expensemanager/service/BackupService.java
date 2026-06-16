@@ -63,7 +63,8 @@ public class BackupService {
 
 		BackupMetadata meta = new BackupMetadata();
 		meta.setFileName(fileName);
-		meta.setFilePath(filePath.toString());
+		if (backupMode == backupMode.OFFLINE) 
+			meta.setFilePath(filePath.toString());
 		meta.setBackupType(type);
 		meta.setStatus(BackupStatus.PENDING);
 		meta.setDescription(description != null ? description : "");

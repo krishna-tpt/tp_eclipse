@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.expensemanager.model.BackupMetadata;
+import com.expensemanager.model.BackupMetadata.BackupMode;
 import com.expensemanager.model.BackupMetadata.BackupStatus;
 import com.expensemanager.model.BackupMetadata.BackupType;
 import com.expensemanager.util.DBConnection;
@@ -153,6 +154,12 @@ public class BackupDAO {
 		m.setIncomeCount(rs.getInt("income_count"));
 		m.setExpenseCount(rs.getInt("expense_count"));
 		m.setExternal_ID(rs.getString("external_ID"));
+		try {
+			m.setMode(BackupMode.valueOf(rs.getString("backupmode")));
+		} catch (Exception e) {
+			m.setMode(BackupMode.OFFLINE);
+		}
+//		m.setMode(rs.getString("backupmode"));
 		try {
 			m.setBackupType(BackupType.valueOf(rs.getString("backup_type")));
 		} catch (Exception e) {
