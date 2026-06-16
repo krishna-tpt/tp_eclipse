@@ -27,12 +27,13 @@ public class ListFilesService {
 			.version(HttpClient.Version.HTTP_1_1).build();
 	private static String folderId=null;
 
-//	public WorkDriveApiService(ZohoTokenService tokenService) {
-//		this.tokenService = tokenService;
-//	}
+	public ListFilesService() {
+//		this.folderId = AppContextListener.getContext().getInitParameter("workdrive.folder.id");
+		this.folderId = "40p8hd98b5756f2c84539a3f51d502ce71a51";
+	}
 
 	public List<WorkDriveFile> listFiles() throws IOException {
-		folderId = AppContextListener.getContext().getInitParameter("workdrive.folder.id");
+//		folderId = AppContextListener.getContext().getInitParameter("workdrive.folder.id");
 		
 		List<WorkDriveFile> allFiles = new ArrayList<>();
 		int offset = 0;
@@ -65,7 +66,7 @@ public class ListFilesService {
 					continue;
 				}
 				
-				System.out.println(attrs);
+//				System.out.println(attrs);
 				
 				WorkDriveFile f = new WorkDriveFile();
 				f.setId(item.optString("id"));
@@ -82,7 +83,7 @@ public class ListFilesService {
 					f.setSizeInBytes(storage.optLong("size_in_bytes", 0));
 				}
 
-				log.debug("Found: {} ({})", f.getName(), f.getExtension());
+				log.debug("Found: {} ({}) {}", f.getName(), f.getExtension(), f.getId());
 				allFiles.add(f);
 			}
 

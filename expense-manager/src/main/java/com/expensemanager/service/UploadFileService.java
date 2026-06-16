@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import com.expensemanager.util.AppContextListener;
 
-public class UploadFileAPI {
+public class UploadFileService {
 
-	private static final Logger log = LoggerFactory.getLogger(UploadFileAPI.class);
+	private static final Logger log = LoggerFactory.getLogger(UploadFileService.class);
 	private static final String WORDRIVE_API_URL = "https://workdrive.zoho.com/api/v1/upload";
 	private static String WORKDRIVE_FOLDER_ID = null;
 	private ZohoTokenService token = new ZohoTokenService();

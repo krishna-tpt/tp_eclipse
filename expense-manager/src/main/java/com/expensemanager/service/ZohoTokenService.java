@@ -31,13 +31,13 @@ public class ZohoTokenService {
 	private volatile Instant expiresAt = Instant.EPOCH;
 
 	public ZohoTokenService() {
-		clientId = AppContextListener.getContext().getInitParameter("zoho.client.id");
-		clientSecret = AppContextListener.getContext().getInitParameter("zoho.client.secret");
-		refreshToken = AppContextListener.getContext().getInitParameter("zoho.refresh.token");
+//		clientId = AppContextListener.getContext().getInitParameter("zoho.client.id");
+//		clientSecret = AppContextListener.getContext().getInitParameter("zoho.client.secret");
+//		refreshToken = AppContextListener.getContext().getInitParameter("zoho.refresh.token");
 		
-//		this.clientId = clientId;
-//		this.clientSecret = clientSecret;
-//		this.refreshToken = refreshToken;
+		this.clientId = "1000.I7L8AIDAW8EIVJ0PW0O84NKMHAXBFV";
+		this.clientSecret = "1c2192e08af94e368a964ac490624ef803f91f14ab";
+		this.refreshToken = "1000.35bc8da5fa035ee1f71a975ff30f662f.a96cc79f515123b1545149cf4e25c928";
 	}
 
 	/**
