@@ -3,13 +3,15 @@
 	<item key="hasShownOverlayPopupBefore" value="true"/>
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="false"/>
-		<item key="selection" value="tokenService"/>
+		<item key="selection" value="hnfhd1735cabb955b442499f7a72be9e186f7"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="Found"/>
+			<item value="hnfhd1735cabb955b442499f7a72be9e186f7"/>
 			<item value="tokenService"/>
 			<item value="TokenService"/>
 			<item value="BackupStatus"/>

@@ -34,7 +34,7 @@ public class ListFilesService {
 
 	public List<WorkDriveFile> listFiles() throws IOException {
 //		folderId = AppContextListener.getContext().getInitParameter("workdrive.folder.id");
-		
+		String BASE_URL = "https://workdrive.zoho.com/api/v1";
 		List<WorkDriveFile> allFiles = new ArrayList<>();
 		int offset = 0;
 		int limit = 50;

@@ -25,6 +25,8 @@ public class UploadFileService {
 	private ZohoTokenService token = new ZohoTokenService();
 
 	public boolean uploadToWorkDrive(File file) throws Exception {
+		String WORDRIVE_API_URL = "https://workdrive.zoho.com/api/v1/upload";
+		
 		WORKDRIVE_FOLDER_ID = AppContextListener.getContext().getInitParameter("workdrive.folder.id");
 		String boundary = "Boundary-" + UUID.randomUUID().toString().replace("-", "");
 
