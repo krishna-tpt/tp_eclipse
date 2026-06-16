@@ -50,6 +50,7 @@ public class BackupService {
 	private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 	private static final String DEFAULT_DIR = System.getProperty("user.home") + "/expense_backups";
 	private final BackupDAO dao = new BackupDAO();
+	private final FilesApiService fas = new FilesApiService();
 
 	// ── CREATE ────────────────────────────────────────────────────────────────
 	public BackupMetadata createBackup(String description, BackupType type, BackupMode backupMode) throws Exception {
@@ -87,8 +88,14 @@ public class BackupService {
 				writeFileBackup(zos, con, filePath, "Receipts", "SELECT * FROM transaction_receipts ORDER BY id");
 			}
 			long size = Files.size(filePath);
-			dao.updateCompletion(id, BackupStatus.SUCCESS, size, inc, exp, null);
-			meta.setStatus(BackupStatus.SUCCESS);
+			if (backupMode == backupMode.ONLINE) {
+				dao.updateCompletion(id, BackupStatus.PENDING, size, inc, exp, null);
+				meta.setStatus(BackupStatus.PENDING);
+			}else
+			{
+				dao.updateCompletion(id, BackupStatus.SUCCESS, size, inc, exp, null);
+				meta.setStatus(BackupStatus.SUCCESS);
+			}
 			meta.setFileSizeBytes(size);
 			meta.setIncomeCount(inc);
 			meta.setExpenseCount(exp);
@@ -97,9 +104,23 @@ public class BackupService {
 			dao.updateCompletion(id, BackupStatus.FAILED, 0, 0, 0, ex.getMessage());
 			meta.setStatus(BackupStatus.FAILED);
 			throw ex;
-		}finally {
-			if(backupMode == backupMode.ONLINE) {
-				
+		} finally {
+			if (backupMode == backupMode.ONLINE) {
+				String external_id = fas.UploadFile(filePath.toFile());
+				Files.deleteIfExists(filePath); // Upload success → local zip delete
+				log.info("Local backup deleted after upload: {}", fileName);
+				log.warn("Uploading --> ResourcedID : {}", external_id);
+				if (external_id !=null) {
+					log.warn("Upload Success --> ResourcedID : {}", external_id);
+					dao.updateExternalID(id, BackupStatus.SUCCESS,external_id);
+					meta.setStatus(BackupStatus.SUCCESS);
+					meta.setExternal_ID(external_id);
+					
+				} else {
+					dao.updateStatus(id, BackupStatus.FAILED);
+					meta.setStatus(BackupStatus.FAILED);
+					log.warn("Upload failed --> ResourcedID : {}", external_id);
+				}
 			}
 		}
 		return meta;

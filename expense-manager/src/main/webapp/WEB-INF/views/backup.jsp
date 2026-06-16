@@ -313,6 +313,7 @@
 				<th>Size</th>
 				<th>Description</th>
 				<th>Created At</th>
+				<th>External ID</th>
 				<th>Actions</th>
 			</tr>
 		</thead>
@@ -379,6 +380,10 @@
                                     ${b.createdAt.toLocalDate()}<br>
 									<span style="color: var(--text-3)">${b.createdAt.toLocalTime().toString().substring(0,8)}</span>
 								</c:if>
+							</td>
+							<td
+								style="color: var(--text-2); font-size: .82rem; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+								title="${b.external_ID}">${not empty b.external_ID ? b.external_ID : '—'}
 							</td>
 							<td>
 								<div class="flex gap-1">

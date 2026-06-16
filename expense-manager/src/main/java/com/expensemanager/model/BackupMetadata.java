@@ -29,6 +29,7 @@ public class BackupMetadata {
 	private LocalDateTime createdAt;
 	private LocalDateTime completedAt;
 	private BackupMode mode;
+	private String external_ID;
 
 	public BackupMetadata() {
 	}
@@ -147,6 +148,14 @@ public class BackupMetadata {
 
 	public void setCompletedAt(LocalDateTime v) {
 		completedAt = v;
+	}
+
+	public String getExternal_ID() {
+		return external_ID;
+	}
+
+	public void setExternal_ID(String external_ID) {
+		this.external_ID = external_ID;
 	}
 
 }

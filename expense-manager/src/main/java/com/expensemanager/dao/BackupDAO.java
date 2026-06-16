@@ -80,6 +80,19 @@ public class BackupDAO {
 			System.out.println("updateStatus Method : " + e.getMessage());
 		}
 	}
+	
+	public void updateExternalID(int id, BackupStatus status, String externalID) throws SQLException {
+		try (Connection con = DBConnection.getInstance().getConnection();
+				PreparedStatement ps = con
+						.prepareStatement("UPDATE backup_history SET status=?,external_ID=?, completed_at=NOW() WHERE id=?")) {
+			ps.setString(1, status.name());
+			ps.setString(2, externalID);
+			ps.setInt(3, id);
+			ps.executeUpdate();
+		} catch (Exception e) {
+			System.out.println("updateStatus Method : " + e.getMessage());
+		}
+	}
 
 	public List<BackupMetadata> getAll() throws SQLException {
 		List<BackupMetadata> list = new ArrayList<>();
@@ -139,6 +152,7 @@ public class BackupDAO {
 		m.setErrorMessage(rs.getString("error_message"));
 		m.setIncomeCount(rs.getInt("income_count"));
 		m.setExpenseCount(rs.getInt("expense_count"));
+		m.setExternal_ID(rs.getString("external_ID"));
 		try {
 			m.setBackupType(BackupType.valueOf(rs.getString("backup_type")));
 		} catch (Exception e) {

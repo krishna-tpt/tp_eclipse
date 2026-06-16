@@ -33,17 +33,29 @@ public class FilesApiService {
 	private static final int DAYS_BACKUP = 30;
 	private static String FOLDERID = null;
 
-	private FilesApiService() {
+	FilesApiService() {
 		FOLDERID = AppContextListener.getContext().getInitParameter("workdrive.folder.id");
 //		FOLDERID = "40p8hd98b5756f2c84539a3f51d502ce71a51";
 	}
 
-	public boolean UploadFile(File file) throws Exception {
+	public String UploadFile(File file) {
 //		UploadFileService upload = new UploadFileService();
-		boolean isUploaded = uploadToWorkDrive(file);
+		String resourceID = null;
+		try {
+			resourceID = uploadToWorkDrive(file);
+		} catch (Exception e) {
+			log.debug("UploadFile Method - File uploading: {} ", e.getMessage());
+			e.printStackTrace();
+		}
 
 		ListFilesService listservice = new ListFilesService();
-		List<WorkDriveFile> list = listservice.listFiles();
+		List<WorkDriveFile> list = null;
+		try {
+			list = listservice.listFiles();
+		} catch (IOException e) {
+			log.debug("UploadFile Method - listservice : {} ", e.getMessage());
+			e.printStackTrace();
+		}
 		if (list.size() > DAYS_BACKUP) {
 			log.debug("Going to delete");
 			Collections.sort(list);
@@ -52,7 +64,13 @@ public class FilesApiService {
 			int deletedFiles = 0;
 			for (int i = 0; i < toBeDeleted; i++) {
 				WorkDriveFile wdf = list.get(i);
-				boolean isdeleted = deleteFile(wdf.getId());
+				boolean isdeleted = false;
+				try {
+					isdeleted = deleteFile(wdf.getId());
+				} catch (IOException e) {
+					log.debug("UploadFile Method - deleteFile : {} ", e.getMessage());
+					e.printStackTrace();
+				}
 				if (isdeleted) {
 					deletedFiles++;
 				}
@@ -61,7 +79,7 @@ public class FilesApiService {
 			log.debug("Total File Need to delete : {}, Deleted : {}, Failed : {}", toBeDeleted, deletedFiles, failed);
 		}
 
-		return false;
+		return resourceID;
 	}
 
 	public List<WorkDriveFile> listFiles() throws IOException {
@@ -211,10 +229,10 @@ public class FilesApiService {
 			throw new IOException("Download interrupted", e);
 		}
 	}
-	
-	public boolean uploadToWorkDrive(File file) throws Exception {
+
+	public String uploadToWorkDrive(File file) throws Exception {
 		String WORDRIVE_API_URL = "https://workdrive.zoho.com/api/v1/upload";
-		
+
 		FOLDERID = AppContextListener.getContext().getInitParameter("workdrive.folder.id");
 		String boundary = "Boundary-" + UUID.randomUUID().toString().replace("-", "");
 
@@ -258,7 +276,7 @@ public class FilesApiService {
 
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-		log.debug("HTTP Status : {}" , response.statusCode());
+		log.debug("HTTP Status : {}", response.statusCode());
 		log.debug("Response    : {} ", response.body());
 
 		if (response.statusCode() == 200 || response.statusCode() == 201) {
@@ -270,10 +288,10 @@ public class FilesApiService {
 //			System.out.println(attributes);
 
 			log.debug("File Name   : {}", attributes.optString("FileName", "N/A"));
-			log.debug("Resource ID : {}", attributes.optString("resource_id", "N/A"));
+			log.debug("Resource ID : {}", attributes.optString("resource_id"));
 			log.debug("Parent ID   : {}", attributes.optString("parent_id", "N/A"));
-			return true;
+			return attributes.optString("resource_id");
 		}
-		return false;
+		return null;
 	}
 }

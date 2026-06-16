@@ -23,7 +23,7 @@
 	<!-- Folder IDs -->
 	<context-param>
 		<param-name>workdrive.folder.id</param-name>
-		<param-value>e8cpf113df0584d5b419d984b185e2df899bf</param-value>
+		<param-value>40p8hd98b5756f2c84539a3f51d502ce71a51</param-value>
 	</context-param>
 
 	<context-param>
