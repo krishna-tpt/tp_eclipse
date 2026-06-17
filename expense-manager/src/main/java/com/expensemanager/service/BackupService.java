@@ -85,7 +85,8 @@ public class BackupService {
 				writeCSV(zos, con, "transaction_audit_log.csv", "SELECT * FROM transaction_audit_log ORDER BY id");
 				writeCSV(zos, con, "transaction_custom_values.csv",
 						"SELECT * FROM transaction_custom_values ORDER BY id");
-				writeCSV(zos, con, "transaction_receipts.csv", "SELECT * FROM transaction_receipts ORDER BY id desc");
+//				writeCSV(zos, con, "transaction_receipts.csv", "SELECT * FROM transaction_receipts ORDER BY id desc");
+				writeCSV(zos, con, "transaction_receipts.csv", "Select id, transaction_id, file_name, file_type, file_size, uploaded_at From transaction_receipts  order by id desc");
 				writeFileBackup(zos, con, filePath, "Receipts", "SELECT * FROM transaction_receipts ORDER BY id");
 			}
 			long size = Files.size(filePath);

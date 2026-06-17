@@ -10,6 +10,10 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="back"/>
+			<item value="msg"/>
+			<item value="success"/>
+			<item value="resp.sendRedirect(req.getContextPath() + &quot;/home&quot;);"/>
 			<item value="external_ID"/>
 			<item value="Download faile"/>
 			<item value=".pagge"/>
@@ -21,10 +25,6 @@
 			<item value="TokenService"/>
 			<item value="BackupStatus"/>
 			<item value="BackupMode"/>
-			<item value="mode"/>
-			<item value="A ZIP file will be created"/>
-			<item value="loadDetail(${t.id},"/>
-			<item value="By"/>
 		</list>
 		<list key="replacehistory">
 		</list>
