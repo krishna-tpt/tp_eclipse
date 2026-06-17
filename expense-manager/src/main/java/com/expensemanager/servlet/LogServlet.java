@@ -1,23 +1,24 @@
 package com.expensemanager.servlet;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.LoggerFactory;
+
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import org.slf4j.LoggerFactory;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * GET /log → HTML log viewer page GET /log/stream → SSE stream of log lines
@@ -37,21 +38,35 @@ public class LogServlet extends HttpServlet {
 	// ── Logback in-memory appender ─────────────────────────────────
 	private static InMemoryAppender appender;
 
+	// ── Original stdout/stderr — restored on destroy ───────────────
+	private static PrintStream originalOut;
+	private static PrintStream originalErr;
+
 	@Override
 	public void init() throws ServletException {
+		// ── 1. Logback appender ────────────────────────────────────
 		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
 		appender = new InMemoryAppender();
 		appender.setContext(ctx);
 		appender.setName("IN_MEMORY");
 		appender.start();
-
-		// Attach to root logger
 		Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
 		root.addAppender(appender);
+
+		// ── 2. Redirect System.out → pushLine ─────────────────────
+		originalOut = System.out;
+		originalErr = System.err;
+		System.setOut(new CapturePrintStream(originalOut, "OUT"));
+		System.setErr(new CapturePrintStream(originalErr, "ERR"));
 	}
 
 	@Override
 	public void destroy() {
+		// Restore original streams
+		if (originalOut != null)
+			System.setOut(originalOut);
+		if (originalErr != null)
+			System.setErr(originalErr);
 		if (appender != null)
 			appender.stop();
 	}
@@ -109,12 +124,10 @@ public class LogServlet extends HttpServlet {
 	}
 
 	// ── HTML page ──────────────────────────────────────────────────
-	private void handlePage(HttpServletRequest req, HttpServletResponse resp) 
-	        throws ServletException, IOException {
-	    req.setAttribute("pageTitle",   "Application Log");
-	    req.setAttribute("activePage",  "log");
-	    req.setAttribute("currentYear", java.time.Year.now().getValue()); // ←add this
-	    req.getRequestDispatcher("/WEB-INF/views/log.jsp").forward(req, resp);
+	private void handlePage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		req.setAttribute("pageTitle", "Application Log");
+		req.setAttribute("activePage", "log");
+		req.getRequestDispatcher("/WEB-INF/views/log.jsp").forward(req, resp);
 	}
 
 	// ── Called by appender to push new log line ────────────────────
@@ -170,6 +183,50 @@ public class LogServlet extends HttpServlet {
 			}
 
 			LogServlet.pushLine(line);
+		}
+	}
+
+	// ── CapturePrintStream — wraps stdout/stderr ───────────────────
+	static class CapturePrintStream extends PrintStream {
+
+		private final PrintStream delegate;
+		private final String prefix;
+		private final StringBuilder lineBuffer = new StringBuilder();
+
+		CapturePrintStream(PrintStream delegate, String prefix) {
+			super(delegate, true);
+			this.delegate = delegate;
+			this.prefix = prefix;
+		}
+
+		@Override
+		public void write(byte[] buf, int off, int len) {
+			delegate.write(buf, off, len);
+			captureChunk(new String(buf, off, len));
+		}
+
+		@Override
+		public void write(int b) {
+			delegate.write(b);
+			captureChunk(String.valueOf((char) b));
+		}
+
+		private synchronized void captureChunk(String chunk) {
+			for (char c : chunk.toCharArray()) {
+				if (c == '\n') {
+					String line = lineBuffer.toString().stripTrailing();
+					lineBuffer.setLength(0);
+					if (!line.isEmpty()) {
+						String time = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
+						String level = "ERR".equals(prefix) ? "ERROR" : "INFO ";
+						// Format: "HH:mm:ss LEVEL [thread] System.out — message"
+						LogServlet.pushLine(
+								time + " " + level + " [stdout] System." + prefix.toLowerCase() + " \u2014 " + line);
+					}
+				} else if (c != '\r') {
+					lineBuffer.append(c);
+				}
+			}
 		}
 	}
 }

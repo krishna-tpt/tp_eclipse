@@ -48,10 +48,9 @@ public class FilesApiService {
 			e.printStackTrace();
 		}
 
-		ListFilesService listservice = new ListFilesService();
 		List<WorkDriveFile> list = null;
 		try {
-			list = listservice.listFiles();
+			list = listFiles();
 		} catch (IOException e) {
 			log.debug("UploadFile Method - listservice : {} ", e.getMessage());
 			e.printStackTrace();
@@ -202,6 +201,15 @@ public class FilesApiService {
 			Thread.currentThread().interrupt();
 			throw new IOException("Delete interrupted", e);
 		}
+	}
+	
+	public static class DownloadResult {
+	    public final String fileName;
+	    public final byte[] fileBytes;
+	    public DownloadResult(String fileName, byte[] fileBytes) {
+	        this.fileName = fileName;
+	        this.fileBytes = fileBytes;
+	    }
 	}
 
 	public byte[] downloadFile(String fileId) throws IOException {

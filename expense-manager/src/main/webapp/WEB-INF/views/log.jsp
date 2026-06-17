@@ -138,7 +138,21 @@ function escapeHtml(s) {
 function highlight(html, term) {
   if (!term) return html;
   // escapeRegex — no template literals, plain string concat
-  var escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  var escaped = term
+    .replace(/\\/g, '\\\\')
+    .replace(/\./g, '\\.')
+    .replace(/\*/g, '\\*')
+    .replace(/\+/g, '\\+')
+    .replace(/\?/g, '\\?')
+    .replace(/\^/g, '\\^')
+    .replace(/\$/g, '\\$')
+    .replace(/\{/g, '\\{')
+    .replace(/\}/g, '\\}')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/\|/g, '\\|')
+    .replace(/\[/g, '\\[')
+    .replace(/\]/g, '\\]');
   var re = new RegExp('(' + escaped + ')', 'gi');
   return html.replace(re, '<span class="hl">$1</span>');
 }

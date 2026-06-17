@@ -63,12 +63,12 @@ public class BackupService {
 
 		BackupMetadata meta = new BackupMetadata();
 		meta.setFileName(fileName);
-		if (backupMode == backupMode.OFFLINE) 
-			meta.setFilePath(filePath.toString());
+		meta.setFilePath(filePath.toString());
 		meta.setBackupType(type);
 		meta.setStatus(BackupStatus.PENDING);
 		meta.setDescription(description != null ? description : "");
 		meta.setCreatedAt(LocalDateTime.now());
+		meta.setMode(backupMode);
 		int id = dao.insert(meta);
 		meta.setId(id);
 
@@ -110,9 +110,9 @@ public class BackupService {
 				String external_id = fas.UploadFile(filePath.toFile());
 				Files.deleteIfExists(filePath); // Upload success → local zip delete
 				log.info("Local backup deleted after upload: {}", fileName);
-				log.warn("Uploading --> ResourcedID : {}", external_id);
+				log.info("Uploading --> ResourcedID : {}", external_id);
 				if (external_id !=null) {
-					log.warn("Upload Success --> ResourcedID : {}", external_id);
+					log.info("Upload Success --> ResourcedID : {}", external_id);
 					dao.updateExternalID(id, BackupStatus.SUCCESS,external_id);
 					meta.setStatus(BackupStatus.SUCCESS);
 					meta.setExternal_ID(external_id);
@@ -137,6 +137,16 @@ public class BackupService {
 		if (!meta.isRestorable()) {
 			log.debug("Backup not restorable: {}", meta.getStatus());
 			throw new Exception("Backup not restorable: " + meta.getStatus());
+		}
+		
+		if(meta.getMode() == BackupMode.ONLINE) {
+			log.debug("Backup file ID: {}", meta.getExternal_ID());
+			if(meta.getExternal_ID() !=null) {
+				byte[] result = fas.downloadFile(meta.getExternal_ID());
+				Path savePath = Paths.get(meta.getFilePath());
+				Files.write(savePath, result);
+				log.debug("Saved: {}", savePath);
+			}
 		}
 		Path zipPath = Paths.get(meta.getFilePath());
 		if (!Files.exists(zipPath)) {
@@ -263,10 +273,20 @@ public class BackupService {
 	}
 
 	public byte[] getBackupBytes(int id) throws Exception {
-		BackupMetadata m = dao.getById(id);
-		if (m == null)
+		BackupMetadata meta = dao.getById(id);
+		if (meta == null)
 			throw new Exception("Not found");
-		Path p = Paths.get(m.getFilePath());
+		
+		if(meta.getMode() == BackupMode.ONLINE) {
+			log.debug("Backup file ID: {}", meta.getExternal_ID());
+			if(meta.getExternal_ID() !=null) {
+				byte[] result = fas.downloadFile(meta.getExternal_ID());
+				Path savePath = Paths.get(meta.getFilePath());
+				Files.write(savePath, result);
+				log.debug("Saved: {}", savePath);
+			}
+		}
+		Path p = Paths.get(meta.getFilePath());
 		if (!Files.exists(p))
 			throw new Exception("File missing");
 		return Files.readAllBytes(p);

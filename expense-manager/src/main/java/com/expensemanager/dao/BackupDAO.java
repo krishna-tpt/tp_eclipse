@@ -10,13 +10,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.expensemanager.model.BackupMetadata;
 import com.expensemanager.model.BackupMetadata.BackupMode;
 import com.expensemanager.model.BackupMetadata.BackupStatus;
 import com.expensemanager.model.BackupMetadata.BackupType;
+import com.expensemanager.servlet.BackupServlet;
 import com.expensemanager.util.DBConnection;
 
 public class BackupDAO {
+	private static final Logger log = LoggerFactory.getLogger(BackupDAO.class);
+	
 	public void createTableIfNotExists() throws SQLException {
 		String ddl = "CREATE TABLE IF NOT EXISTS backup_history ("
 				+ "id SERIAL PRIMARY KEY, file_name VARCHAR(200) NOT NULL, file_path TEXT NOT NULL,"
@@ -33,7 +39,7 @@ public class BackupDAO {
 	}
 
 	public int insert(BackupMetadata m) throws SQLException {
-		String sql = "INSERT INTO backup_history (file_name,file_path,file_size_bytes,backup_type,status,description,income_count,expense_count,created_at) VALUES (?,?,?,?,?,?,?,?,?) RETURNING id";
+		String sql = "INSERT INTO backup_history (file_name,file_path,file_size_bytes,backup_type,status,description,income_count,expense_count,created_at, backupmode) VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING id";
 		try (Connection con = DBConnection.getInstance().getConnection();
 				PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, m.getFileName());
@@ -45,10 +51,12 @@ public class BackupDAO {
 			ps.setInt(7, m.getIncomeCount());
 			ps.setInt(8, m.getExpenseCount());
 			ps.setTimestamp(9, Timestamp.valueOf(m.getCreatedAt() != null ? m.getCreatedAt() : LocalDateTime.now()));
+			ps.setString(10, m.getMode().name());
 			ResultSet rs = ps.executeQuery();
+			log.error("Backupmetadata inserting...");
 			return rs.next() ? rs.getInt(1) : -1;
 		} catch (Exception e) {
-			System.out.println("insert Method : " + e.getMessage());
+			log.error("insert Method : {} ", e.getMessage());
 			return 0;
 		}
 	}
@@ -66,7 +74,7 @@ public class BackupDAO {
 			ps.setInt(6, id);
 			ps.executeUpdate();
 		} catch (Exception e) {
-			System.out.println("updateCompletion Method : " + e.getMessage());
+			log.error("updateCompletion Method : {} ", e.getMessage());
 		}
 	}
 
@@ -78,7 +86,7 @@ public class BackupDAO {
 			ps.setInt(2, id);
 			ps.executeUpdate();
 		} catch (Exception e) {
-			System.out.println("updateStatus Method : " + e.getMessage());
+			log.error("updateStatus Method : {} ", e.getMessage());
 		}
 	}
 	
@@ -91,7 +99,7 @@ public class BackupDAO {
 			ps.setInt(3, id);
 			ps.executeUpdate();
 		} catch (Exception e) {
-			System.out.println("updateStatus Method : " + e.getMessage());
+			log.error("updateExternalID Method : {} ", e.getMessage());
 		}
 	}
 
@@ -103,7 +111,7 @@ public class BackupDAO {
 			while (rs.next())
 				list.add(mapRow(rs));
 		} catch (Exception e) {
-			System.out.println("getAll Method : " + e.getMessage());
+			log.error("getAll Method : {} ", e.getMessage());
 		}
 		return list;
 	}
@@ -115,7 +123,7 @@ public class BackupDAO {
 			ResultSet rs = ps.executeQuery();
 			return rs.next() ? mapRow(rs) : null;
 		} catch (Exception e) {
-			System.out.println("getAll Method : " + e.getMessage());
+			log.error("getById Method : {} ", e.getMessage());
 			return null;
 		}
 	}
@@ -126,7 +134,7 @@ public class BackupDAO {
 			ps.setInt(1, id);
 			ps.executeUpdate();
 		} catch (Exception e) {
-			System.out.println("delete Method : " + e.getMessage());
+			log.error("delete Method : {} ", e.getMessage());
 		}
 	}
 
@@ -138,7 +146,7 @@ public class BackupDAO {
 	        ResultSet rs = pt.executeQuery();
 	        return rs.next() ? rs.getInt(1) : 0;
 	    } catch (Exception e) {
-	        System.out.println("countRows Method : " + e.getMessage());
+	        log.error("countRows Method : {} ", e.getMessage());
 	        return 0;
 	    }
 	}

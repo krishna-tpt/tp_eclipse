@@ -313,7 +313,7 @@
 				<th>Size</th>
 				<th>Description</th>
 				<th>Created At</th>
-				<th>External ID</th>
+				<th>Mode</th>
 				<th>Actions</th>
 			</tr>
 		</thead>
@@ -383,7 +383,7 @@
 							</td>
 							<td
 								style="color: var(--text-2); font-size: .82rem; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
-								title="${b.external_ID}">${not empty b.external_ID ? b.external_ID : '—'}
+								title="${b.mode}">${not empty b.mode ? b.mode : '—'}
 							</td>
 							<td>
 								<div class="flex gap-1">
