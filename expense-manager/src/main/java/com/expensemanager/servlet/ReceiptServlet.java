@@ -61,9 +61,9 @@ public class ReceiptServlet extends HttpServlet {
 				ReceiptDAO receiptDAO = new ReceiptDAO();
 				Receipt existing = receiptDAO.findById(Integer.parseInt(receiptId)); // fetch before delete
 				receiptDAO.delete(Integer.parseInt(receiptId), existing.getFileName());
-				if (existing != null) {
-					new AuditLogDAO().logReceiptDelete(Integer.parseInt(txnId), "user", existing.getFileName());
-				}
+//				if (existing != null) {
+//					new AuditLogDAO().logReceiptDelete(Integer.parseInt(txnId), "user", existing.getFileName());
+//				}
 			} catch (Exception ignored) {
 			}
 			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + txnId + "&success=receipt_deleted");
@@ -88,7 +88,7 @@ public class ReceiptServlet extends HttpServlet {
 			r.setFileType(filePart.getContentType());
 			r.setFileData(filePart.getInputStream().readAllBytes());
 			r.setFileSize((int) filePart.getSize());
-			new AuditLogDAO().logReceiptUpload(Integer.parseInt(txnId), "user", r.getFileName());
+//			new AuditLogDAO().logReceiptUpload(Integer.parseInt(txnId), "user", r.getFileName());
 			new ReceiptDAO().insert(r);
 			resp.sendRedirect(req.getContextPath() + "/transaction?id=" + txnId + "&success=receipt_uploaded");
 		} catch (Exception e) {

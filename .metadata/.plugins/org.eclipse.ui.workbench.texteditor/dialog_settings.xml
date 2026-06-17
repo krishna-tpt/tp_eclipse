@@ -3,13 +3,15 @@
 	<item key="hasShownOverlayPopupBefore" value="true"/>
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="false"/>
-		<item key="selection" value="hnfhd1735cabb955b442499f7a72be9e186f7"/>
+		<item key="selection" value=""/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="external_ID"/>
+			<item value="Download faile"/>
 			<item value=".pagge"/>
 			<item value=".page"/>
 			<item value="restorable"/>

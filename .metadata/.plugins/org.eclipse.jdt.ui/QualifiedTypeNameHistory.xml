@@ -14,7 +14,6 @@
     <fullyQualifiedTypeName name="java.sql.Date"/>
     <fullyQualifiedTypeName name="org.slf4j.Logger"/>
     <fullyQualifiedTypeName name="org.slf4j.LoggerFactory"/>
-    <fullyQualifiedTypeName name="com.expensemanager.model.BackupMetadata.BackupMode"/>
     <fullyQualifiedTypeName name="com.expensemanager.service.UploadFileAPI"/>
     <fullyQualifiedTypeName name="java.util.List"/>
     <fullyQualifiedTypeName name="java.lang.Comparable"/>
@@ -27,4 +26,6 @@
     <fullyQualifiedTypeName name="java.time.Duration"/>
     <fullyQualifiedTypeName name="java.net.URI"/>
     <fullyQualifiedTypeName name="com.expensemanager.model.WorkDriveFile"/>
+    <fullyQualifiedTypeName name="com.expensemanager.service.FilesApiService.DownloadResult"/>
+    <fullyQualifiedTypeName name="com.expensemanager.model.BackupMetadata.BackupMode"/>
 </qualifiedTypeNameHistroy>

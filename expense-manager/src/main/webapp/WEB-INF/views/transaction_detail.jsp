@@ -199,7 +199,7 @@
 		<h1 style="margin-top: .2rem">Transaction Detail</h1>
 	</div> --%>
 	<div>
-    <a href="${pageContext.request.contextPath}/transactions"
+    <a href="${pageContext.request.contextPath}/home"
        style="
             display:inline-block;
             padding:10px 18px;

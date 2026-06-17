@@ -85,15 +85,14 @@ public class BackupService {
 				writeCSV(zos, con, "transaction_audit_log.csv", "SELECT * FROM transaction_audit_log ORDER BY id");
 				writeCSV(zos, con, "transaction_custom_values.csv",
 						"SELECT * FROM transaction_custom_values ORDER BY id");
-				writeCSV(zos, con, "transaction_receipts.csv", "SELECT * FROM transaction_receipts ORDER BY id");
+				writeCSV(zos, con, "transaction_receipts.csv", "SELECT * FROM transaction_receipts ORDER BY id desc");
 				writeFileBackup(zos, con, filePath, "Receipts", "SELECT * FROM transaction_receipts ORDER BY id");
 			}
 			long size = Files.size(filePath);
 			if (backupMode == backupMode.ONLINE) {
 				dao.updateCompletion(id, BackupStatus.PENDING, size, inc, exp, null);
 				meta.setStatus(BackupStatus.PENDING);
-			}else
-			{
+			} else {
 				dao.updateCompletion(id, BackupStatus.SUCCESS, size, inc, exp, null);
 				meta.setStatus(BackupStatus.SUCCESS);
 			}
@@ -111,12 +110,12 @@ public class BackupService {
 				Files.deleteIfExists(filePath); // Upload success → local zip delete
 				log.info("Local backup deleted after upload: {}", fileName);
 				log.info("Uploading --> ResourcedID : {}", external_id);
-				if (external_id !=null) {
+				if (external_id != null) {
 					log.info("Upload Success --> ResourcedID : {}", external_id);
-					dao.updateExternalID(id, BackupStatus.SUCCESS,external_id);
+					dao.updateExternalID(id, BackupStatus.SUCCESS, external_id);
 					meta.setStatus(BackupStatus.SUCCESS);
 					meta.setExternal_ID(external_id);
-					
+
 				} else {
 					dao.updateStatus(id, BackupStatus.FAILED);
 					meta.setStatus(BackupStatus.FAILED);
@@ -138,10 +137,10 @@ public class BackupService {
 			log.debug("Backup not restorable: {}", meta.getStatus());
 			throw new Exception("Backup not restorable: " + meta.getStatus());
 		}
-		
-		if(meta.getMode() == BackupMode.ONLINE) {
+
+		if (meta.getMode() == BackupMode.ONLINE) {
 			log.debug("Backup file ID: {}", meta.getExternal_ID());
-			if(meta.getExternal_ID() !=null) {
+			if (meta.getExternal_ID() != null) {
 				byte[] result = fas.downloadFile(meta.getExternal_ID());
 				Path savePath = Paths.get(meta.getFilePath());
 				Files.write(savePath, result);
@@ -223,7 +222,6 @@ public class BackupService {
 				String entryName = entry.getName();
 
 				if (entry.isDirectory() || !entryName.startsWith(folderName + "/")) {
-//					zis.closeEntry();
 					continue;
 				}
 
@@ -231,14 +229,12 @@ public class BackupService {
 				String name = entryName.substring(slashIdx);
 
 				if (name.isEmpty()) {
-//					zis.closeEntry();
 					continue;
 				}
 
 				int underIdx = name.indexOf("_");
 				if (underIdx < 0) {
 					log.debug("restoreFiles: skip invalid name: {}", name);
-//					zis.closeEntry();
 					continue;
 				}
 
@@ -247,7 +243,6 @@ public class BackupService {
 					receiptId = Integer.parseInt(name.substring(0, underIdx));
 				} catch (NumberFormatException e) {
 					log.debug("restoreFiles: invalid receiptId in: {}", name);
-//					zis.closeEntry();
 					continue;
 				}
 
@@ -259,13 +254,11 @@ public class BackupService {
 				Receipt receipt = rDAO.findById(receiptId);
 				if (receipt == null) {
 					log.debug("restoreFiles: receipt not found in DB: id={}", receiptId);
-//					zis.closeEntry();
 					continue;
 				}
 
 				receipt.setFileData(fileData);
 				rDAO.uploadReceipt(receipt);
-//				zis.closeEntry();
 			}
 		} catch (Exception e) {
 			log.debug("restoreFiles method : {}", e.getMessage());
@@ -276,10 +269,10 @@ public class BackupService {
 		BackupMetadata meta = dao.getById(id);
 		if (meta == null)
 			throw new Exception("Not found");
-		
-		if(meta.getMode() == BackupMode.ONLINE) {
+
+		if (meta.getMode() == BackupMode.ONLINE) {
 			log.debug("Backup file ID: {}", meta.getExternal_ID());
-			if(meta.getExternal_ID() !=null) {
+			if (meta.getExternal_ID() != null) {
 				byte[] result = fas.downloadFile(meta.getExternal_ID());
 				Path savePath = Paths.get(meta.getFilePath());
 				Files.write(savePath, result);
@@ -314,10 +307,21 @@ public class BackupService {
 	}
 
 	public void deleteBackup(int id) throws Exception {
-		BackupMetadata m = dao.getById(id);
-		if (m != null) {
-			Files.deleteIfExists(Paths.get(m.getFilePath()));
-			dao.delete(id);
+		BackupMetadata meta = dao.getById(id);
+		if (meta != null) {
+			if (meta.getMode() == BackupMode.ONLINE) {
+				log.debug("Online file deletion started...");
+				boolean isDeleted = fas.deleteFile(meta.getExternal_ID());
+				log.debug("Cloud file deletion completed...");
+				if (isDeleted) {
+					dao.delete(id);
+				} else {
+					log.warn("File deletion failed : {}", meta.getExternal_ID());
+				}
+			} else {
+				Files.deleteIfExists(Paths.get(meta.getFilePath()));
+				log.debug("Local file deletion completed...");
+			}
 		}
 	}
 

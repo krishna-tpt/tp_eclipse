@@ -141,14 +141,14 @@ public class TransactionServlet extends HttpServlet {
 					log.debug("File uploaded...");
 				}
 			}
+
+			resp.sendRedirect(req.getContextPath() + "/home?success=saved");
 		} catch (Exception e) {
-			System.out.println("File upload : " + e.getMessage());
+			log.error("Transaction save failed: {}", e.getMessage());
+			resp.sendRedirect(req.getContextPath() + "/home?success=failed");
 		}
 		// resp.sendRedirect(req.getContextPath() + "/home?msg=saved");
-		resp.sendRedirect(req.getContextPath() + "/home");
-//		resp.setContentType("application/json");
-//		resp.setCharacterEncoding("UTF-8");
-//		resp.getWriter().write("{\"status\":\"saved\"}");
+//		resp.sendRedirect(req.getContextPath() + "/home");
 	}
 
 	private String getFileName(Part part) {
