@@ -83,28 +83,25 @@ public class NeonSyncService {
 
 				// Transactions
 				result.add(syncTable(local, remote, "transactions",
-						"SELECT id, book_id, type, amount, category_id, subcategory_id, "
-								+ "       note, date_time, created_at FROM transactions",
-						"INSERT INTO transactions (id, book_id, type, amount, category_id, "
-								+ "  subcategory_id, note, date_time, created_at) "
-								+ "VALUES (?,?,?::txn_type,?,?,?,?,?,?) "
-								+ "ON CONFLICT (id) DO UPDATE SET amount=EXCLUDED.amount, "
-								+ "  note=EXCLUDED.note, category_id=EXCLUDED.category_id",
+						"SELECT id, type, txn_datetime, amount, category_id, note, created_at, sub_categories_id, book_id FROM transactions",
+						"INSERT INTO transactions (id, type, txn_datetime, amount, category_id, note, created_at, sub_categories_id, book_id) "
+						+ "VALUES (?, ?::txn_type, ?, ?, ?, ?, ?, ?, ?)"
+								+ "ON CONFLICT (id) DO UPDATE SET type=EXCLUDED.type, txn_datetime=EXCLUDED.txn_datetime, amount=EXCLUDED.amount, category_id=EXCLUDED.category_id, "
+								+ "  note=EXCLUDED.note, created_at=EXCLUDED.created_at, sub_categories_id=EXCLUDED.sub_categories_id, book_id=EXCLUDED.book_id",
 						9));
 
 				result.add(syncTable(local, remote, "transaction_custom_values",
-						"SELECT id, transaction_id, col_key, col_value FROM transaction_custom_values",
-						"INSERT INTO transaction_custom_values (id, transaction_id, col_key, col_value) "
-								+ "VALUES (?,?,?,?) ON CONFLICT (id) DO UPDATE SET col_value=EXCLUDED.col_value",
+						"SELECT id, transaction_id, col_def_id, value FROM transaction_custom_values",
+						"INSERT INTO transaction_custom_values (id, transaction_id, col_def_id, value) "
+								+ "VALUES (?,?,?,?) ON CONFLICT (id) DO UPDATE SET transaction_id=EXCLUDED.transaction_id, col_def_id=EXCLUDED.col_def_id, value=EXCLUDED.value",
 						4));
 
 				result.add(syncTable(local, remote, "transaction_audit_log",
-						"SELECT id, transaction_id, field_name, old_value, new_value, "
-								+ "       changed_by, changed_at FROM transaction_audit_log",
-						"INSERT INTO transaction_audit_log (id, transaction_id, field_name, "
-								+ "  old_value, new_value, changed_by, changed_at) "
-								+ "VALUES (?,?,?,?,?,?,?) ON CONFLICT (id) DO NOTHING",
-						7));
+						"SELECT id, transaction_id, action, changed_by, changed_at, field_name, old_value, new_value, note) FROM transaction_audit_log ",
+						"INSERT INTO transaction_audit_log (id, transaction_id, action, changed_by, changed_at, field_name, old_value, new_value, note)"
+						+ "	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+								+ " ON CONFLICT (id) DO NOTHING",
+						9));
 
 				remote.commit();
 				result.success = true;
