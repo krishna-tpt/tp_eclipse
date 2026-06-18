@@ -112,8 +112,8 @@ public class BudgetDAO {
             LEFT JOIN transactions t
                    ON t.book_id = b.book_id
                   AND t.type = 'EXPENSE'::txn_type
-                  AND EXTRACT(YEAR  FROM t.date_time) = b.year
-                  AND EXTRACT(MONTH FROM t.date_time) = b.month
+                  AND EXTRACT(YEAR  FROM t.txn_datetime) = b.year
+                  AND EXTRACT(MONTH FROM t.txn_datetime) = b.month
             WHERE b.book_id = ?
             GROUP BY b.id
             ORDER BY b.year DESC, b.month DESC
@@ -146,13 +146,13 @@ public class BudgetDAO {
     public List<java.util.Map<String, Object>> monthlyTrend(int bookId, int months) throws SQLException {
         String sql = """
             SELECT
-                EXTRACT(YEAR  FROM date_time)::INT AS yr,
-                EXTRACT(MONTH FROM date_time)::INT AS mo,
+                EXTRACT(YEAR  FROM txn_datetime)::INT AS yr,
+                EXTRACT(MONTH FROM txn_datetime)::INT AS mo,
                 SUM(CASE WHEN type='INCOME'::txn_type  THEN amount ELSE 0 END) AS income,
                 SUM(CASE WHEN type='EXPENSE'::txn_type THEN amount ELSE 0 END) AS expense
             FROM transactions
             WHERE book_id = ?
-              AND date_time >= NOW() - (?::INT || ' months')::INTERVAL
+              AND txn_datetime >= NOW() - (?::INT || ' months')::INTERVAL
             GROUP BY yr, mo
             ORDER BY yr ASC, mo ASC
             """;
@@ -187,15 +187,15 @@ public class BudgetDAO {
     public List<java.util.Map<String, Object>> categoryTrend(int bookId, int months) throws SQLException {
         String sql = """
             SELECT
-                EXTRACT(YEAR  FROM t.date_time)::INT AS yr,
-                EXTRACT(MONTH FROM t.date_time)::INT AS mo,
+                EXTRACT(YEAR  FROM t.txn_datetime)::INT AS yr,
+                EXTRACT(MONTH FROM t.txn_datetime)::INT AS mo,
                 c.name  AS category,
                 SUM(t.amount) AS total
             FROM transactions t
             JOIN categories c ON c.id = t.category_id
             WHERE t.book_id = ?
               AND t.type = 'EXPENSE'::txn_type
-              AND t.date_time >= NOW() - (?::INT || ' months')::INTERVAL
+              AND t.txn_datetime >= NOW() - (?::INT || ' months')::INTERVAL
             GROUP BY yr, mo, c.name
             ORDER BY yr ASC, mo ASC, total DESC
             """;
@@ -228,8 +228,8 @@ public class BudgetDAO {
     public List<java.util.Map<String, Object>> yearOverYear(int bookId) throws SQLException {
         String sql = """
             SELECT
-                EXTRACT(YEAR  FROM date_time)::INT AS yr,
-                EXTRACT(MONTH FROM date_time)::INT AS mo,
+                EXTRACT(YEAR  FROM txn_datetime)::INT AS yr,
+                EXTRACT(MONTH FROM txn_datetime)::INT AS mo,
                 SUM(CASE WHEN type='INCOME'::txn_type  THEN amount ELSE 0 END) AS income,
                 SUM(CASE WHEN type='EXPENSE'::txn_type THEN amount ELSE 0 END) AS expense
             FROM transactions
@@ -282,8 +282,8 @@ public class BudgetDAO {
             LEFT JOIN transactions t
                    ON t.category_id = bc.category_id
                   AND t.type = 'EXPENSE'::txn_type
-                  AND EXTRACT(YEAR  FROM t.date_time) = ?
-                  AND EXTRACT(MONTH FROM t.date_time) = ?
+                  AND EXTRACT(YEAR  FROM t.txn_datetime) = ?
+                  AND EXTRACT(MONTH FROM t.txn_datetime) = ?
             WHERE bc.budget_id = ?
             GROUP BY bc.id, bc.budget_id, bc.category_id, bc.cat_limit,
                      bc.alert_pct, c.name
@@ -318,8 +318,8 @@ public class BudgetDAO {
             SELECT COALESCE(SUM(amount),0)
             FROM transactions
             WHERE book_id=? AND type='EXPENSE'::txn_type
-              AND EXTRACT(YEAR  FROM date_time)=?
-              AND EXTRACT(MONTH FROM date_time)=?
+              AND EXTRACT(YEAR  FROM txn_datetime)=?
+              AND EXTRACT(MONTH FROM txn_datetime)=?
             """ + (catId > 0 ? " AND category_id=?" : "");
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, bookId);

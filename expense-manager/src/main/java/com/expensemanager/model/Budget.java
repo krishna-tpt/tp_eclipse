@@ -111,6 +111,13 @@ public class Budget {
 				.min(BigDecimal.valueOf(100)).intValue();
 	}
 
+	/** JSP EL-ல BigDecimal.ZERO reference பண்ண முடியாது — boolean helper */
+	public boolean isRemainingPositive() {
+		if (remainingAmount == null)
+			return true;
+		return remainingAmount.compareTo(BigDecimal.ZERO) >= 0;
+	}
+
 	public String getMonthName() {
 		return java.time.Month.of(month).getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH);
 	}

@@ -300,7 +300,7 @@ to {
 				<div class="bsum-card">
 					<div class="bsum-label">Remaining</div>
 					<div class="bsum-val"
-						style="color:${budget.remainingAmount.compareTo(java.math.BigDecimal.ZERO)>=0?'var(--green)':'var(--red)'}">
+						style="color:${budget.remainingPositive?'var(--green)':'var(--red)'}">
 						&#8377;
 						<fmt:formatNumber value="${budget.remainingAmount}"
 							pattern="#,##0.00" />
@@ -345,7 +345,7 @@ to {
 								<span style="font-size: .82rem">&#8377;<fmt:formatNumber
 										value="${bc.catLimit}" pattern="#,##0" /></span> <span
 									style="font-size: .82rem; color: var(--red)">&#8377;<fmt:formatNumber
-										value="${bc.spent}" pattern="#,##0" /></span> <span
+										value="${bc.spentSafe}" pattern="#,##0" /></span> <span
 									style="font-size:.82rem;font-weight:700;color:${bc.usedPct>=100?'var(--red)':bc.alertPct<=bc.usedPct?'#d97706':'var(--green)'}">
 									${bc.usedPct}% </span>
 							</div>
@@ -436,7 +436,8 @@ to {
 								<td>${b.monthName}${b.year}</td>
 								<td>&#8377;<fmt:formatNumber value="${b.overallLimit}"
 										pattern="#,##0.00" /></td>
-								<td>&#8377;<fmt:formatNumber value="${b.totalSpent}"
+								<td>&#8377;<fmt:formatNumber
+										value="${empty b.totalSpent ? 0 : b.totalSpent}"
 										pattern="#,##0.00" /></td>
 								<td>
 									<div class="prog-wrap"
@@ -542,7 +543,7 @@ function showToast(msg, exceeded) {
     <c:forEach var="bc" items="${budget.categories}">
       <c:if test="${bc.alertTriggered}">
         alerts.push({
-          msg: '${bc.categoryName}: ${bc.usedPct}% used (&#8377;${bc.spent} / &#8377;${bc.catLimit})',
+          msg: '${bc.categoryName}: ${bc.usedPct}% used (&#8377;${bc.spentSafe} / &#8377;${bc.catLimit})',
           exceeded: ${bc.exceeded}
         });
       </c:if>

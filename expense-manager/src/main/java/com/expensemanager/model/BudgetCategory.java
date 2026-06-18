@@ -81,7 +81,7 @@ public class BudgetCategory {
 	public int getUsedPct() {
 		if (catLimit == null || catLimit.compareTo(BigDecimal.ZERO) == 0)
 			return 0;
-		if (spent == null)
+		if (spent == null || spent.compareTo(BigDecimal.ZERO) == 0)
 			return 0;
 		return spent.multiply(BigDecimal.valueOf(100)).divide(catLimit, 0, java.math.RoundingMode.HALF_UP)
 				.min(BigDecimal.valueOf(100)).intValue();
@@ -93,5 +93,15 @@ public class BudgetCategory {
 
 	public boolean isExceeded() {
 		return spent != null && catLimit != null && spent.compareTo(catLimit) > 0;
+	}
+
+	/** Null-safe spent getter for JSP fmt:formatNumber */
+	public BigDecimal getSpentSafe() {
+		return spent != null ? spent : BigDecimal.ZERO;
+	}
+
+	/** Null-safe remaining getter */
+	public BigDecimal getRemainingSafe() {
+		return remaining != null ? remaining : (catLimit != null ? catLimit : BigDecimal.ZERO);
 	}
 }

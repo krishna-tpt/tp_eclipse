@@ -48,6 +48,11 @@ public class BudgetServlet extends HttpServlet {
         try {
             // ── Budget tab ─────────────────────────────────────────
             Budget current = dao.findByMonth(bookId, year, month);
+            // Null-safe defaults — JSP fmt:formatNumber crashes on null
+            if (current != null) {
+                if (current.getTotalSpent()    == null) current.setTotalSpent(java.math.BigDecimal.ZERO);
+                if (current.getRemainingAmount()== null) current.setRemainingAmount(current.getOverallLimit());
+            }
             req.setAttribute("budget",     current);
             req.setAttribute("allBudgets", dao.listByBook(bookId));
             req.setAttribute("expenseCategories", catDAO.findByType("EXPENSE"));
