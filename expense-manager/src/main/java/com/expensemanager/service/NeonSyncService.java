@@ -1,12 +1,17 @@
 package com.expensemanager.service;
 
-import com.expensemanager.util.DBConnection;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import com.expensemanager.util.DBConnection;
 
 /**
  * Syncs all transactions + master data to Neon (PostgreSQL cloud) DB. Uses
@@ -21,12 +26,19 @@ public class NeonSyncService {
 
 	// ── Neon connection ────────────────────────────────────────────
 	private Connection neonConn() throws SQLException {
-		String url = System.getProperty("neon.jdbc.url",
-				System.getenv("NEON_DB_URL") != null ? System.getenv("NEON_DB_URL") : "");
-		String user = System.getProperty("neon.jdbc.user",
-				System.getenv("NEON_DB_USER") != null ? System.getenv("NEON_DB_USER") : "");
-		String pass = System.getProperty("neon.jdbc.password",
-				System.getenv("NEON_DB_PASSWORD") != null ? System.getenv("NEON_DB_PASSWORD") : "");
+//		String url = System.getProperty("neon.jdbc.url",
+//				System.getenv("NEON_DB_URL") != null ? System.getenv("NEON_DB_URL") : "");
+//		String user = System.getProperty("neon.jdbc.user",
+//				System.getenv("NEON_DB_USER") != null ? System.getenv("NEON_DB_USER") : "");
+//		String pass = System.getProperty("neon.jdbc.password",
+//				System.getenv("NEON_DB_PASSWORD") != null ? System.getenv("NEON_DB_PASSWORD") : "");
+//		String url = AppContextListener.getContext().getInitParameter("NEON_DB_URL");
+//		String user = AppContextListener.getContext().getInitParameter("NEON_DB_USER");
+//		String pass = AppContextListener.getContext().getInitParameter("NEON_DB_PASSWORD");
+		
+		String url = "jdbc:postgresql://ep-plain-meadow-apr9n2ix-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require";
+		String user = "neondb_owner";
+		String pass = "npg_30bZIuKdaFvM";
 
 		if (url.isBlank())
 			throw new SQLException(

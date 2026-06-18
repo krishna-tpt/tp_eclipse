@@ -6565,3 +6565,30 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 36442ea] Auto sync - 2026-06-18 15:00:02
+ 31 files changed, 4183 insertions(+), 2349 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.wst.server.core/publish/publish0.dat (61%)
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/dao/SchedulerDAO.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/SchedulerConfig.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/model/SchedulerLog.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/service/NeonSyncService.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/service/SchedulerEngine.java
+ create mode 100644 expense-manager/src/main/java/com/expensemanager/servlet/SchedulerServlet.java
+ create mode 100644 expense-manager/src/main/webapp/WEB-INF/views/schedulers.jsp
+To https://github.com/krishna-tpt/tp_eclipse.git
+   a9c7144..36442ea  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-18 15:00:07[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-06-18 18:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
