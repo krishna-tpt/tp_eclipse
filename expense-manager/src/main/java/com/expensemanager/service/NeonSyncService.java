@@ -59,26 +59,26 @@ public class NeonSyncService {
 			try {
 				// Master tables first (FK order)
 				result.add(syncTable(local, remote, "cash_books",
-						"SELECT id, name, currency, created_at FROM cash_books",
-						"INSERT INTO cash_books (id, name, currency, created_at) VALUES (?,?,?,?) "
-								+ "ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, currency=EXCLUDED.currency",
-						4));
+						"SELECT id, name, description, created_at, is_active FROM cash_books",
+						"INSERT INTO cash_books (id, name, description, created_at, is_active) VALUES (?, ?, ?, ?, ?) "
+								+ "ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name, description = EXCLUDED.description, created_at = EXCLUDED.created_at,is_active = EXCLUDED.is_active",
+						5));
 
 				result.add(syncTable(local, remote, "categories", "SELECT id, name, type, created_at FROM categories",
-						"INSERT INTO categories (id, name, type, created_at) VALUES (?,?,?,?::txn_type) "
-								+ "ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name",
+						"INSERT INTO categories (id, name, type, created_at) VALUES (?,?,?::txn_type, ?) "
+								+ "ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name , type=EXCLUDED.type, created_at=EXCLUDED.created_at",
 						4));
 
 				result.add(syncTable(local, remote, "sub_categories",
-						"SELECT sub_categories_id, category_id, name FROM sub_categories",
-						"INSERT INTO sub_categories (sub_categories_id, category_id, name) VALUES (?,?,?) "
-								+ "ON CONFLICT (sub_categories_id) DO UPDATE SET name=EXCLUDED.name",
-						3));
+						"SELECT sub_categories_id, name, created, category_id FROM sub_categories",
+						"INSERT INTO sub_categories (sub_categories_id, name, created, category_id) VALUES (?,?,?,?) "
+								+ "ON CONFLICT (sub_categories_id) DO UPDATE SET name=EXCLUDED.name, created=EXCLUDED.created, category_id=EXCLUDED.category_id",
+						4));
 
 				result.add(syncTable(local, remote, "column_definitions",
 						"SELECT id, type, col_key, col_name FROM column_definitions",
-						"INSERT INTO column_definitions (id, type, col_key, col_name) VALUES (?,?,?,?) "
-								+ "ON CONFLICT (id) DO UPDATE SET col_name=EXCLUDED.col_name",
+						"INSERT INTO column_definitions (id, col_name, col_key, type, created_at) VALUES (?, ?, ?, ?::txn_type, ?) "
+								+ "ON CONFLICT (id) DO UPDATE SET col_name=EXCLUDED.col_name, col_key=EXCLUDED.col_key, type=EXCLUDED.type, created_at=EXCLUDED.created_at",
 						4));
 
 				// Transactions

@@ -2,7 +2,7 @@
 <section name="Workbench">
 	<item key="hasShownOverlayPopupBefore" value="true"/>
 	<section name="java.lang.Class">
-		<item key="replaceBarOpen" value="false"/>
+		<item key="replaceBarOpen" value="true"/>
 		<item key="selection" value=""/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
@@ -10,6 +10,14 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="ne"/>
+			<item value="/home"/>
+			<item value="cardUrl"/>
+			<item value="2px solid ${isActive "/>
+			<item value="stopPropagation"/>
+			<item value="weekDays"/>
+			<item value="${pageContext.request.contextPath}/budget"/>
+			<item value="date_time"/>
 			<item value="back"/>
 			<item value="msg"/>
 			<item value="success"/>
@@ -17,16 +25,9 @@
 			<item value="external_ID"/>
 			<item value="Download faile"/>
 			<item value=".pagge"/>
-			<item value=".page"/>
-			<item value="restorable"/>
-			<item value="Found"/>
-			<item value="hnfhd1735cabb955b442499f7a72be9e186f7"/>
-			<item value="tokenService"/>
-			<item value="TokenService"/>
-			<item value="BackupStatus"/>
-			<item value="BackupMode"/>
 		</list>
 		<list key="replacehistory">
+			<item value="txn_datetime"/>
 		</list>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">

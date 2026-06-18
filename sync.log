@@ -6592,3 +6592,17 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 0be43cd] Auto sync - 2026-06-18 18:00:02
+ 23 files changed, 2705 insertions(+), 2533 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.wst.server.core/publish/publish0.dat (61%)
+ create mode 100644 expense-manager/src/main/resources/application.properties
+ rewrite expense-manager/src/main/webapp/WEB-INF/views/books.jsp (81%)
+To https://github.com/krishna-tpt/tp_eclipse.git
+   36442ea..0be43cd  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-06-18 18:00:05[0m
+[1;33m========================================[0m
