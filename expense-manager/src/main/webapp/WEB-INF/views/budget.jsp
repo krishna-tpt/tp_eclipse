@@ -1,334 +1,674 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ExpenseIQ – Budget Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
+<c:set var="pageTitle" value="Budget & Trends" scope="request" />
+<c:set var="activePage" value="budget" scope="request" />
+<%@ include file="header.jsp"%>
+
 <style>
-.budget-hero{background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);border-radius:20px;padding:32px 40px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:20px;position:relative;overflow:hidden}
-.budget-hero::before{content:'';position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(16,185,129,.2),transparent 70%);top:-80px;right:-40px;border-radius:50%}
-.hero-text h2{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;color:#fff;margin:0 0 5px}
-.hero-text p{color:rgba(255,255,255,.6);font-size:.9rem;margin:0}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
-.stat-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:12px}
-.stat-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
-.si-blue{background:rgba(99,102,241,.15);color:#818cf8}
-.si-red{background:rgba(239,68,68,.15);color:#ef4444}
-.si-amber{background:rgba(245,158,11,.15);color:#f59e0b}
-.si-green{background:rgba(16,185,129,.15);color:#10b981}
-.stat-info label{font-size:.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em}
-.stat-info span{display:block;font-size:1.3rem;font-weight:700;font-family:'Syne',sans-serif;color:var(--text-primary)}
+/* ── Tabs ── */
+.btab-bar {
+	display: flex;
+	gap: .5rem;
+	margin-bottom: 1.25rem;
+	border-bottom: 2px solid var(--border);
+}
 
-/* Budget cards */
-.budgets-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:28px}
-.budget-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:22px;transition:.2s;position:relative}
-.budget-card:hover{transform:translateY(-2px)}
-.budget-card.budget-over{border-color:rgba(239,68,68,.4);box-shadow:0 0 20px rgba(239,68,68,.1)}
-.budget-card.budget-alert{border-color:rgba(245,158,11,.4);box-shadow:0 0 20px rgba(245,158,11,.1)}
-.bc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.bc-cat{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:8px}
-.bc-actions{display:flex;gap:6px}
-.bca{width:26px;height:26px;border-radius:7px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.7rem;transition:.15s;text-decoration:none}
-.bca:hover{transform:translateY(-1px)}
-.bca-edit{background:rgba(99,102,241,.12);color:#818cf8}
-.bca-del{background:rgba(239,68,68,.1);color:#f87171}
+.btab {
+	padding: .55rem 1.1rem;
+	font-size: .875rem;
+	font-weight: 600;
+	cursor: pointer;
+	border: none;
+	background: none;
+	color: var(--text-2);
+	border-bottom: 2px solid transparent;
+	margin-bottom: -2px;
+	transition: color .15s, border-color .15s;
+}
 
-.bc-amounts{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px}
-.bc-spent{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800}
-.bc-limit{font-size:.82rem;color:var(--text-muted)}
-.bc-remain{font-size:.8rem;font-weight:600}
+.btab.active {
+	color: var(--primary);
+	border-bottom-color: var(--primary);
+}
 
-/* Progress bar */
-.progress-wrap{background:rgba(255,255,255,.06);border-radius:6px;height:8px;margin-bottom:10px;overflow:hidden}
-.progress-fill{height:8px;border-radius:6px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
-.progress-safe  .progress-fill{background:linear-gradient(90deg,#10b981,#34d399)}
-.progress-warn  .progress-fill{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
-.progress-alert .progress-fill{background:linear-gradient(90deg,#f97316,#fb923c);animation:pulse-bar 1.5s ease-in-out infinite}
-.progress-over  .progress-fill{background:linear-gradient(90deg,#ef4444,#f87171);animation:pulse-bar 1s ease-in-out infinite}
-@keyframes pulse-bar{0%,100%{opacity:1}50%{opacity:.6}}
+/* ── Progress bar ── */
+.prog-wrap {
+	background: #e2e8f0;
+	border-radius: 99px;
+	height: 10px;
+	overflow: hidden;
+	margin: .4rem 0;
+}
 
-.bc-footer{display:flex;align-items:center;justify-content:space-between}
-.status-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:600}
-.budget-safe  .status-chip{background:rgba(16,185,129,.12);color:#10b981}
-.budget-warn  .status-chip{background:rgba(245,158,11,.1);color:#fbbf24}
-.budget-alert .status-chip{background:rgba(249,115,22,.15);color:#fb923c}
-.budget-over  .status-chip{background:rgba(239,68,68,.15);color:#ef4444}
-.alert-pct{font-size:.72rem;color:var(--text-muted)}
+.prog-bar {
+	height: 100%;
+	border-radius: 99px;
+	transition: width .4s;
+}
 
-/* Month filter */
-.month-filter{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px 20px;display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.prog-bar.ok {
+	background: #4ade80;
+}
 
-/* Toast */
-.notif-tray{position:fixed;top:72px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:360px;pointer-events:none}
-.toast{background:#1c1c2e;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.5);animation:toastIn .35s cubic-bezier(.34,1.56,.64,1);pointer-events:all;display:flex;min-width:300px}
-.toast-accent{width:4px;flex-shrink:0}
-.toast-accent.budget_alert{background:#f97316}
-.toast-accent.budget_over{background:#ef4444;animation:flash-acc .8s ease-in-out infinite}
-@keyframes flash-acc{0%,100%{opacity:1}50%{opacity:.2}}
-.toast-body{padding:12px 14px 12px 12px;flex:1}
-.toast-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
-.toast-title{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:#f0f0fa}
-.toast-close{background:none;border:none;cursor:pointer;color:#5a5e78;font-size:.8rem}
-.toast-msg{font-size:.78rem;color:#a9adc7;line-height:1.5}
-@keyframes toastIn{from{transform:translateX(110%) scale(.9);opacity:0}to{transform:translateX(0) scale(1);opacity:1}}
+.prog-bar.warning {
+	background: #fbbf24;
+}
 
-.modal-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal-box{background:var(--card-bg);border:1px solid var(--border);border-radius:18px;width:100%;max-width:400px;padding:28px;animation:slideUp .22s ease}
-@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-box h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:8px}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
-@media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.budgets-grid{grid-template-columns:1fr}}
+.prog-bar.danger {
+	background: #f87171;
+}
+
+/* ── Budget card ── */
+.budget-card {
+	background: #fff;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1.1rem 1.25rem;
+	margin-bottom: 1rem;
+}
+
+.budget-card h3 {
+	font-size: .95rem;
+	font-weight: 700;
+	margin: 0 0 .75rem;
+}
+
+/* ── Category budget row ── */
+.cat-budget-row {
+	display: grid;
+	grid-template-columns: 1fr 110px 80px 80px;
+	gap: .5rem;
+	align-items: center;
+	padding: .4rem 0;
+	border-bottom: 1px solid var(--border);
+}
+
+.cat-budget-row:last-child {
+	border-bottom: none;
+}
+
+.cat-budget-row label {
+	font-size: .82rem;
+	font-weight: 500;
+}
+
+/* ── Alert popup ── */
+.budget-alert-toast {
+	position: fixed;
+	bottom: 1.5rem;
+	right: 1.5rem;
+	z-index: 999;
+	display: flex;
+	flex-direction: column;
+	gap: .5rem;
+	max-width: 340px;
+}
+
+.toast-item {
+	background: #fff;
+	border-radius: 10px;
+	padding: .75rem 1rem;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, .15);
+	border-left: 4px solid #fbbf24;
+	font-size: .82rem;
+	animation: slideIn .3s ease;
+	display: flex;
+	align-items: flex-start;
+	gap: .6rem;
+}
+
+.toast-item.exceeded {
+	border-left-color: #f87171;
+}
+
+.toast-item .toast-icon {
+	font-size: 1.1rem;
+	flex-shrink: 0;
+}
+
+.toast-item .toast-close {
+	margin-left: auto;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--text-2);
+	font-size: .9rem;
+	padding: 0;
+	flex-shrink: 0;
+}
+
+@
+keyframes slideIn {
+	from {transform: translateX(100%);
+	opacity: 0
+}
+
+to {
+	transform: translateX(0);
+	opacity: 1
+}
+
+}
+
+/* ── Trend charts ── */
+.chart-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.25rem;
+	margin-bottom: 1.25rem;
+}
+
+.chart-card {
+	background: #fff;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 1rem;
+}
+
+.chart-card h3 {
+	font-size: .875rem;
+	font-weight: 700;
+	margin: 0 0 .75rem;
+	color: var(--text-1);
+}
+
+.chart-card canvas {
+	width: 100% !important;
+}
+
+@media ( max-width :800px) {
+	.chart-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ── Month selector ── */
+.month-nav {
+	display: flex;
+	align-items: center;
+	gap: .6rem;
+	margin-bottom: 1rem;
+}
+
+.month-nav select {
+	font-size: .85rem;
+	padding: .3rem .6rem;
+}
+
+/* ── Summary strip ── */
+.bsummary {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: .75rem;
+	margin-bottom: 1rem;
+}
+
+.bsum-card {
+	background: #fff;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: .75rem 1rem;
+	text-align: center;
+}
+
+.bsum-label {
+	font-size: .7rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .5px;
+	color: var(--text-2);
+}
+
+.bsum-val {
+	font-size: 1.3rem;
+	font-weight: 700;
+	margin-top: .15rem;
+}
 </style>
-</head>
-<body>
-<nav class="sidebar">
-<div class="sidebar-brand"><span class="brand-icon">💰</span><span class="brand-name">ExpenseIQ</span></div>
-<ul class="nav-links">
-  <li><a href="${pageContext.request.contextPath}/dashboard"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a></li>
-  <li><a href="${pageContext.request.contextPath}/income/list"><i class="fas fa-arrow-trend-up"></i><span>Income</span></a></li>
-  <li><a href="${pageContext.request.contextPath}/expense/list"><i class="fas fa-arrow-trend-down"></i><span>Expenses</span></a></li>
-  <li><a href="${pageContext.request.contextPath}/budget/list" class="active"><i class="fas fa-wallet"></i><span>Budget</span></a></li>
-  <li><a href="${pageContext.request.contextPath}/budget/trends"><i class="fas fa-chart-line"></i><span>Trends</span></a></li>
-  <li><a href="${pageContext.request.contextPath}/reports"><i class="fas fa-chart-bar"></i><span>Reports</span></a></li>
-  <li><a href="${pageContext.request.contextPath}/reminders/list"><i class="fas fa-bell"></i><span>Reminders</span></a></li>
-  <li><a href="${pageContext.request.contextPath}/backup/list"><i class="fas fa-database"></i><span>Backup</span></a></li>
-</ul>
-<div class="sidebar-footer"><span>v1.0.0</span></div>
-</nav>
-<main class="main-content">
-<div class="topbar">
-  <div class="page-title">Budget Management</div>
-  <div class="topbar-actions">
-    <a href="${pageContext.request.contextPath}/budget/trends" class="btn btn-secondary btn-sm"><i class="fas fa-chart-line"></i> Trend Analysis</a>
-    <a href="${pageContext.request.contextPath}/budget/add"    class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Budget</a>
-  </div>
+
+<%-- ═══ PAGE HEADER ═══ --%>
+<div class="page-header flex">
+	<div>
+		<h1>&#127811; Budget &amp; Trends</h1>
+		<p>
+			<strong>${sessionScope.activeBookName}</strong>
+		</p>
+	</div>
 </div>
-<c:if test="${not empty sessionScope.successMsg}">
-  <div class="alert alert-success" style="margin:14px 28px 0"><i class="fas fa-check-circle"></i> ${sessionScope.successMsg}</div>
-  <c:remove var="successMsg" scope="session"/>
+
+<%-- Alerts --%>
+<c:if test="${not empty param.success}">
+	<div class="alert alert-success">&#10003; Budget saved!</div>
 </c:if>
-<c:if test="${not empty sessionScope.errorMsg}">
-  <div class="alert alert-danger" style="margin:14px 28px 0"><i class="fas fa-exclamation-circle"></i> ${sessionScope.errorMsg}</div>
-  <c:remove var="errorMsg" scope="session"/>
+<c:if test="${not empty param.error}">
+	<div class="alert alert-error">&#10007; ${param.error}</div>
 </c:if>
-<div class="page-body">
+<c:if test="${not empty dbError}">
+	<div class="alert alert-error">&#9888; ${dbError}</div>
+</c:if>
 
-  <!-- Hero -->
-  <div class="budget-hero">
-    <div class="hero-text">
-      <h2><i class="fas fa-wallet" style="color:#10b981"></i> &nbsp;Smart Budget Control</h2>
-      <p>Category-wise budgets with real-time SSE alerts.<br>Know exactly where your money goes before it's gone.</p>
-    </div>
-    <a href="${pageContext.request.contextPath}/budget/add" class="btn btn-primary"><i class="fas fa-plus"></i> Set Budget</a>
-  </div>
-
-  <!-- Month filter -->
-  <form method="get" action="${pageContext.request.contextPath}/budget/list" class="month-filter">
-    <i class="fas fa-calendar" style="color:var(--text-muted)"></i>
-    <div class="filter-group">
-      <label>Year</label>
-      <select name="year" class="form-control" style="min-width:90px">
-        <c:forEach begin="2023" end="2027" var="y">
-          <option value="${y}" ${selectedYear == y ? 'selected':''}>${y}</option>
-        </c:forEach>
-      </select>
-    </div>
-    <div class="filter-group">
-      <label>Month</label>
-      <select name="month" class="form-control" style="min-width:110px">
-        <c:set var="mnames" value="January,February,March,April,May,June,July,August,September,October,November,December"/>
-        <c:forTokens items="${mnames}" delims="," var="mn" varStatus="ms">
-          <option value="${ms.index+1}" ${selectedMonth == ms.index+1 ? 'selected':''}>${mn}</option>
-        </c:forTokens>
-      </select>
-    </div>
-    <button type="submit" class="btn btn-primary btn-sm" style="align-self:flex-end"><i class="fas fa-filter"></i> View</button>
-  </form>
-
-  <!-- Stats -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-icon si-blue"><i class="fas fa-wallet"></i></div>
-      <div class="stat-info"><label>Total Budget</label><span>₹<fmt:formatNumber value="${totalBudget}" pattern="#,##0"/></span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon si-amber"><i class="fas fa-receipt"></i></div>
-      <div class="stat-info"><label>Total Spent</label><span>₹<fmt:formatNumber value="${totalSpent}" pattern="#,##0"/></span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon si-red"><i class="fas fa-triangle-exclamation"></i></div>
-      <div class="stat-info"><label>Over Budget</label><span>${overCount}</span></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon si-amber"><i class="fas fa-bell"></i></div>
-      <div class="stat-info"><label>Near Limit</label><span>${alertCount}</span></div>
-    </div>
-  </div>
-
-  <!-- Budget Cards -->
-  <c:choose>
-    <c:when test="${empty budgets}">
-      <div class="empty-state">
-        <i class="fas fa-wallet"></i>
-        <p>No budgets for this period. <a href="${pageContext.request.contextPath}/budget/add" style="color:var(--accent)">Set your first budget →</a></p>
-      </div>
-    </c:when>
-    <c:otherwise>
-      <div class="budgets-grid">
-        <c:forEach var="b" items="${budgets}">
-        <c:set var="pct" value="${b.spentPct}"/>
-        <div class="budget-card ${b.statusClass}">
-          <div class="bc-header">
-            <div class="bc-cat">
-              <c:choose>
-                <c:when test="${b.category == 'Food & Dining'}"><i class="fas fa-utensils" style="color:#f59e0b"></i></c:when>
-                <c:when test="${b.category == 'Transport'}">    <i class="fas fa-car"      style="color:#818cf8"></i></c:when>
-                <c:when test="${b.category == 'Health'}">       <i class="fas fa-heart-pulse" style="color:#ef4444"></i></c:when>
-                <c:when test="${b.category == 'Entertainment'}"><i class="fas fa-tv"       style="color:#06b6d4"></i></c:when>
-                <c:when test="${b.category == 'Shopping'}">     <i class="fas fa-bag-shopping" style="color:#a78bfa"></i></c:when>
-                <c:when test="${b.category == 'Education'}">    <i class="fas fa-graduation-cap" style="color:#10b981"></i></c:when>
-                <c:otherwise>                                   <i class="fas fa-tag"      style="color:#94a3b8"></i></c:otherwise>
-              </c:choose>
-              ${b.category}
-            </div>
-            <div class="bc-actions">
-              <a href="${pageContext.request.contextPath}/budget/edit?id=${b.id}" class="bca bca-edit" title="Edit"><i class="fas fa-pen"></i></a>
-              <button class="bca bca-del" title="Delete" onclick="confirmDelete(${b.id},'${b.category}')"><i class="fas fa-trash"></i></button>
-            </div>
-          </div>
-
-          <div class="bc-amounts">
-            <div>
-              <div class="bc-spent ${b.overBudget ? 'text-danger' : ''}" style="color:${b.overBudget ? '#ef4444' : b.atAlert ? '#f97316' : '#f0f0fa'}">
-                ₹<fmt:formatNumber value="${b.spent != null ? b.spent : 0}" pattern="#,##0.00"/>
-              </div>
-              <div class="bc-limit">of ₹<fmt:formatNumber value="${b.amount}" pattern="#,##0.00"/> budget</div>
-            </div>
-            <div class="bc-remain" style="color:${b.overBudget ? '#ef4444' : '#10b981'}">
-              <c:choose>
-                <c:when test="${b.overBudget}">
-                  <i class="fas fa-circle-exclamation"></i> Over by<br>
-                  ₹<fmt:formatNumber value="${(b.spent != null ? b.spent : 0) - b.amount}" pattern="#,##0"/>
-                </c:when>
-                <c:otherwise>
-                  ₹<fmt:formatNumber value="${b.remaining}" pattern="#,##0"/><br>
-                  <span style="font-size:.72rem;color:var(--text-muted)">remaining</span>
-                </c:otherwise>
-              </c:choose>
-            </div>
-          </div>
-
-          <!-- Progress bar -->
-          <div class="progress-wrap progress-${b.statusClass}">
-            <div class="progress-fill" style="width:${pct > 100 ? 100 : pct}%"></div>
-          </div>
-
-          <div class="bc-footer">
-            <span class="status-chip">
-              <i class="fas ${b.overBudget ? 'fa-circle-exclamation' : b.atAlert ? 'fa-bell' : 'fa-circle-check'}" style="font-size:.6rem"></i>
-              ${b.statusLabel}
-            </span>
-            <span class="alert-pct">Alert at ${b.alertAtPct}%</span>
-          </div>
-        </div>
-        </c:forEach>
-      </div>
-    </c:otherwise>
-  </c:choose>
-
-</div><!-- /page-body -->
-</main>
-
-<!-- Toast tray -->
-<div class="notif-tray" id="notifTray"></div>
-
-<!-- Delete Modal -->
-<div class="modal-overlay" id="deleteModal">
-  <div class="modal-box">
-    <h3 style="color:#ef4444"><i class="fas fa-trash"></i> Delete Budget</h3>
-    <p>Delete budget for <strong id="delCat" style="color:var(--text-primary)"></strong>?</p>
-    <form method="get" id="deleteForm">
-      <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('deleteModal').classList.remove('open')">Cancel</button>
-        <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
-      </div>
-    </form>
-  </div>
+<%-- ═══ TAB BAR ═══ --%>
+<div class="btab-bar">
+	<button class="btab ${tab=='budget'?'active':''}"
+		onclick="switchTab('budget')">&#127811; Budget</button>
+	<button class="btab ${tab=='trend' ?'active':''}"
+		onclick="switchTab('trend')">&#128200; Trend Analysis</button>
 </div>
+
+<%-- ════════════════════════════════════════════════
+     TAB 1 : BUDGET
+     ════════════════════════════════════════════════ --%>
+<div id="tabBudget" class="${tab=='budget'?'':'hidden'}">
+
+	<%-- Month selector --%>
+	<form method="get" action="${pageContext.request.contextPath}/budget"
+		class="month-nav" id="monthForm">
+		<input type="hidden" name="tab" value="budget"> <label
+			style="font-size: .82rem; font-weight: 600">Month:</label> <select
+			name="month" onchange="document.getElementById('monthForm').submit()">
+			<c:forEach begin="1" end="12" var="m">
+				<option value="${m}" ${m==selMonth?'selected':''}>${m}</option>
+			</c:forEach>
+		</select> <select name="year"
+			onchange="document.getElementById('monthForm').submit()">
+			<c:forEach begin="2023" end="2027" var="y">
+				<option value="${y}" ${y==selYear?'selected':''}>${y}</option>
+			</c:forEach>
+		</select>
+	</form>
+
+	<%-- Summary strip --%>
+	<c:choose>
+		<c:when test="${not empty budget}">
+			<div class="bsummary">
+				<div class="bsum-card">
+					<div class="bsum-label">Monthly Limit</div>
+					<div class="bsum-val" style="color: var(--primary)">
+						&#8377;
+						<fmt:formatNumber value="${budget.overallLimit}"
+							pattern="#,##0.00" />
+					</div>
+				</div>
+				<div class="bsum-card">
+					<div class="bsum-label">Spent</div>
+					<div class="bsum-val" style="color: var(--red)">
+						&#8377;
+						<fmt:formatNumber value="${budget.totalSpent}" pattern="#,##0.00" />
+					</div>
+				</div>
+				<div class="bsum-card">
+					<div class="bsum-label">Remaining</div>
+					<div class="bsum-val"
+						style="color:${budget.remainingAmount.compareTo(java.math.BigDecimal.ZERO)>=0?'var(--green)':'var(--red)'}">
+						&#8377;
+						<fmt:formatNumber value="${budget.remainingAmount}"
+							pattern="#,##0.00" />
+					</div>
+				</div>
+			</div>
+
+			<%-- Overall progress bar --%>
+			<div class="budget-card">
+				<h3>Overall Budget — ${budget.monthName} ${budget.year}</h3>
+				<div
+					style="display: flex; justify-content: space-between; font-size: .78rem; color: var(--text-2)">
+					<span>&#8377;<fmt:formatNumber value="${budget.totalSpent}"
+							pattern="#,##0" /> spent
+					</span> <span>${budget.usedPct}% used</span> <span>&#8377;<fmt:formatNumber
+							value="${budget.overallLimit}" pattern="#,##0" /> limit
+					</span>
+				</div>
+				<div class="prog-wrap">
+					<div
+						class="prog-bar ${budget.usedPct>=100?'danger':budget.usedPct>=80?'warning':'ok'}"
+						style="width:${budget.usedPct}%"></div>
+				</div>
+
+				<%-- Category breakdown --%>
+				<c:if test="${not empty budget.categories}">
+					<div style="margin-top: 1rem">
+						<div class="cat-budget-row"
+							style="font-size: .72rem; font-weight: 700; color: var(--text-2); text-transform: uppercase">
+							<span>Category</span><span>Limit</span><span>Spent</span><span>Used</span>
+						</div>
+						<c:forEach var="bc" items="${budget.categories}">
+							<div class="cat-budget-row">
+								<div>
+									<div style="font-size: .82rem; font-weight: 600">${bc.categoryName}</div>
+									<div class="prog-wrap" style="margin: .3rem 0 0">
+										<div
+											class="prog-bar ${bc.usedPct>=100?'danger':bc.usedPct>=bc.alertPct?'warning':'ok'}"
+											style="width:${bc.usedPct}%"></div>
+									</div>
+								</div>
+								<span style="font-size: .82rem">&#8377;<fmt:formatNumber
+										value="${bc.catLimit}" pattern="#,##0" /></span> <span
+									style="font-size: .82rem; color: var(--red)">&#8377;<fmt:formatNumber
+										value="${bc.spent}" pattern="#,##0" /></span> <span
+									style="font-size:.82rem;font-weight:700;color:${bc.usedPct>=100?'var(--red)':bc.alertPct<=bc.usedPct?'#d97706':'var(--green)'}">
+									${bc.usedPct}% </span>
+							</div>
+						</c:forEach>
+					</div>
+				</c:if>
+			</div>
+		</c:when>
+		<c:otherwise>
+			<div class="alert"
+				style="background: #f0f9ff; border: 1px solid #bae6fd; color: #0c4a6e; border-radius: 8px; padding: .75rem 1rem">
+				&#128203; No budget set for this month. Create one below.</div>
+		</c:otherwise>
+	</c:choose>
+
+	<%-- ── Budget FORM ── --%>
+	<div class="budget-card" style="margin-top: 1rem">
+		<h3>&#9999;&#65039; Set Budget — ${selMonth}/${selYear}</h3>
+		<form method="post" action="${pageContext.request.contextPath}/budget"
+			id="budgetForm">
+			<input type="hidden" name="year" value="${selYear}"> <input
+				type="hidden" name="month" value="${selMonth}">
+
+			<div class="form-group" style="max-width: 280px">
+				<label>Monthly Overall Limit (&#8377;)</label> <input type="number"
+					name="overallLimit" step="0.01" min="0" required
+					value="${not empty budget ? budget.overallLimit : ''}"
+					placeholder="e.g. 50000">
+			</div>
+
+			<div style="margin-top: 1rem">
+				<div
+					style="font-size: .82rem; font-weight: 700; margin-bottom: .5rem">
+					Category-wise Limits <span
+						style="font-weight: 400; color: var(--text-2)">(optional)</span>
+				</div>
+				<div class="cat-budget-row"
+					style="font-size: .72rem; font-weight: 700; color: var(--text-2); text-transform: uppercase">
+					<span>Category</span><span>Limit (&#8377;)</span><span>Alert
+						at %</span><span></span>
+				</div>
+				<c:forEach var="cat" items="${expenseCategories}">
+					<%-- find existing budget category if any --%>
+					<c:set var="existBC" value="${null}" />
+					<c:forEach var="bc" items="${budget.categories}">
+						<c:if test="${bc.categoryId == cat.id}">
+							<c:set var="existBC" value="${bc}" />
+						</c:if>
+					</c:forEach>
+					<div class="cat-budget-row">
+						<label>${cat.name}<input type="hidden" name="catId"
+							value="${cat.id}"></label> <input type="number" name="catLimit"
+							step="0.01" min="0" placeholder="0"
+							value="${not empty existBC ? existBC.catLimit : ''}"
+							style="width: 100%; font-size: .82rem"> <input
+							type="number" name="alertPct" min="1" max="100" placeholder="80"
+							value="${not empty existBC ? existBC.alertPct : 80}"
+							style="width: 100%; font-size: .82rem"> <span></span>
+					</div>
+				</c:forEach>
+			</div>
+
+			<div class="flex gap-1 mt-2">
+				<button type="submit" class="btn btn-primary btn-sm">&#128190;
+					Save Budget</button>
+			</div>
+		</form>
+	</div>
+
+	<%-- Past budgets list --%>
+	<c:if test="${not empty allBudgets}">
+		<div class="budget-card">
+			<h3>&#128203; All Budgets</h3>
+			<div class="table-wrap">
+				<table>
+					<thead>
+						<tr>
+							<th>Month</th>
+							<th>Limit</th>
+							<th>Spent</th>
+							<th>Used</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach var="b" items="${allBudgets}">
+							<tr>
+								<td>${b.monthName}${b.year}</td>
+								<td>&#8377;<fmt:formatNumber value="${b.overallLimit}"
+										pattern="#,##0.00" /></td>
+								<td>&#8377;<fmt:formatNumber value="${b.totalSpent}"
+										pattern="#,##0.00" /></td>
+								<td>
+									<div class="prog-wrap"
+										style="width: 80px; display: inline-block">
+										<div
+											class="prog-bar ${b.usedPct>=100?'danger':b.usedPct>=80?'warning':'ok'}"
+											style="width:${b.usedPct}%"></div>
+									</div> <span style="font-size: .75rem; margin-left: .3rem">${b.usedPct}%</span>
+								</td>
+								<td><a
+									href="${pageContext.request.contextPath}/budget?year=${b.year}&month=${b.month}&tab=budget"
+									class="btn btn-outline btn-sm">&#9998;</a></td>
+							</tr>
+						</c:forEach>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</c:if>
+</div>
+
+<%-- ════════════════════════════════════════════════
+     TAB 2 : TREND ANALYSIS
+     ════════════════════════════════════════════════ --%>
+<div id="tabTrend" class="${tab=='trend'?'':'hidden'}">
+
+	<%-- Period selector --%>
+	<form method="get" action="${pageContext.request.contextPath}/budget"
+		class="month-nav" id="trendForm">
+		<input type="hidden" name="tab" value="trend"> <label
+			style="font-size: .82rem; font-weight: 600">Period:</label> <select
+			name="trendMonths"
+			onchange="document.getElementById('trendForm').submit()">
+			<option value="6" ${trendMonths==6 ?'selected':''}>Last 6
+				months</option>
+			<option value="12" ${trendMonths==12?'selected':''}>Last 12
+				months</option>
+			<option value="24" ${trendMonths==24?'selected':''}>Last 24
+				months</option>
+		</select>
+	</form>
+
+	<div class="chart-grid">
+		<%-- Chart 1: Monthly Income vs Expense --%>
+		<div class="chart-card" style="grid-column: 1/-1">
+			<h3>&#128200; Monthly Income vs Expense</h3>
+			<canvas id="chartMonthly" height="90"></canvas>
+		</div>
+
+		<%-- Chart 2: Category-wise Monthly Expense --%>
+		<div class="chart-card" style="grid-column: 1/-1">
+			<h3>&#127914; Category-wise Monthly Expense</h3>
+			<canvas id="chartCategory" height="90"></canvas>
+		</div>
+
+		<%-- Chart 3: Year-over-Year --%>
+		<div class="chart-card" style="grid-column: 1/-1">
+			<h3>&#128197; Year-over-Year Comparison</h3>
+			<canvas id="chartYoY" height="90"></canvas>
+		</div>
+	</div>
+</div>
+
+<%-- ═══ ALERT TOASTS (budget warnings) ═══ --%>
+<div class="budget-alert-toast" id="toastContainer"></div>
+
+<%-- ═══ HIDDEN JSON DATA ═══ --%>
+<script type="application/json" id="monthlyData"><%=request.getAttribute("monthlyTrendJson")%></script>
+<script type="application/json" id="catData"><%=request.getAttribute("catTrendJson")%></script>
+<script type="application/json" id="yoyData"><%=request.getAttribute("yoyJson")%></script>
+
+<%-- ═══ Chart.js CDN ═══ --%>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <script>
-const CTX = '${pageContext.request.contextPath}';
-
-function confirmDelete(id, cat) {
-  document.getElementById('delCat').textContent = cat;
-  document.getElementById('deleteForm').action = CTX + '/budget/delete?id=' + id;
-  document.getElementById('deleteModal').classList.add('open');
-}
-document.getElementById('deleteModal').addEventListener('click', function(e){
-  if(e.target===this) this.classList.remove('open');
-});
-
-/* SSE for real-time budget alerts */
-function connectSSE() {
-  const es = new EventSource(CTX + '/sse/stream');
-
-  es.addEventListener('budget_alert', function(e) {
-    const d = JSON.parse(e.data);
-    showBudgetToast('budget_alert',
-      'Budget Alert: ' + d.category,
-      d.pct + '% spent — ₹' + parseFloat(d.spent).toLocaleString('en-IN') +
-      ' of ₹' + parseFloat(d.limit).toLocaleString('en-IN') +
-      ' | ₹' + parseFloat(d.remaining).toLocaleString('en-IN') + ' remaining');
+// ── Tab switch ─────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('tabBudget').classList.toggle('hidden', tab !== 'budget');
+  document.getElementById('tabTrend') .classList.toggle('hidden', tab !== 'trend');
+  document.querySelectorAll('.btab').forEach(function(b,i){
+    b.classList.toggle('active', (i===0 && tab==='budget')||(i===1 && tab==='trend'));
   });
-
-  es.addEventListener('budget_over', function(e) {
-    const d = JSON.parse(e.data);
-    showBudgetToast('budget_over',
-      'OVER BUDGET: ' + d.category,
-      'Spent ₹' + parseFloat(d.spent).toLocaleString('en-IN') +
-      ' — exceeded by ₹' + (parseFloat(d.spent)-parseFloat(d.limit)).toLocaleString('en-IN'));
-  });
-
-  es.onerror = function() { setTimeout(connectSSE, 5000); };
 }
 
-function showBudgetToast(type, title, msg) {
-  const tray  = document.getElementById('notifTray');
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.innerHTML =
-    '<div class="toast-accent ' + type + '"></div>' +
-    '<div class="toast-body">' +
-      '<div class="toast-head">' +
-        '<span class="toast-title">' + (type==='budget_over' ? '🚨 ' : '⚠️ ') + title + '</span>' +
-        '<button class="toast-close" onclick="this.closest(\'.toast\').remove()"><i class="fas fa-xmark"></i></button>' +
-      '</div>' +
-      '<div class="toast-msg">' + msg + '</div>' +
-    '</div>';
-  tray.appendChild(toast);
-  if (type !== 'budget_over') setTimeout(function(){ if(toast.parentNode) toast.remove(); }, 8000);
+// ── Toast alerts ───────────────────────────────────────
+function showToast(msg, exceeded) {
+  var container = document.getElementById('toastContainer');
+  var div = document.createElement('div');
+  div.className = 'toast-item' + (exceeded ? ' exceeded' : '');
+  div.innerHTML =
+    '<span class="toast-icon">' + (exceeded ? '\u26A0\uFE0F' : '\uD83D\uDD14') + '</span>' +
+    '<span>' + msg + '</span>' +
+    '<button class="toast-close" onclick="this.parentElement.remove()">&#x2715;</button>';
+  container.appendChild(div);
+  setTimeout(function(){ if(div.parentElement) div.remove(); }, 8000);
+}
 
-  // Native notification
-  if (Notification.permission === 'granted') {
-    new Notification((type==='budget_over'?'🚨 ':'⚠️ ') + title, { body: msg });
+// ── Fire alerts for categories near/over limit ─────────
+(function fireAlerts(){
+  var alerts = [];
+  <c:if test="${not empty budget}">
+    <c:forEach var="bc" items="${budget.categories}">
+      <c:if test="${bc.alertTriggered}">
+        alerts.push({
+          msg: '${bc.categoryName}: ${bc.usedPct}% used (&#8377;${bc.spent} / &#8377;${bc.catLimit})',
+          exceeded: ${bc.exceeded}
+        });
+      </c:if>
+    </c:forEach>
+  </c:if>
+  setTimeout(function(){
+    alerts.forEach(function(a){ showToast(a.msg, a.exceeded); });
+  }, 800);
+})();
+
+// ── Charts ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  var monthly = JSON.parse(document.getElementById('monthlyData').textContent || '[]');
+  var catData = JSON.parse(document.getElementById('catData').textContent     || '[]');
+  var yoyData = JSON.parse(document.getElementById('yoyData').textContent     || '[]');
+
+  Chart.defaults.font.family = "'Inter','Segoe UI',sans-serif";
+  Chart.defaults.font.size   = 12;
+
+  // ── Chart 1: Monthly Income vs Expense bar chart ──────
+  if (monthly.length) {
+    var labels   = monthly.map(function(r){ return r.label; });
+    var incomes  = monthly.map(function(r){ return Number(r.income)  || 0; });
+    var expenses = monthly.map(function(r){ return Number(r.expense) || 0; });
+    var nets     = monthly.map(function(r){ return Number(r.net)     || 0; });
+
+    new Chart(document.getElementById('chartMonthly'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label:'Income',  data:incomes,  backgroundColor:'rgba(74,222,128,.7)',  borderColor:'#16a34a', borderWidth:1 },
+          { label:'Expense', data:expenses, backgroundColor:'rgba(248,113,113,.7)', borderColor:'#dc2626', borderWidth:1 },
+          { label:'Net',     data:nets,     type:'line',
+            borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,.1)',
+            borderWidth:2, pointRadius:4, fill:true, tension:.3 }
+        ]
+      },
+      options: {
+        responsive:true,
+        plugins:{ legend:{ position:'top' }, tooltip:{ mode:'index', intersect:false } },
+        scales:{
+          y:{ ticks:{ callback:function(v){ return '\u20B9'+v.toLocaleString('en-IN'); } } }
+        }
+      }
+    });
   }
-}
 
-if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
-connectSSE();
+  // ── Chart 2: Category stacked bar ────────────────────
+  if (catData.length) {
+    // Build unique labels and categories
+    var labelSet = [], catSet = [];
+    catData.forEach(function(r){
+      if (labelSet.indexOf(r.label) < 0) labelSet.push(r.label);
+      if (catSet.indexOf(r.category) < 0) catSet.push(r.category);
+    });
 
-setTimeout(function(){
-  document.querySelectorAll('.alert').forEach(function(a){
-    a.style.transition='opacity .5s'; a.style.opacity='0';
-    setTimeout(function(){ a.remove(); }, 500);
-  });
-}, 3500);
+    var palette = ['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6',
+                   '#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6'];
+
+    var datasets = catSet.map(function(cat, ci) {
+      var dataArr = labelSet.map(function(lbl) {
+        var found = catData.find(function(r){ return r.label===lbl && r.category===cat; });
+        return found ? Number(found.total) : 0;
+      });
+      return {
+        label: cat,
+        data: dataArr,
+        backgroundColor: palette[ci % palette.length]
+      };
+    });
+
+    new Chart(document.getElementById('chartCategory'), {
+      type:'bar',
+      data:{ labels:labelSet, datasets:datasets },
+      options:{
+        responsive:true,
+        plugins:{ legend:{ position:'top' } },
+        scales:{
+          x:{ stacked:true },
+          y:{ stacked:true,
+              ticks:{ callback:function(v){ return '\u20B9'+v.toLocaleString('en-IN'); } } }
+        }
+      }
+    });
+  }
+
+  // ── Chart 3: Year-over-Year ───────────────────────────
+  if (yoyData.length) {
+    // Group by year
+    var years = [];
+    yoyData.forEach(function(r){ if(years.indexOf(r.yr)<0) years.push(r.yr); });
+    years.sort();
+
+    var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var colors = ['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed'];
+
+    var datasets = [];
+    years.forEach(function(yr, yi) {
+      var expArr = Array(12).fill(0);
+      yoyData.filter(function(r){ return r.yr===yr; })
+             .forEach(function(r){ expArr[r.mo-1] = Number(r.expense)||0; });
+      datasets.push({
+        label: yr + ' Expense',
+        data: expArr,
+        borderColor: colors[yi % colors.length],
+        backgroundColor: 'transparent',
+        borderWidth: 2, pointRadius: 4, tension: .3
+      });
+    });
+
+    new Chart(document.getElementById('chartYoY'), {
+      type:'line',
+      data:{ labels:monthNames, datasets:datasets },
+      options:{
+        responsive:true,
+        plugins:{ legend:{ position:'top' },
+                  tooltip:{ mode:'index', intersect:false } },
+        scales:{
+          y:{ ticks:{ callback:function(v){ return '\u20B9'+v.toLocaleString('en-IN'); } } }
+        }
+      }
+    });
+  }
+});
 </script>
-</body>
-</html>
+
+<%@ include file="txn_modals.jsp"%>
+<%@ include file="footer.jsp"%>

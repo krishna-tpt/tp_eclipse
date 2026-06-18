@@ -1,74 +1,117 @@
 package com.expensemanager.model;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Budget {
+	private int id;
+	private int bookId;
+	private int year;
+	private int month;
+	private BigDecimal overallLimit;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 
-    public enum Period { WEEKLY, MONTHLY, YEARLY }
+	// Loaded separately
+	private List<BudgetCategory> categories = new ArrayList<>();
 
-    private int        id;
-    private String     category;
-    private BigDecimal amount;       // budget limit
-    private BigDecimal spent;        // actual spent (computed)
-    private Period     period;
-    private int        alertAtPct;   // alert threshold %
-    private int        year;
-    private Integer    month;        // null for yearly
-    private boolean    active;
+	// Computed fields (filled by DAO)
+	private BigDecimal totalSpent; // actual expense this month
+	private BigDecimal remainingAmount; // overallLimit - totalSpent
 
-    // ── Computed ─────────────────────────────────────────────────────────────
+	public int getId() {
+		return id;
+	}
 
-    public BigDecimal getRemaining() {
-        if (spent == null) return amount;
-        BigDecimal r = amount.subtract(spent);
-        return r.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : r;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public double getSpentPct() {
-        if (spent == null || amount.compareTo(BigDecimal.ZERO) == 0) return 0;
-        return spent.multiply(BigDecimal.valueOf(100))
-                    .divide(amount, 2, RoundingMode.HALF_UP)
-                    .doubleValue();
-    }
+	public int getBookId() {
+		return bookId;
+	}
 
-    public boolean isOverBudget()  { return getSpentPct() > 100; }
-    public boolean isAtAlert()     { return getSpentPct() >= alertAtPct && !isOverBudget(); }
-    public boolean isSafe()        { return getSpentPct() < alertAtPct; }
+	public void setBookId(int bookId) {
+		this.bookId = bookId;
+	}
 
-    /** CSS class for progress bar and badge */
-    public String getStatusClass() {
-        double pct = getSpentPct();
-        if (pct > 100)           return "budget-over";
-        if (pct >= alertAtPct)   return "budget-alert";
-        if (pct >= alertAtPct * 0.7) return "budget-warn";
-        return "budget-safe";
-    }
+	public int getYear() {
+		return year;
+	}
 
-    public String getStatusLabel() {
-        double pct = getSpentPct();
-        if (pct > 100)         return "Over Budget!";
-        if (pct >= alertAtPct) return "Alert: " + (int)pct + "% spent";
-        return (int)pct + "% used";
-    }
+	public void setYear(int year) {
+		this.year = year;
+	}
 
-    // ── Getters / Setters ─────────────────────────────────────────────────────
-    public int getId()                   { return id; }
-    public void setId(int v)             { this.id = v; }
-    public String getCategory()          { return category; }
-    public void setCategory(String v)    { this.category = v; }
-    public BigDecimal getAmount()        { return amount; }
-    public void setAmount(BigDecimal v)  { this.amount = v; }
-    public BigDecimal getSpent()         { return spent; }
-    public void setSpent(BigDecimal v)   { this.spent = v; }
-    public Period getPeriod()            { return period; }
-    public void setPeriod(Period v)      { this.period = v; }
-    public int getAlertAtPct()           { return alertAtPct; }
-    public void setAlertAtPct(int v)     { this.alertAtPct = v; }
-    public int getYear()                 { return year; }
-    public void setYear(int v)           { this.year = v; }
-    public Integer getMonth()            { return month; }
-    public void setMonth(Integer v)      { this.month = v; }
-    public boolean isActive()            { return active; }
-    public void setActive(boolean v)     { this.active = v; }
+	public int getMonth() {
+		return month;
+	}
+
+	public void setMonth(int month) {
+		this.month = month;
+	}
+
+	public BigDecimal getOverallLimit() {
+		return overallLimit;
+	}
+
+	public void setOverallLimit(BigDecimal overallLimit) {
+		this.overallLimit = overallLimit;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public List<BudgetCategory> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(List<BudgetCategory> categories) {
+		this.categories = categories;
+	}
+
+	public BigDecimal getTotalSpent() {
+		return totalSpent;
+	}
+
+	public void setTotalSpent(BigDecimal totalSpent) {
+		this.totalSpent = totalSpent;
+	}
+
+	public BigDecimal getRemainingAmount() {
+		return remainingAmount;
+	}
+
+	public void setRemainingAmount(BigDecimal remainingAmount) {
+		this.remainingAmount = remainingAmount;
+	}
+
+	/** 0-100 usage percentage */
+	public int getUsedPct() {
+		if (overallLimit == null || overallLimit.compareTo(BigDecimal.ZERO) == 0)
+			return 0;
+		if (totalSpent == null)
+			return 0;
+		return totalSpent.multiply(BigDecimal.valueOf(100)).divide(overallLimit, 0, java.math.RoundingMode.HALF_UP)
+				.min(BigDecimal.valueOf(100)).intValue();
+	}
+
+	public String getMonthName() {
+		return java.time.Month.of(month).getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH);
+	}
 }

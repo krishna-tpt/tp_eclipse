@@ -186,6 +186,8 @@ if (request.getAttribute("_allBooks") == null) {
 				class="${activePage=='txn'?'active':''}">Transactions</a> <a
 				href="${pageContext.request.contextPath}/reports"
 				class="${activePage=='reports'?'active':''}">Reports</a> <a
+				href="${pageContext.request.contextPath}/budget"
+				class="${activePage=='budget'?'active':''}">&#127811; Budget</a> <a
 				href="${pageContext.request.contextPath}/books"
 				class="${activePage=='books'?'active':''}">Books</a><a
 				href="${pageContext.request.contextPath}/backup"

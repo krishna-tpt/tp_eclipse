@@ -5,353 +5,329 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.expensemanager.model.Budget;
-import com.expensemanager.model.Budget.Period;
+import com.expensemanager.model.BudgetCategory;
 import com.expensemanager.util.DBConnection;
 
 public class BudgetDAO {
 
-    // ── DDL ───────────────────────────────────────────────────────────────────
-    public void createTablesIfNotExist() throws SQLException {
-        String sql =
-            "CREATE TABLE IF NOT EXISTS budgets (" +
-            "  id           SERIAL PRIMARY KEY," +
-            "  category     VARCHAR(100)  NOT NULL," +
-            "  amount       DECIMAL(15,2) NOT NULL," +
-            "  period       VARCHAR(10)   NOT NULL DEFAULT 'MONTHLY'," +
-            "  alert_at_pct INT           NOT NULL DEFAULT 80," +
-            "  year         INT           NOT NULL," +
-            "  month        INT," +
-            "  is_active    BOOLEAN       NOT NULL DEFAULT TRUE," +
-            "  created_at   TIMESTAMP     DEFAULT CURRENT_TIMESTAMP," +
-            "  UNIQUE(category, period, year, month)" +
-            ");" +
-            "CREATE TABLE IF NOT EXISTS budget_alerts (" +
-            "  id         SERIAL PRIMARY KEY," +
-            "  budget_id  INT NOT NULL REFERENCES budgets(id) ON DELETE CASCADE," +
-            "  spent_pct  DECIMAL(5,2) NOT NULL," +
-            "  spent_amt  DECIMAL(15,2) NOT NULL," +
-            "  alerted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
-            ");" +
-            "CREATE INDEX IF NOT EXISTS idx_budget_period ON budgets(year, month);" +
-            "CREATE INDEX IF NOT EXISTS idx_budget_active ON budgets(is_active);";
-        try (Connection con = DBConnection.getInstance().getConnection();
-             Statement  st  = con.createStatement()) {
-            st.execute(sql);
-        }
-    }
+    private static final Logger log = LoggerFactory.getLogger(BudgetDAO.class);
+    private final DBConnection db = DBConnection.getInstance();
 
-    // ── SAVE ──────────────────────────────────────────────────────────────────
-    public int save(Budget b) throws SQLException {
-        String sql =
-            "INSERT INTO budgets (category,amount,period,alert_at_pct,year,month,is_active) " +
-            "VALUES (?,?,?,?,?,?,?) " +
-            "ON CONFLICT (category,period,year,month) DO UPDATE " +
-            "SET amount=EXCLUDED.amount, alert_at_pct=EXCLUDED.alert_at_pct, is_active=true " +
-            "RETURNING id";
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString (1, b.getCategory());
-            ps.setBigDecimal(2, b.getAmount());
-            ps.setString (3, b.getPeriod().name());
-            ps.setInt    (4, b.getAlertAtPct());
-            ps.setInt    (5, b.getYear());
-            if (b.getMonth() != null) ps.setInt(6, b.getMonth());
-            else                      ps.setNull(6, Types.INTEGER);
-            ps.setBoolean(7, b.isActive());
+    // ── Upsert month budget ────────────────────────────────────────
+    public int upsert(Budget b) throws SQLException {
+        String sql = """
+            INSERT INTO budgets (book_id, year, month, overall_limit, updated_at)
+            VALUES (?, ?, ?, ?, NOW())
+            ON CONFLICT (book_id, year, month)
+            DO UPDATE SET overall_limit = EXCLUDED.overall_limit, updated_at = NOW()
+            RETURNING id
+            """;
+        Connection conn = db.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, b.getBookId());
+            ps.setInt(2, b.getYear());
+            ps.setInt(3, b.getMonth());
+            ps.setBigDecimal(4, b.getOverallLimit());
             ResultSet rs = ps.executeQuery();
             return rs.next() ? rs.getInt(1) : -1;
+        } finally {
+            db.releaseConnection(conn);
         }
     }
 
-    public boolean update(Budget b) throws SQLException {
-        String sql =
-            "UPDATE budgets SET category=?,amount=?,period=?,alert_at_pct=?,year=?,month=?,is_active=? WHERE id=?";
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString (1, b.getCategory());
-            ps.setBigDecimal(2, b.getAmount());
-            ps.setString (3, b.getPeriod().name());
-            ps.setInt    (4, b.getAlertAtPct());
-            ps.setInt    (5, b.getYear());
-            if (b.getMonth() != null) ps.setInt(6, b.getMonth()); else ps.setNull(6, Types.INTEGER);
-            ps.setBoolean(7, b.isActive());
-            ps.setInt    (8, b.getId());
-            return ps.executeUpdate() > 0;
-        }
-    }
-
-    public void delete(int id) throws SQLException {
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement("DELETE FROM budgets WHERE id=?")) {
-            ps.setInt(1, id); ps.executeUpdate();
-        }
-    }
-
-    // ── GET with spent amount joined ───────────────────────────────────────────
-    public List<Budget> getBudgetsWithSpent(int year, int month) throws SQLException {
-        String sql =
-            "SELECT b.*, " +
-            "  COALESCE(SUM(e.amount), 0) AS spent " +
-            "FROM budgets b " +
-            "LEFT JOIN expense e " +
-            "  ON e.category = b.category " +
-            "  AND EXTRACT(YEAR  FROM e.transaction_date) = b.year " +
-            "  AND EXTRACT(MONTH FROM e.transaction_date) = b.month " +
-            "WHERE b.is_active = true AND b.year = ? AND b.month = ? " +
-            "GROUP BY b.id " +
-            "ORDER BY (COALESCE(SUM(e.amount),0) / b.amount) DESC";
-        List<Budget> list = new ArrayList<>();
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, year);
-            ps.setInt(2, month);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(mapRow(rs, true));
-        }
-        return list;
-    }
-
-    public Budget getById(int id) throws SQLException {
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement("SELECT * FROM budgets WHERE id=?")) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            return rs.next() ? mapRow(rs, false) : null;
-        }
-    }
-
-    // ── Budgets that have crossed alert threshold (for SSE/scheduler) ──────────
-    public List<Budget> getAlertBudgets(int year, int month) throws SQLException {
-        String sql =
-            "SELECT b.*, COALESCE(SUM(e.amount),0) AS spent " +
-            "FROM budgets b " +
-            "LEFT JOIN expense e " +
-            "  ON e.category = b.category " +
-            "  AND EXTRACT(YEAR  FROM e.transaction_date) = b.year " +
-            "  AND EXTRACT(MONTH FROM e.transaction_date) = b.month " +
-            "WHERE b.is_active = true AND b.year = ? AND b.month = ? " +
-            "GROUP BY b.id " +
-            "HAVING COALESCE(SUM(e.amount),0) >= b.amount * b.alert_at_pct / 100";
-        List<Budget> list = new ArrayList<>();
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, year); ps.setInt(2, month);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(mapRow(rs, true));
-        }
-        return list;
-    }
-
-    public void logAlert(int budgetId, double spentPct, BigDecimal spentAmt) throws SQLException {
-        String sql = "INSERT INTO budget_alerts (budget_id,spent_pct,spent_amt) VALUES (?,?,?)";
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, budgetId);
-            ps.setDouble(2, spentPct);
-            ps.setBigDecimal(3, spentAmt);
+    // ── Upsert category budget ─────────────────────────────────────
+    public void upsertCategory(BudgetCategory bc) throws SQLException {
+        String sql = """
+            INSERT INTO budget_categories (budget_id, category_id, cat_limit, alert_pct)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT (budget_id, category_id)
+            DO UPDATE SET cat_limit = EXCLUDED.cat_limit, alert_pct = EXCLUDED.alert_pct
+            """;
+        Connection conn = db.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bc.getBudgetId());
+            ps.setInt(2, bc.getCategoryId());
+            ps.setBigDecimal(3, bc.getCatLimit());
+            ps.setInt(4, bc.getAlertPct());
             ps.executeUpdate();
+        } finally {
+            db.releaseConnection(conn);
         }
     }
 
-    public boolean alertedTodayFor(int budgetId) throws SQLException {
-        String sql = "SELECT 1 FROM budget_alerts WHERE budget_id=? AND DATE(alerted_at)=CURRENT_DATE LIMIT 1";
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+    // ── Delete category budget row ─────────────────────────────────
+    public void deleteCategory(int budgetId, int categoryId) throws SQLException {
+        String sql = "DELETE FROM budget_categories WHERE budget_id=? AND category_id=?";
+        Connection conn = db.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, budgetId);
-            return ps.executeQuery().next();
+            ps.setInt(2, categoryId);
+            ps.executeUpdate();
+        } finally {
+            db.releaseConnection(conn);
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    //  TREND ANALYSIS QUERIES
-    // ══════════════════════════════════════════════════════════════════════════
-
-    /** Monthly income vs expense for last N months */
-    public List<Map<String,Object>> getMonthlyTrend(int months) throws SQLException {
-        String sql =
-            "WITH months AS (" +
-            "  SELECT generate_series(1, ?) AS n" +
-            "), period AS (" +
-            "  SELECT " +
-            "    DATE_TRUNC('month', NOW() - ((n-1) || ' months')::INTERVAL) AS month_start," +
-            "    EXTRACT(YEAR  FROM NOW() - ((n-1) || ' months')::INTERVAL)::INT AS yr," +
-            "    EXTRACT(MONTH FROM NOW() - ((n-1) || ' months')::INTERVAL)::INT AS mo" +
-            "  FROM months" +
-            ")" +
-            "SELECT " +
-            "  p.yr, p.mo," +
-            "  TO_CHAR(p.month_start,'Mon YYYY') AS label," +
-            "  COALESCE(i.total,0) AS income," +
-            "  COALESCE(e.total,0) AS expense," +
-            "  COALESCE(i.total,0) - COALESCE(e.total,0) AS savings" +
-            " FROM period p" +
-            " LEFT JOIN (SELECT EXTRACT(YEAR FROM transaction_date)::INT yr, EXTRACT(MONTH FROM transaction_date)::INT mo, SUM(amount) total FROM income  GROUP BY yr,mo) i ON i.yr=p.yr AND i.mo=p.mo" +
-            " LEFT JOIN (SELECT EXTRACT(YEAR FROM transaction_date)::INT yr, EXTRACT(MONTH FROM transaction_date)::INT mo, SUM(amount) total FROM expense GROUP BY yr,mo) e ON e.yr=p.yr AND e.mo=p.mo" +
-            " ORDER BY p.yr ASC, p.mo ASC";
-        List<Map<String,Object>> list = new ArrayList<>();
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, months);
+    // ── Find budget for a specific month (with category rows + spent) ──
+    public Budget findByMonth(int bookId, int year, int month) throws SQLException {
+        String sql = """
+            SELECT id, book_id, year, month, overall_limit, created_at, updated_at
+            FROM budgets
+            WHERE book_id=? AND year=? AND month=?
+            """;
+        Connection conn = db.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            ps.setInt(2, year);
+            ps.setInt(3, month);
             ResultSet rs = ps.executeQuery();
+            if (!rs.next()) return null;
+            Budget b = mapBudget(rs);
+            b.setCategories(loadCategories(conn, b.getId(), year, month));
+            b.setTotalSpent(loadMonthExpense(conn, bookId, year, month, 0));
+            BigDecimal remaining = b.getOverallLimit().subtract(
+                b.getTotalSpent() == null ? BigDecimal.ZERO : b.getTotalSpent());
+            b.setRemainingAmount(remaining);
+            return b;
+        } finally {
+            db.releaseConnection(conn);
+        }
+    }
+
+    // ── List all budgets for a book (summary, no category detail) ──
+    public List<Budget> listByBook(int bookId) throws SQLException {
+        String sql = """
+            SELECT b.id, b.book_id, b.year, b.month, b.overall_limit,
+                   b.created_at, b.updated_at,
+                   COALESCE(SUM(t.amount),0) AS total_spent
+            FROM budgets b
+            LEFT JOIN transactions t
+                   ON t.book_id = b.book_id
+                  AND t.type = 'EXPENSE'::txn_type
+                  AND EXTRACT(YEAR  FROM t.date_time) = b.year
+                  AND EXTRACT(MONTH FROM t.date_time) = b.month
+            WHERE b.book_id = ?
+            GROUP BY b.id
+            ORDER BY b.year DESC, b.month DESC
+            """;
+        Connection conn = db.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            ResultSet rs = ps.executeQuery();
+            List<Budget> list = new ArrayList<>();
             while (rs.next()) {
-                Map<String,Object> row = new LinkedHashMap<>();
-                row.put("yr",      rs.getInt("yr"));
-                row.put("mo",      rs.getInt("mo"));
-                row.put("label",   rs.getString("label"));
+                Budget b = mapBudget(rs);
+                b.setTotalSpent(rs.getBigDecimal("total_spent"));
+                BigDecimal rem = b.getOverallLimit().subtract(b.getTotalSpent());
+                b.setRemainingAmount(rem);
+                list.add(b);
+            }
+            return list;
+        } finally {
+            db.releaseConnection(conn);
+        }
+    }
+
+    // ── Dashboard: current month budget with alerts ─────────────────
+    public Budget currentMonthBudget(int bookId) throws SQLException {
+        java.time.LocalDate now = java.time.LocalDate.now();
+        return findByMonth(bookId, now.getYear(), now.getMonthValue());
+    }
+
+    // ── Trend: monthly income+expense for last N months ────────────
+    public List<java.util.Map<String, Object>> monthlyTrend(int bookId, int months) throws SQLException {
+        String sql = """
+            SELECT
+                EXTRACT(YEAR  FROM date_time)::INT AS yr,
+                EXTRACT(MONTH FROM date_time)::INT AS mo,
+                SUM(CASE WHEN type='INCOME'::txn_type  THEN amount ELSE 0 END) AS income,
+                SUM(CASE WHEN type='EXPENSE'::txn_type THEN amount ELSE 0 END) AS expense
+            FROM transactions
+            WHERE book_id = ?
+              AND date_time >= NOW() - (?::INT || ' months')::INTERVAL
+            GROUP BY yr, mo
+            ORDER BY yr ASC, mo ASC
+            """;
+        Connection conn = db.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            ps.setInt(2, months);
+            ResultSet rs = ps.executeQuery();
+            List<java.util.Map<String, Object>> rows = new ArrayList<>();
+            while (rs.next()) {
+                java.util.Map<String, Object> row = new java.util.LinkedHashMap<>();
+                int yr = rs.getInt("yr");
+                int mo = rs.getInt("mo");
+                row.put("yr",      yr);
+                row.put("mo",      mo);
+                row.put("label",   java.time.Month.of(mo).getDisplayName(
+                                       java.time.format.TextStyle.SHORT,
+                                       java.util.Locale.ENGLISH) + " " + yr);
                 row.put("income",  rs.getBigDecimal("income"));
                 row.put("expense", rs.getBigDecimal("expense"));
-                row.put("savings", rs.getBigDecimal("savings"));
-                list.add(row);
+                row.put("net",     rs.getBigDecimal("income")
+                                     .subtract(rs.getBigDecimal("expense")));
+                rows.add(row);
             }
+            return rows;
+        } finally {
+            db.releaseConnection(conn);
         }
-        return list;
     }
 
-    /** Category-wise spending for last N months (heatmap data) */
-    public List<Map<String,Object>> getCategoryTrend(int months) throws SQLException {
-        String sql =
-            "SELECT " +
-            "  category," +
-            "  EXTRACT(YEAR  FROM transaction_date)::INT AS yr," +
-            "  EXTRACT(MONTH FROM transaction_date)::INT AS mo," +
-            "  TO_CHAR(DATE_TRUNC('month',transaction_date),'Mon YY') AS label," +
-            "  SUM(amount) AS total, COUNT(*) AS cnt" +
-            " FROM expense" +
-            " WHERE transaction_date >= DATE_TRUNC('month', NOW() - (? || ' months')::INTERVAL)" +
-            " GROUP BY category, yr, mo, label" +
-            " ORDER BY category, yr, mo";
-        List<Map<String,Object>> list = new ArrayList<>();
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, months - 1);
+    // ── Trend: category-wise monthly breakdown ──────────────────────
+    public List<java.util.Map<String, Object>> categoryTrend(int bookId, int months) throws SQLException {
+        String sql = """
+            SELECT
+                EXTRACT(YEAR  FROM t.date_time)::INT AS yr,
+                EXTRACT(MONTH FROM t.date_time)::INT AS mo,
+                c.name  AS category,
+                SUM(t.amount) AS total
+            FROM transactions t
+            JOIN categories c ON c.id = t.category_id
+            WHERE t.book_id = ?
+              AND t.type = 'EXPENSE'::txn_type
+              AND t.date_time >= NOW() - (?::INT || ' months')::INTERVAL
+            GROUP BY yr, mo, c.name
+            ORDER BY yr ASC, mo ASC, total DESC
+            """;
+        Connection conn = db.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            ps.setInt(2, months);
             ResultSet rs = ps.executeQuery();
+            List<java.util.Map<String, Object>> rows = new ArrayList<>();
             while (rs.next()) {
-                Map<String,Object> row = new LinkedHashMap<>();
+                java.util.Map<String, Object> row = new java.util.LinkedHashMap<>();
+                int mo = rs.getInt("mo");
+                int yr = rs.getInt("yr");
+                row.put("yr",       yr);
+                row.put("mo",       mo);
+                row.put("label",    java.time.Month.of(mo).getDisplayName(
+                                        java.time.format.TextStyle.SHORT,
+                                        java.util.Locale.ENGLISH) + " " + yr);
                 row.put("category", rs.getString("category"));
-                row.put("yr",       rs.getInt("yr"));
-                row.put("mo",       rs.getInt("mo"));
-                row.put("label",    rs.getString("label"));
                 row.put("total",    rs.getBigDecimal("total"));
-                row.put("cnt",      rs.getInt("cnt"));
-                list.add(row);
+                rows.add(row);
             }
+            return rows;
+        } finally {
+            db.releaseConnection(conn);
         }
-        return list;
     }
 
-    /** Year-over-year comparison: this year vs last year per month */
-    public List<Map<String,Object>> getYearOverYear(int year) throws SQLException {
-        String sql =
-            "SELECT mo," +
-            "  TO_CHAR(TO_DATE(mo::TEXT,'MM'),'Mon') AS label," +
-            "  SUM(CASE WHEN yr=?   THEN total ELSE 0 END) AS this_year," +
-            "  SUM(CASE WHEN yr=?-1 THEN total ELSE 0 END) AS last_year" +
-            " FROM (" +
-            "  SELECT EXTRACT(YEAR FROM transaction_date)::INT yr," +
-            "         EXTRACT(MONTH FROM transaction_date)::INT mo," +
-            "         SUM(amount) total" +
-            "  FROM expense" +
-            "  WHERE EXTRACT(YEAR FROM transaction_date) IN (?,?-1)" +
-            "  GROUP BY yr,mo" +
-            " ) t" +
-            " GROUP BY mo, label ORDER BY mo";
-        List<Map<String,Object>> list = new ArrayList<>();
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1,year); ps.setInt(2,year); ps.setInt(3,year); ps.setInt(4,year);
+    // ── Year-over-year: same months across years ────────────────────
+    public List<java.util.Map<String, Object>> yearOverYear(int bookId) throws SQLException {
+        String sql = """
+            SELECT
+                EXTRACT(YEAR  FROM date_time)::INT AS yr,
+                EXTRACT(MONTH FROM date_time)::INT AS mo,
+                SUM(CASE WHEN type='INCOME'::txn_type  THEN amount ELSE 0 END) AS income,
+                SUM(CASE WHEN type='EXPENSE'::txn_type THEN amount ELSE 0 END) AS expense
+            FROM transactions
+            WHERE book_id = ?
+            GROUP BY yr, mo
+            ORDER BY mo ASC, yr ASC
+            """;
+        Connection conn = db.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
             ResultSet rs = ps.executeQuery();
+            List<java.util.Map<String, Object>> rows = new ArrayList<>();
             while (rs.next()) {
-                Map<String,Object> row = new LinkedHashMap<>();
-                row.put("mo",        rs.getInt("mo"));
-                row.put("label",     rs.getString("label"));
-                row.put("thisYear",  rs.getBigDecimal("this_year"));
-                row.put("lastYear",  rs.getBigDecimal("last_year"));
-                list.add(row);
+                java.util.Map<String, Object> row = new java.util.LinkedHashMap<>();
+                row.put("yr",      rs.getInt("yr"));
+                row.put("mo",      rs.getInt("mo"));
+                row.put("income",  rs.getBigDecimal("income"));
+                row.put("expense", rs.getBigDecimal("expense"));
+                rows.add(row);
             }
+            return rows;
+        } finally {
+            db.releaseConnection(conn);
         }
-        return list;
     }
 
-    /** Top spending categories with % change vs previous month */
-    public List<Map<String,Object>> getCategoryGrowth(int year, int month) throws SQLException {
-        int prevMonth = month == 1 ? 12 : month - 1;
-        int prevYear  = month == 1 ? year - 1 : year;
-        String sql =
-            "SELECT " +
-            "  COALESCE(c.category, p.category) AS category," +
-            "  COALESCE(c.total, 0) AS curr_total," +
-            "  COALESCE(p.total, 0) AS prev_total," +
-            "  CASE WHEN COALESCE(p.total,0) = 0 THEN NULL" +
-            "       ELSE ROUND((COALESCE(c.total,0) - COALESCE(p.total,0)) / p.total * 100, 1) END AS pct_change" +
-            " FROM" +
-            "  (SELECT category, SUM(amount) total FROM expense" +
-            "   WHERE EXTRACT(YEAR FROM transaction_date)=? AND EXTRACT(MONTH FROM transaction_date)=?" +
-            "   GROUP BY category) c" +
-            " FULL OUTER JOIN" +
-            "  (SELECT category, SUM(amount) total FROM expense" +
-            "   WHERE EXTRACT(YEAR FROM transaction_date)=? AND EXTRACT(MONTH FROM transaction_date)=?" +
-            "   GROUP BY category) p ON c.category=p.category" +
-            " ORDER BY curr_total DESC LIMIT 8";
-        List<Map<String,Object>> list = new ArrayList<>();
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1,year); ps.setInt(2,month); ps.setInt(3,prevYear); ps.setInt(4,prevMonth);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Map<String,Object> row = new LinkedHashMap<>();
-                row.put("category",   rs.getString("category"));
-                row.put("currTotal",  rs.getBigDecimal("curr_total"));
-                row.put("prevTotal",  rs.getBigDecimal("prev_total"));
-                row.put("pctChange",  rs.getObject("pct_change"));
-                list.add(row);
-            }
-        }
-        return list;
-    }
-
-    /** Daily spending for current month (sparkline) */
-    public List<Map<String,Object>> getDailySpending(int year, int month) throws SQLException {
-        String sql =
-            "SELECT EXTRACT(DAY FROM transaction_date)::INT AS day, SUM(amount) AS total" +
-            " FROM expense" +
-            " WHERE EXTRACT(YEAR FROM transaction_date)=? AND EXTRACT(MONTH FROM transaction_date)=?" +
-            " GROUP BY day ORDER BY day";
-        List<Map<String,Object>> list = new ArrayList<>();
-        try (Connection con = DBConnection.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1,year); ps.setInt(2,month);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Map<String,Object> row = new LinkedHashMap<>();
-                row.put("day",   rs.getInt("day"));
-                row.put("total", rs.getBigDecimal("total"));
-                list.add(row);
-            }
-        }
-        return list;
-    }
-
-    // ── Private mapper ────────────────────────────────────────────────────────
-    private Budget mapRow(ResultSet rs, boolean hasSpent) throws SQLException {
+    // ── Helpers ────────────────────────────────────────────────────
+    private Budget mapBudget(ResultSet rs) throws SQLException {
         Budget b = new Budget();
-        b.setId        (rs.getInt      ("id"));
-        b.setCategory  (rs.getString   ("category"));
-        b.setAmount    (rs.getBigDecimal("amount"));
-        b.setAlertAtPct(rs.getInt      ("alert_at_pct"));
-        b.setYear      (rs.getInt      ("year"));
-        b.setActive    (rs.getBoolean  ("is_active"));
-        int mo = rs.getInt("month"); b.setMonth(rs.wasNull() ? null : mo);
-        try { b.setPeriod(Period.valueOf(rs.getString("period"))); }
-        catch (Exception e) { b.setPeriod(Period.MONTHLY); }
-        if (hasSpent) b.setSpent(rs.getBigDecimal("spent"));
+        b.setId(rs.getInt("id"));
+        b.setBookId(rs.getInt("book_id"));
+        b.setYear(rs.getInt("year"));
+        b.setMonth(rs.getInt("month"));
+        b.setOverallLimit(rs.getBigDecimal("overall_limit"));
+        Timestamp ca = rs.getTimestamp("created_at");
+        if (ca != null) b.setCreatedAt(ca.toLocalDateTime());
+        Timestamp ua = rs.getTimestamp("updated_at");
+        if (ua != null) b.setUpdatedAt(ua.toLocalDateTime());
         return b;
+    }
+
+    private List<BudgetCategory> loadCategories(Connection conn, int budgetId,
+                                                 int year, int month) throws SQLException {
+        String sql = """
+            SELECT bc.id, bc.budget_id, bc.category_id, bc.cat_limit, bc.alert_pct,
+                   c.name AS cat_name,
+                   COALESCE(SUM(t.amount),0) AS spent
+            FROM budget_categories bc
+            JOIN categories c ON c.id = bc.category_id
+            LEFT JOIN transactions t
+                   ON t.category_id = bc.category_id
+                  AND t.type = 'EXPENSE'::txn_type
+                  AND EXTRACT(YEAR  FROM t.date_time) = ?
+                  AND EXTRACT(MONTH FROM t.date_time) = ?
+            WHERE bc.budget_id = ?
+            GROUP BY bc.id, bc.budget_id, bc.category_id, bc.cat_limit,
+                     bc.alert_pct, c.name
+            ORDER BY c.name
+            """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, year);
+            ps.setInt(2, month);
+            ps.setInt(3, budgetId);
+            ResultSet rs = ps.executeQuery();
+            List<BudgetCategory> list = new ArrayList<>();
+            while (rs.next()) {
+                BudgetCategory bc = new BudgetCategory();
+                bc.setId(rs.getInt("id"));
+                bc.setBudgetId(rs.getInt("budget_id"));
+                bc.setCategoryId(rs.getInt("category_id"));
+                bc.setCategoryName(rs.getString("cat_name"));
+                bc.setCatLimit(rs.getBigDecimal("cat_limit"));
+                bc.setAlertPct(rs.getInt("alert_pct"));
+                BigDecimal spent = rs.getBigDecimal("spent");
+                bc.setSpent(spent);
+                bc.setRemaining(bc.getCatLimit().subtract(spent));
+                list.add(bc);
+            }
+            return list;
+        }
+    }
+
+    private BigDecimal loadMonthExpense(Connection conn, int bookId,
+                                         int year, int month, int catId) throws SQLException {
+        String sql = """
+            SELECT COALESCE(SUM(amount),0)
+            FROM transactions
+            WHERE book_id=? AND type='EXPENSE'::txn_type
+              AND EXTRACT(YEAR  FROM date_time)=?
+              AND EXTRACT(MONTH FROM date_time)=?
+            """ + (catId > 0 ? " AND category_id=?" : "");
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookId);
+            ps.setInt(2, year);
+            ps.setInt(3, month);
+            if (catId > 0) ps.setInt(4, catId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getBigDecimal(1) : BigDecimal.ZERO;
+        }
     }
 }
