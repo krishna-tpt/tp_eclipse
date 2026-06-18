@@ -3,6 +3,8 @@ package com.expensemanager.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.expensemanager.service.SchedulerEngine;
+
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
@@ -13,10 +15,10 @@ public class AppContextListener implements ServletContextListener {
 
 	private static final Logger log = LoggerFactory.getLogger(AppContextListener.class);
 	private static ServletContext context;
-	
+
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-        
+
 		context = sce.getServletContext();
 		String url = sce.getServletContext().getInitParameter("DB_URL");
 		String user = sce.getServletContext().getInitParameter("DB_USER");
@@ -27,18 +29,21 @@ public class AppContextListener implements ServletContextListener {
 			DBConnection.init(url, user, pass);
 			log.info("Expense Manager started — DB connected");
 
-//			AppLogCapture.install();
-
 		} catch (Exception e) {
 			log.error("DB init failed: {}", e.getMessage(), e);
-		} /*
-			 * finally { com.expensemanager.servlet.AppLogCapture.install(); }
-			 */
+		}
+
+		try {
+			SchedulerEngine.getInstance().start();
+			log.info("SchedulerEngine started");
+		} catch (Exception e) {
+			log.error("SchedulerEngine start failed: {}", e.getMessage(), e);
+		}
 	}
-	
+
 	public static ServletContext getContext() {
-        return context;
-    }
+		return context;
+	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {

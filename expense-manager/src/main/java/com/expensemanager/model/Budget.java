@@ -111,7 +111,7 @@ public class Budget {
 				.min(BigDecimal.valueOf(100)).intValue();
 	}
 
-	/** JSP EL-ல BigDecimal.ZERO reference பண்ண முடியாது — boolean helper */
+	/** JSP EL-BigDecimal.ZERO reference— boolean helper */
 	public boolean isRemainingPositive() {
 		if (remainingAmount == null)
 			return true;
