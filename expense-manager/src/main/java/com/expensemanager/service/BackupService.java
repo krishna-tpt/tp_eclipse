@@ -86,7 +86,13 @@ public class BackupService {
 				writeCSV(zos, con, "transaction_custom_values.csv",
 						"SELECT * FROM transaction_custom_values ORDER BY id");
 //				writeCSV(zos, con, "transaction_receipts.csv", "SELECT * FROM transaction_receipts ORDER BY id desc");
-				writeCSV(zos, con, "transaction_receipts.csv", "Select id, transaction_id, file_name, file_type, file_size, uploaded_at From transaction_receipts  order by id desc");
+				writeCSV(zos, con, "transaction_receipts.csv",
+						"Select id, transaction_id, file_name, file_type, file_size, uploaded_at From transaction_receipts  order by id desc");
+				writeCSV(zos, con, "budgets.csv", "SELECT * FROM budgets");
+				writeCSV(zos, con, "budget_categories.csv", "Select * From budget_categories order by id desc");
+				writeCSV(zos, con, "scheduler_log.csv", "Select * From scheduler_log order by id desc");
+				writeCSV(zos, con, "schedulers.csv", "Select * From schedulers order by id desc");
+
 				writeFileBackup(zos, con, filePath, "Receipts", "SELECT * FROM transaction_receipts ORDER BY id");
 			}
 			long size = Files.size(filePath);
@@ -193,6 +199,27 @@ public class BackupService {
 				restoreCSV(con, zip, "transaction_receipts.csv",
 						"INSERT INTO transaction_receipts (id, transaction_id, file_name, file_type, file_size, uploaded_at) VALUES (?,?,?,?,?,?)",
 						r -> new Object[] { iOf(r[0]), iOf(r[1]), r[2], r[3], iOf(r[4]), tsOf(r[5]) });
+
+				restoreCSV(con, zip, "budget_categories.csv",
+						"INSERT INTO budget_categories(id, budget_id, category_id, cat_limit, alert_pct) VALUES (?, ?, ?, ?, ?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), iOf(r[2]), bdOf(r[3]), iOf(r[4]) });
+
+				restoreCSV(con, zip, "budgets.csv",
+						"INSERT INTO budgets(id, book_id, year, month, overall_limit, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), iOf(r[2]), iOf(r[3]), bdOf(r[4]), tsOf(r[5]),
+								tsOf(r[6]) });
+
+				restoreCSV(con, zip, "schedulers.csv",
+						"INSERT INTO schedulers(id, name, display_name, enabled, repeat_type, repeat_days, run_hour, "
+								+ "run_minute, last_run_at, last_run_status, last_run_msg, next_run_at, created_at, updated_at) "
+								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+						r -> new Object[] { iOf(r[0]), r[1], r[2], boolOf(r[3]), r[4], r[5], iOf(r[6]), iOf(r[7]),
+								tsOf(r[8]), r[9], r[10], tsOf(r[11]), tsOf(r[12]), tsOf(r[13]) });
+
+				restoreCSV(con, zip, "scheduler_log.csv",
+						"INSERT INTO scheduler_log(id, scheduler_id, started_at, finished_at, status, message, rows_synced) VALUES (?, ?, ?, ?, ?, ?, ?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), tsOf(r[2]), tsOf(r[3]), r[4], r[5], iOf(r[6]) });
+
 				con.commit();
 
 				restoreFiles(con, zipPath, "Receipts");
