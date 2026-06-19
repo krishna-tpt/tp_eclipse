@@ -3,28 +3,28 @@
 	<item key="hasShownOverlayPopupBefore" value="true"/>
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="true"/>
-		<item key="selection" value=""/>
+		<item key="selection" value="transaction_id"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="update"/>
+			<item value="transaction"/>
+			<item value="transaction_id"/>
+			<item value="confirmCopyModal"/>
+			<item value="copy with"/>
+			<item value="copy"/>
+			<item value="transform"/>
+			<item value="translateY"/>
+			<item value="border-radius: 18px"/>
+			<item value="#fff"/>
+			<item value="background:#fff"/>
+			<item value="content = content.replace("/>
+			<item value="align-items"/>
 			<item value="ne"/>
 			<item value="/home"/>
-			<item value="cardUrl"/>
-			<item value="2px solid ${isActive "/>
-			<item value="stopPropagation"/>
-			<item value="weekDays"/>
-			<item value="${pageContext.request.contextPath}/budget"/>
-			<item value="date_time"/>
-			<item value="back"/>
-			<item value="msg"/>
-			<item value="success"/>
-			<item value="resp.sendRedirect(req.getContextPath() + &quot;/home&quot;);"/>
-			<item value="external_ID"/>
-			<item value="Download faile"/>
-			<item value=".pagge"/>
 		</list>
 		<list key="replacehistory">
 			<item value="txn_datetime"/>
