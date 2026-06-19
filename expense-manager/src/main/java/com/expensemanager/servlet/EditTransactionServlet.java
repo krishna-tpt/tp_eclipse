@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.expensemanager.dao.AuditLogDAO;
+import com.expensemanager.dao.CashBookDAO;
 import com.expensemanager.dao.CategoryDAO;
 import com.expensemanager.dao.ReceiptDAO;
 import com.expensemanager.dao.SubCategoryDAO;
@@ -29,6 +30,7 @@ public class EditTransactionServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		String idStr = req.getParameter("id");
+		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
 		if (idStr == null) {
 			resp.sendRedirect(req.getContextPath() + "/transactions");
 			return;
@@ -41,6 +43,7 @@ public class EditTransactionServlet extends HttpServlet {
 			CategoryDAO catDAO = new CategoryDAO();
 			SubCategoryDAO scDAO = new SubCategoryDAO();
 			ReceiptDAO recDAO = new ReceiptDAO();
+			CashBookDAO cashDAO=new CashBookDAO();
 
 			Transaction t = txnDAO.findById(id);
 			if (t == null) {
@@ -54,6 +57,7 @@ public class EditTransactionServlet extends HttpServlet {
 			req.setAttribute("incomeCategories", catDAO.findByType("INCOME"));
 			req.setAttribute("expenseCategories", catDAO.findByType("EXPENSE"));
 			req.setAttribute("subCategories", scDAO.findAll());
+			req.setAttribute("cashbooks", cashDAO.findAll());
 
 		} catch (Exception e) {
 			req.setAttribute("dbError", e.getMessage());
@@ -99,8 +103,69 @@ public class EditTransactionServlet extends HttpServlet {
 				}
 				return;
 			}
+			
+//			if ("move".equalsIgnoreCase(action)) {
+//				String newBookID = req.getParameter("newbookid");
+//				
+//				
+//			}
 
-			// UPDATE
+			// ── DUPLICATE (editable preview values from popup) ───────
+			if ("duplicate".equalsIgnoreCase(action)) {
+				Transaction src = txnDAO.findById(id);
+				if (src == null) {
+					resp.sendRedirect(req.getContextPath() + "/transactions?error=notfound");
+					return;
+				}
+
+				// Editable fields from the preview form (fallback to source if missing)
+				String dupDateTimeStr = req.getParameter("dupDateTime");
+				String dupAmountStr = req.getParameter("dupAmount");
+				String dupCatIdStr = req.getParameter("dupCategoryId");
+				String dupSubCatStr = req.getParameter("dupSubCategoryId");
+				String dupNote = req.getParameter("dupNote");
+
+				LocalDateTime dupDateTime = (dupDateTimeStr != null && !dupDateTimeStr.isBlank())
+						? LocalDateTime.parse(dupDateTimeStr)
+						: src.getDateTime();
+
+				BigDecimal dupAmount = (dupAmountStr != null && !dupAmountStr.isBlank()) ? new BigDecimal(dupAmountStr)
+						: src.getAmount();
+
+				int dupCategoryId = (dupCatIdStr != null && !dupCatIdStr.isBlank()) ? Integer.parseInt(dupCatIdStr)
+						: src.getCategoryId();
+
+				Transaction dup = new Transaction();
+				dup.setType(src.getType());
+				dup.setBookId(src.getBookId());
+				dup.setAmount(dupAmount);
+				dup.setCategoryId(dupCategoryId);
+
+				// Resolve category name for the (possibly changed) category
+				CategoryDAO catDAO = new CategoryDAO();
+				final int finalCatId = dupCategoryId;
+				catDAO.findByType(src.getType().name()).stream().filter(c -> c.getId() == finalCatId).findFirst()
+						.ifPresent(c -> dup.setCategoryName(c.getName()));
+
+				if (dupSubCatStr != null && !dupSubCatStr.isBlank()) {
+					int dupSubCatId = Integer.parseInt(dupSubCatStr.trim());
+					dup.setSubcategoryid(dupSubCatId);
+					new SubCategoryDAO().findAll().stream().filter(sc -> sc.getId() == dupSubCatId).findFirst()
+							.ifPresent(sc -> dup.setSubCategoryName(sc.getName()));
+				}
+
+				dup.setNote(dupNote != null ? dupNote : src.getNote());
+				dup.setDateTime(dupDateTime);
+
+				// Custom values copy (unchanged from source)
+				if (src.getCustomValues() != null)
+					dup.setCustomValues(new java.util.LinkedHashMap<>(src.getCustomValues()));
+
+				int newId = txnDAO.insert(dup); // insert() captures CREATE log automatically
+
+				resp.sendRedirect(req.getContextPath() + "/transaction?id=" + newId + "&success=duplicated");
+				return;
+			}
 			Transaction old = txnDAO.findById(id);
 			if (old == null) {
 				resp.sendRedirect(req.getContextPath() + "/transactions?error=notfound");
@@ -118,11 +183,17 @@ public class EditTransactionServlet extends HttpServlet {
 			String catIdStr = req.getParameter("categoryId");
 			String subcatStr = req.getParameter("subcategoryId");
 			String note = req.getParameter("note");
+			String newbookid = req.getParameter("newbookid");
+			
+			if(newbookid==null) {
+				newbookid = Integer.toString(old.getBookId());
+			}
 
 			updated.setAmount(new BigDecimal(amountStr));
 			updated.setDateTime(LocalDateTime.parse(dateStr));
 			updated.setCategoryId(Integer.parseInt(catIdStr));
 			updated.setNote(note);
+			updated.setBookId(Integer.parseInt(newbookid));
 
 			// Need category name for audit log
 			CategoryDAO catDAO = new CategoryDAO();

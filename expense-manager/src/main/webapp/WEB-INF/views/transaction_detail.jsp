@@ -124,15 +124,6 @@
 	border-radius: 4px;
 }
 
-.receipt-new {
-	color: #b91c1c;
-	background: #fee2e2;
-	padding: .08rem .35rem;
-	border-radius: 4px;
-}
-
-
-/* Receipts */
 .receipt-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -189,33 +180,159 @@
 	font-size: .75rem;
 	color: var(--primary);
 }
+
+/* ── iOS-style Copy Modal — theme colors ── */
+.ios-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, .45);
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+	animation: overlayIn .2s ease;
+}
+
+@
+keyframes overlayIn {from { opacity:0
+	
+}
+
+to {
+	opacity: 1
+}
+
+}
+.ios-sheet {
+	background: #fff;
+	border-radius: 16px;
+	width: 100%;
+	max-width: 400px;
+	overflow: hidden;
+	animation: sheetUp .25s cubic-bezier(.32, 1, .23, 1);
+	box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+}
+
+@
+keyframes sheetUp {from { opacity:0;
+	transform: scale(.95)
+}
+
+to {
+	opacity: 1;
+	transform: scale(1)
+}
+
+}
+.ios-sheet-title {
+	font-size: 1rem;
+	font-weight: 700;
+	text-align: center;
+	padding: 1.1rem 1rem .75rem;
+	border-bottom: 1px solid #e5e7eb;
+	color: #111;
+}
+
+.ios-option {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: .95rem 1.25rem;
+	border-bottom: 1px solid #f1f5f9;
+	cursor: pointer;
+	transition: background .12s;
+	font-size: 1rem;
+	color: var(--text);
+}
+
+.ios-option:hover {
+	background: #eff6ff;
+}
+
+.ios-option.selected {
+	color: var(--primary);
+	font-weight: 600;
+}
+
+.ios-option .check {
+	color: var(--primary);
+	font-size: 1.1rem;
+}
+
+.ios-ok {
+	width: 100%;
+	padding: 1rem;
+	background: #fff;
+	border: none;
+	border-top: 1px solid #e5e7eb;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--primary);
+	cursor: pointer;
+	letter-spacing: .02em;
+	transition: background .12s;
+}
+
+.ios-ok:hover {
+	background: #eff6ff;
+}
+
+/* ── Copy Preview Card — theme colors ── */
+#copyPreview {
+	border: 2px solid #bfdbfe;
+	border-radius: 12px;
+	background: #f0f7ff;
+	padding: 1rem 1.1rem;
+	margin-top: .85rem;
+	animation: fadeIn .2s ease;
+}
+
+@
+keyframes fadeIn {from { opacity:0;
+	transform: translateY(4px)
+}
+
+to {
+	opacity: 1;
+	transform: translateY(0)
+}
+
+}
+.preview-row {
+	display: flex;
+	gap: .5rem;
+	font-size: .83rem;
+	padding: .2rem 0;
+}
+
+.preview-label {
+	color: var(--text-2);
+	font-weight: 600;
+	min-width: 80px;
+}
+
+.preview-val {
+	color: var(--text-1);
+}
+
+.preview-changed {
+	color: var(--primary);
+	font-weight: 700;
+}
+
+#moveBookRow select {
+	margin-top: .3rem;
+}
 </style>
 
 <div class="page-header flex">
-	<%-- <div>
-		<a href="${pageContext.request.contextPath}/transactions"
-			style="color: var(--text-2); text-decoration: none; font-size: .85rem">&#8592;
-			Back</a>
-		<h1 style="margin-top: .2rem">Transaction Detail</h1>
-	</div> --%>
 	<div>
-    <a href="${pageContext.request.contextPath}/home"
-       style="
-            display:inline-block;
-            padding:10px 18px;
-            background:linear-gradient(135deg, #43B6F0, #7B7EF0, #D91EF0);
-            color:white;
-            text-decoration:none;
-            border-radius:25px;
-            font-size:.9rem;
-            font-weight:600;
-            box-shadow:0 4px 10px rgba(0,0,0,.15);
-       ">
-        &#8592; Back
-    </a>
-
-    <h1 style="margin-top:1rem">Transaction Detail</h1>
-</div>
+		<a href="${pageContext.request.contextPath}/home"
+			style="display: inline-block; padding: 10px 18px; background: linear-gradient(135deg, #43B6F0, #7B7EF0, #D91EF0); color: white; text-decoration: none; border-radius: 25px; font-size: .9rem; font-weight: 600; box-shadow: 0 4px 10px rgba(0, 0, 0, .15);">
+			&#8592; Back </a>
+		<h1 style="margin-top: 1rem">Transaction Detail</h1>
+	</div>
 </div>
 
 <c:if test="${not empty param.success}">
@@ -223,6 +340,7 @@
 		&#10003;
 		<c:choose>
 			<c:when test="${param.success=='updated'}">Transaction updated!</c:when>
+			<c:when test="${param.success=='duplicated'}">&#128260; Transaction duplicated &amp; saved!</c:when>
 			<c:when test="${param.success=='receipt_uploaded'}">Receipt uploaded!</c:when>
 			<c:when test="${param.success=='receipt_deleted'}">Receipt removed.</c:when>
 		</c:choose>
@@ -244,7 +362,7 @@
 					<span class="card-title" style="margin-bottom: 0">Edit
 						Transaction</span>
 					<c:choose>
-						<c:when test="${txn.type == 'INCOME'}">
+						<c:when test="${txn.type=='INCOME'}">
 							<span class="badge income ml-auto">INCOME</span>
 						</c:when>
 						<c:otherwise>
@@ -271,7 +389,7 @@
 							required onchange="filterEditSub()">
 							<option value="">Select&#8230;</option>
 							<c:choose>
-								<c:when test="${txn.type == 'INCOME'}">
+								<c:when test="${txn.type=='INCOME'}">
 									<c:forEach var="cat" items="${incomeCategories}">
 										<option value="${cat.id}"
 											${cat.id==txn.categoryId?'selected':''}>${cat.name}</option>
@@ -300,20 +418,111 @@
 						<label>Note</label> <input type="text" name="note"
 							value="${txn.note}">
 					</div>
-					<div class="flex gap-1 mt-2">
+
+					<div class="flex gap-1 mt-2" style="flex-wrap: wrap">
 						<button type="submit" class="btn btn-primary">&#10003;
 							Save</button>
+						<button type="button" class="btn btn-outline"
+							onclick="openCopyModal()">&#128203; Copy</button>
+						<button type="button" class="btn btn-outline"
+							onclick="toggleMoveBook()">&#128230; Move</button>
 						<button type="button" class="btn btn-danger ml-auto"
 							onclick="if(confirm('Delete this transaction permanently?'))document.getElementById('delForm').submit()">
 							&#x1F5D1; Delete</button>
 					</div>
+
+					<%-- ── Move to another Cash Book (toggle) ── --%>
+					<div id="moveBookRow"
+						style="display: none; margin-top: .85rem; padding-top: .85rem; border-top: 1px solid var(--border)">
+						<label style="font-size: .72rem">Move to Cash Book</label> <select
+							name="newbookid" id="moveBookSelect" form="editForm">
+							<c:forEach var="bk" items="${cashbooks}">
+								<option value="${bk.id}" ${bk.id==txn.bookId?'selected':''}>${bk.name}</option>
+							</c:forEach>
+						</select>
+						<div style="font-size: .72rem; color: #94a3b8; margin-top: .4rem">
+							&#8505; Select the target book, then click <strong>Save</strong>
+							above to move this transaction.
+						</div>
+					</div>
 				</form>
+
 				<form id="delForm"
 					action="${pageContext.request.contextPath}/transaction"
 					method="post" style="display: none">
 					<input type="hidden" name="action" value="delete"> <input
 						type="hidden" name="id" value="${txn.id}">
 				</form>
+
+				<!-- ── Copy Preview Card (shown after option selected) ── -->
+				<div id="copyPreview" style="display: none">
+					<div
+						style="font-size: .82rem; font-weight: 700; color: var(--primary); margin-bottom: .6rem">
+						&#128203; Copy Preview — edit if needed, then save</div>
+
+					<form method="post"
+						action="${pageContext.request.contextPath}/transaction"
+						id="dupForm">
+						<input type="hidden" name="action" value="duplicate"> <input
+							type="hidden" name="id" value="${txn.id}">
+
+						<div class="form-group mb-2">
+							<label style="font-size: .72rem">Date &amp; Time</label> <input
+								type="datetime-local" name="dupDateTime" id="dupDateTime"
+								required>
+						</div>
+						<div class="form-group mb-2">
+							<label style="font-size: .72rem">Amount (&#8377;)</label> <input
+								type="number" name="dupAmount" id="dupAmount" step="0.01"
+								min="0.01" value="${txn.amount}" required>
+						</div>
+						<div class="form-group mb-2">
+							<label style="font-size: .72rem">Category</label> <select
+								name="dupCategoryId" id="dupCategorySelect" required>
+								<c:choose>
+									<c:when test="${txn.type=='INCOME'}">
+										<c:forEach var="cat" items="${incomeCategories}">
+											<option value="${cat.id}"
+												${cat.id==txn.categoryId?'selected':''}>${cat.name}</option>
+										</c:forEach>
+									</c:when>
+									<c:otherwise>
+										<c:forEach var="cat" items="${expenseCategories}">
+											<option value="${cat.id}"
+												${cat.id==txn.categoryId?'selected':''}>${cat.name}</option>
+										</c:forEach>
+									</c:otherwise>
+								</c:choose>
+							</select>
+						</div>
+						<div class="form-group mb-2">
+							<label style="font-size: .72rem">Sub Category</label> <select
+								name="dupSubCategoryId" id="dupSubCategorySelect">
+								<option value="">None</option>
+								<c:forEach var="sc" items="${subCategories}">
+									<option value="${sc.id}" data-cat="${sc.category_id}"
+										${sc.id==txn.subcategoryid?'selected':''}>${sc.name}</option>
+								</c:forEach>
+							</select>
+						</div>
+						<div class="form-group mb-2">
+							<label style="font-size: .72rem">Note</label> <input type="text"
+								name="dupNote" id="dupNote" value="${txn.note}">
+						</div>
+
+						<div
+							style="font-size: .72rem; color: #94a3b8; margin: .25rem 0 .6rem">
+							&#8505; Receipts &amp; attachments will not be copied.</div>
+
+						<div class="flex gap-1 mt-1">
+							<button type="submit" class="btn btn-primary btn-sm">&#10003;
+								Save Copy</button>
+							<button type="button" class="btn btn-outline btn-sm"
+								onclick="cancelCopy()" style="color: var(--text-2)">
+								&#10005; Cancel</button>
+						</div>
+					</form>
+				</div>
 			</div>
 
 			<!-- Receipts -->
@@ -324,8 +533,6 @@
 						style="font-size: .75rem; margin-left: .5rem">(max 5 MB
 						each)</span>
 				</div>
-
-				<%-- Upload form --%>
 				<form action="${pageContext.request.contextPath}/receipt"
 					method="post" enctype="multipart/form-data" class="flex gap-1">
 					<input type="hidden" name="transactionId" value="${txn.id}">
@@ -333,8 +540,6 @@
 						style="font-size: .82rem; flex: 1" required>
 					<button type="submit" class="btn btn-primary btn-sm">Upload</button>
 				</form>
-
-				<%-- Receipt grid --%>
 				<div class="receipt-grid">
 					<c:forEach var="r" items="${receipts}">
 						<div class="receipt-card">
@@ -386,7 +591,7 @@
 			<div class="timeline">
 				<c:forEach var="log" items="${auditLogs}">
 					<div
-						class="tl-item ${log.action=='CREATE'?'create':log.action=='UPDATE'?'update':log.action=='RECEIPT_ADD'?'Receipt uploaded':log.action=='RECEIPT_DEL'?'Receipt deleted':'delete'}">
+						class="tl-item ${log.action=='CREATE'?'create':log.action=='UPDATE'?'update':'delete'}">
 						<div class="tl-time">${log.formattedChangedAt}</div>
 						<div class="tl-card">
 							<c:choose>
@@ -399,20 +604,22 @@
 									<span class="tl-action act-delete">&#x1F5D1; Deleted</span>
 								</c:when>
 								<c:when test="${log.action=='RECEIPT_ADD'}">
-									<span class="tl-action act-create">&#10010; Receipt uploaded</span>
+									<span class="tl-action act-create">&#10010; Receipt
+										uploaded</span>
 									<c:if test="${not empty log.fieldDisplay}">
 										<div class="diff-row">
-											<span class="diff-field">${log.fieldDisplay}</span>
-											<span class="diff-new">${log.newValue}</span>
+											<span class="diff-field">${log.fieldDisplay}</span> <span
+												class="diff-new">${log.newValue}</span>
 										</div>
 									</c:if>
 								</c:when>
 								<c:when test="${log.action=='RECEIPT_DEL'}">
-									<span class="tl-action act-delete">&#x1F5D1; Receipt deleted</span>
+									<span class="tl-action act-delete">&#x1F5D1; Receipt
+										deleted</span>
 									<c:if test="${not empty log.fieldDisplay}">
 										<div class="diff-row">
-											<span class="diff-field">${log.fieldDisplay}</span>
-											<span class="diff-old">${log.oldValue}</span>
+											<span class="diff-field">${log.fieldDisplay}</span> <span
+												class="diff-old">${log.oldValue}</span>
 										</div>
 									</c:if>
 								</c:when>
@@ -438,41 +645,170 @@
 	</div>
 </c:if>
 
+<!-- ════ iOS-style Copy Modal ════ -->
+<div id="copyModal" class="ios-overlay" style="display: none"
+	onclick="handleOverlayClick(event)">
+	<div class="ios-sheet" onclick="event.stopPropagation()">
+		<div class="ios-sheet-title">Copy</div>
+
+		<div class="ios-option selected" id="opt-today"
+			onclick="selectCopyOption('today')">
+			<span>Copy with today&#39;s date</span> <span class="check"
+				id="chk-today">&#10003;</span>
+		</div>
+		<div class="ios-option" id="opt-original"
+			onclick="selectCopyOption('original')">
+			<span>Copy with date of entry</span> <span class="check"
+				id="chk-original" style="display: none">&#10003;</span>
+		</div>
+
+		<button type="button" class="ios-ok" onclick="confirmCopyModal()">OK</button>
+	</div>
+</div>
+
 <script>
-// Set datetime-local value from LocalDateTime string
-(function() {
-  var el  = document.getElementById('dtInput');
-  var raw = '${txn.dateTime}';           // e.g. 2026-06-08T10:30:00
-  if (el && raw) el.value = raw.length > 16 ? raw.substring(0,16) : raw;
-})();
+	// ── Txn data for preview ───────────────────────────────
+	var TXN_DATETIME_RAW = '${txn.dateTime}'; // e.g. 2026-06-19T09:52 or with seconds
+	var TODAY_DATETIME_LOCAL = '';
+	(function() {
+		var now = new Date();
+		var local = new Date(now - now.getTimezoneOffset() * 60000);
+		TODAY_DATETIME_LOCAL = local.toISOString().slice(0, 16);
+	})();
 
-// Sub-cat filter for edit form
-function filterEditSub() {
-  var catSel = document.getElementById('editCat');
-  var subSel = document.getElementById('editSub');
-  var selCat = catSel.value;
-  var hasOpt = false;
-  subSel.querySelectorAll('option[data-cat]').forEach(function(o) {
-    var show = o.getAttribute('data-cat') === selCat;
-    o.style.display = show ? '' : 'none';
-    if (show) hasOpt = true;
-  });
-  var sel = subSel.options[subSel.selectedIndex];
-  if (sel && sel.style.display === 'none') subSel.value = '';
-  subSel.disabled = !hasOpt;
-}
+	var selectedCopyMode = 'today';
 
-document.addEventListener('DOMContentLoaded', function() {
-  filterEditSub();
-});
+	// ── Open modal ─────────────────────────────────────────
+	function openCopyModal() {
+		// Reset to default — hide any leftover preview from earlier
+		document.getElementById('copyPreview').style.display = 'none';
+		selectCopyOption('today');
+		document.getElementById('copyModal').style.display = 'flex';
+		document.body.style.overflow = 'hidden';
+	}
 
-// Enter → submit edit form
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') {
-    e.preventDefault();
-    document.getElementById('editForm').requestSubmit();
-  }
-});
+	// ── Option select ──────────────────────────────────────
+	function selectCopyOption(mode) {
+		selectedCopyMode = mode;
+		[ 'today', 'original' ].forEach(function(m) {
+			var opt = document.getElementById('opt-' + m);
+			var chk = document.getElementById('chk-' + m);
+			if (m === mode) {
+				opt.classList.add('selected');
+				chk.style.display = '';
+			} else {
+				opt.classList.remove('selected');
+				chk.style.display = 'none';
+			}
+		});
+	}
+
+	// ── Overlay click to dismiss ───────────────────────────
+	function handleOverlayClick(e) {
+		if (e.target === document.getElementById('copyModal'))
+			closeCopyOverlay();
+	}
+
+	function closeCopyOverlay() {
+		document.getElementById('copyModal').style.display = 'none';
+		document.body.style.overflow = '';
+	}
+
+	// ── OK clicked → close modal, show EDITABLE preview form ──
+	function confirmCopyModal() {
+		closeCopyOverlay();
+
+		// Pre-fill datetime based on chosen mode
+		var dtVal = (selectedCopyMode === 'today') ? TODAY_DATETIME_LOCAL
+				: (TXN_DATETIME_RAW.length > 16 ? TXN_DATETIME_RAW.substring(0,
+						16) : TXN_DATETIME_RAW);
+		document.getElementById('dupDateTime').value = dtVal;
+
+		// Re-apply sub-category visibility for the duplicate form's current category
+		filterDupSub();
+
+		// Show editable preview form
+		document.getElementById('copyPreview').style.display = 'block';
+		document.getElementById('copyPreview').scrollIntoView({
+			behavior : 'smooth',
+			block : 'nearest'
+		});
+	}
+
+	// ── Cancel preview ─────────────────────────────────────
+	function cancelCopy() {
+		document.getElementById('copyPreview').style.display = 'none';
+	}
+
+	// ── Move to another cash book — toggle field visibility ──
+	function toggleMoveBook() {
+		var row = document.getElementById('moveBookRow');
+		row.style.display = (row.style.display === 'none') ? 'block' : 'none';
+	}
+
+	// ── Sub-cat filter for duplicate popup ─────────────────
+	function filterDupSub() {
+		var catSel = document.getElementById('dupCategorySelect');
+		var subSel = document.getElementById('dupSubCategorySelect');
+		if (!catSel || !subSel)
+			return;
+		var selCat = catSel.value;
+		var hasOpt = false;
+		subSel.querySelectorAll('option[data-cat]').forEach(function(o) {
+			var show = o.getAttribute('data-cat') === selCat;
+			o.style.display = show ? '' : 'none';
+			if (show)
+				hasOpt = true;
+		});
+		var sel = subSel.options[subSel.selectedIndex];
+		if (sel && sel.style.display === 'none')
+			subSel.value = '';
+	}
+	document.addEventListener('DOMContentLoaded', function() {
+		var dupCatSel = document.getElementById('dupCategorySelect');
+		if (dupCatSel)
+			dupCatSel.addEventListener('change', filterDupSub);
+	});
+
+	// ── DateTime fill ──────────────────────────────────────
+	(function() {
+		var el = document.getElementById('dtInput');
+		var raw = '${txn.dateTime}';
+		if (el && raw)
+			el.value = raw.length > 16 ? raw.substring(0, 16) : raw;
+	})();
+
+	// ── Sub-cat filter ─────────────────────────────────────
+	function filterEditSub() {
+		var catSel = document.getElementById('editCat');
+		var subSel = document.getElementById('editSub');
+		var selCat = catSel.value;
+		var hasOpt = false;
+		subSel.querySelectorAll('option[data-cat]').forEach(function(o) {
+			var show = o.getAttribute('data-cat') === selCat;
+			o.style.display = show ? '' : 'none';
+			if (show)
+				hasOpt = true;
+		});
+		var sel = subSel.options[subSel.selectedIndex];
+		if (sel && sel.style.display === 'none')
+			subSel.value = '';
+		subSel.disabled = !hasOpt;
+	}
+	document.addEventListener('DOMContentLoaded', function() {
+		filterEditSub();
+	});
+
+	// ── Enter → submit edit form ───────────────────────────
+	document.addEventListener('keydown', function(e) {
+		if (e.key === 'Enter' && e.target.tagName !== 'BUTTON'
+				&& e.target.tagName !== 'SELECT') {
+			if (document.getElementById('copyModal').style.display !== 'none')
+				return;
+			e.preventDefault();
+			document.getElementById('editForm').requestSubmit();
+		}
+	});
 </script>
 
 <%@ include file="footer.jsp"%>

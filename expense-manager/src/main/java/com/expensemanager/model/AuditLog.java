@@ -40,6 +40,7 @@ public class AuditLog {
 		case "subcategory" -> "Sub Category";
 		case "datetime" -> "Date & Time";
 		case "type" -> "Type";
+		case "book" -> "Book";
 		default -> fieldName;
 		};
 	}

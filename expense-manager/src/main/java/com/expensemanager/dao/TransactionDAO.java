@@ -62,7 +62,8 @@ public class TransactionDAO {
 				  amount            = ?,
 				  category_id       = ?,
 				  sub_categories_id = ?,
-				  note              = ?
+				  note              = ?,
+				  book_id           = ? 
 				WHERE id = ?
 				""";
 		Connection conn = db.getConnection();
@@ -75,7 +76,8 @@ public class TransactionDAO {
 			else
 				ps.setNull(4, Types.INTEGER);
 			ps.setString(5, newT.getNote());
-			ps.setInt(6, oldT.getId());
+			ps.setInt(6, newT.getBookId());
+			ps.setInt(7, oldT.getId());
 			ps.executeUpdate();
 		} finally {
 			db.releaseConnection(conn);
@@ -93,6 +95,11 @@ public class TransactionDAO {
 					nvl(newT.getSubCategoryName()));
 		if (!Objects.equals(oldT.getNote(), newT.getNote()))
 			auditDAO.logUpdate(oldT.getId(), "user", "note", nvl(oldT.getNote()), nvl(newT.getNote()));
+		
+		if (!Objects.equals(oldT.getBookId(), newT.getBookId())) {
+			CashBookDAO dao =new CashBookDAO();
+			auditDAO.logUpdate(oldT.getId(), "user", "book", dao.findById(oldT.getBookId()).getName(), dao.findById(newT.getBookId()).getName());
+		}
 	}
 
 	// ── DELETE ────────────────────────────────────────────
@@ -469,4 +476,5 @@ public class TransactionDAO {
 	private String nvl(String s) {
 		return s != null ? s : "";
 	}
+	
 }
