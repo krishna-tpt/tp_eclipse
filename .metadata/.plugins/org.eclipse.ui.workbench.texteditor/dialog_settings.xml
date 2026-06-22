@@ -10,6 +10,9 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="switchTab"/>
+			<item value="addEventListener"/>
+			<item value="updated_at&gt;="/>
 			<item value="update"/>
 			<item value="transaction"/>
 			<item value="transaction_id"/>
@@ -22,11 +25,9 @@
 			<item value="#fff"/>
 			<item value="background:#fff"/>
 			<item value="content = content.replace("/>
-			<item value="align-items"/>
-			<item value="ne"/>
-			<item value="/home"/>
 		</list>
 		<list key="replacehistory">
+			<item value="updated_at&gt;= ? "/>
 			<item value="txn_datetime"/>
 		</list>
 	</section>

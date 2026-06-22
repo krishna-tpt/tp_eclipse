@@ -28,4 +28,5 @@
     <fullyQualifiedTypeName name="com.expensemanager.model.WorkDriveFile"/>
     <fullyQualifiedTypeName name="com.expensemanager.service.FilesApiService.DownloadResult"/>
     <fullyQualifiedTypeName name="com.expensemanager.model.BackupMetadata.BackupMode"/>
+    <fullyQualifiedTypeName name="com.expensemanager.model.SchedulerConfig"/>
 </qualifiedTypeNameHistroy>
