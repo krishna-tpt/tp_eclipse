@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.expensemanager.dao.CategoryDAO;
 import com.expensemanager.dao.ColumnDefinitionDAO;
 import com.expensemanager.dao.SubCategoryDAO;
@@ -21,7 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @WebServlet("/settings")
 public class SettingsServlet extends HttpServlet {
-
+	private static final Logger log = LoggerFactory.getLogger(SettingsServlet.class);
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
@@ -49,6 +52,9 @@ public class SettingsServlet extends HttpServlet {
 		String action = req.getParameter("action");
 
 		System.out.println("Action: "+action);
+		
+		String redirectTab = "cat"; // default
+
 		try {
 			switch (action != null ? action : "") {
 			case "addCategory" :{
@@ -56,11 +62,13 @@ public class SettingsServlet extends HttpServlet {
 				String type = req.getParameter("type");
 				if (name != null && !name.isBlank())
 					new CategoryDAO().insert(name.trim(), type);
+				redirectTab = "cat";
 				break;
 			}
 			case "deleteCategory" : {
 				int id = Integer.parseInt(req.getParameter("id"));
 				new CategoryDAO().delete(id);
+		        redirectTab = "cat";
 				break;
 			}
 			case "addSubCategory" : {
@@ -79,11 +87,13 @@ public class SettingsServlet extends HttpServlet {
 				int catId = Integer.parseInt(req.getParameter("categoryId"));
 				if (name != null && !name.isBlank())
 					new SubCategoryDAO().insert(name.trim(), catId);
+		        redirectTab = "subcat";
 				break;
 			}
 			case "deleteSubCategory" : {
 				int id = Integer.parseInt(req.getParameter("id"));
 				new SubCategoryDAO().delete(id);
+		        redirectTab = "subcat";
 				break;
 			}
 			case "addColumn" : {
@@ -91,19 +101,23 @@ public class SettingsServlet extends HttpServlet {
 				String type = req.getParameter("type");
 				if (colName != null && !colName.isBlank())
 					new ColumnDefinitionDAO().insert(colName.trim(), type);
+		        redirectTab = "col";
 				break;
 			}
 			case "deleteColumn" : {
 				int id = Integer.parseInt(req.getParameter("id"));
 				new ColumnDefinitionDAO().delete(id);
+				redirectTab = "col";
 				break;
 			}
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			log.debug("DoPost Exception : {}",e.getMessage());
 			/* ignore */ }
 
-		resp.sendRedirect(req.getContextPath() + "/settings?msg=saved");
+//		resp.sendRedirect(req.getContextPath() + "/settings?msg=saved");
+		resp.sendRedirect(req.getContextPath() + "/settings?msg=saved&tab=" + redirectTab);
+
 	}
 
 	private List<Category> getAllCategories(CategoryDAO dao) throws Exception {

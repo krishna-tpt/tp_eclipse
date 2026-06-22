@@ -3,6 +3,7 @@ package com.expensemanager.service;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -129,6 +130,7 @@ public class SchedulerEngine {
 		int logId = -1;
 		try {
 			logId = dao.logStart(s.getId());
+
 			String result;
 			int rows = 0;
 
@@ -145,7 +147,7 @@ public class SchedulerEngine {
 				rows = Integer.parseInt(r[1]);
 			}
 			case "NEON_SYNC" -> {
-				var sr = runNeonSync();
+				var sr = runNeonSync(s.getLastRunAt());
 				result = sr.getSummary();
 				rows = sr.totalRows;
 			}
@@ -180,8 +182,7 @@ public class SchedulerEngine {
 					return new String[] { "Cash book already exists: " + name, "0" };
 			}
 			// Create
-			try (PreparedStatement ps = conn
-					.prepareStatement("INSERT INTO cash_books (name) VALUES (?)")) {
+			try (PreparedStatement ps = conn.prepareStatement("INSERT INTO cash_books (name) VALUES (?)")) {
 				ps.setString(1, name);
 				ps.executeUpdate();
 			}
@@ -257,8 +258,8 @@ public class SchedulerEngine {
 	}
 
 	// ── NEON_SYNC ──────────────────────────────────────────────────
-	private NeonSyncService.SyncResult runNeonSync() {
-		return new NeonSyncService().sync();
+	private NeonSyncService.SyncResult runNeonSync(LocalDateTime lastRunAt) {
+		return new NeonSyncService().sync(lastRunAt);
 	}
 
 	// ── Calculate next run time ────────────────────────────────────
