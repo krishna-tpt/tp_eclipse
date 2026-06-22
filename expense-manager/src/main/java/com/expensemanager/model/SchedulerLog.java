@@ -11,6 +11,8 @@ public class SchedulerLog {
 	private String status; // RUNNING, SUCCESS, FAILED
 	private String message;
 	private int rowsSynced;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 
 	public String getDurationDisplay() {
 		if (startedAt == null || finishedAt == null)

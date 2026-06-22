@@ -1,10 +1,14 @@
 package com.expensemanager.model;
 
+import java.time.LocalDateTime;
+
 public class SubCategory {
 
 	private int id;
 	private String name;
 	private int category_id;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 
 	public SubCategory() {
 	}

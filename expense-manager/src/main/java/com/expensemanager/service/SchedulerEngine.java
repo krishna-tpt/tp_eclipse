@@ -181,7 +181,7 @@ public class SchedulerEngine {
 			}
 			// Create
 			try (PreparedStatement ps = conn
-					.prepareStatement("INSERT INTO cash_books (name, currency) VALUES (?, 'INR')")) {
+					.prepareStatement("INSERT INTO cash_books (name) VALUES (?)")) {
 				ps.setString(1, name);
 				ps.executeUpdate();
 			}

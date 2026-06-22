@@ -43,7 +43,7 @@ public class ReceiptDAO {
 	}
 	
 	public void uploadReceipt(Receipt r) throws SQLException {
-		String sql="UPDATE transaction_receipts set file_data =? Where id = ?";
+		String sql="UPDATE transaction_receipts set file_data =?, updated_at=NOW() Where id = ?";
 		
 		Connection conn = db.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {

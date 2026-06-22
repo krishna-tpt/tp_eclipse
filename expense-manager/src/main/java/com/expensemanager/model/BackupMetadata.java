@@ -30,6 +30,7 @@ public class BackupMetadata {
 	private LocalDateTime completedAt;
 	private BackupMode mode;
 	private String external_ID;
+	private LocalDateTime updatedAt;
 
 	public BackupMetadata() {
 	}

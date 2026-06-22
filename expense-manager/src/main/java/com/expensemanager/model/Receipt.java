@@ -12,6 +12,8 @@ public class Receipt {
 	private byte[] fileData;
 	private int fileSize;
 	private LocalDateTime uploadedAt;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 
 	public Receipt() {
 	}

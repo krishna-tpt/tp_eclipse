@@ -1,9 +1,13 @@
 package com.expensemanager.model;
 
+import java.time.LocalDateTime;
+
 public class Category {
 	private int id;
 	private String name;
 	private String type; // INCOME | EXPENSE
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 
 	public Category() {
 	}

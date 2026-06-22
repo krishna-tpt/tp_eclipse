@@ -1,6 +1,7 @@
 package com.expensemanager.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class BudgetCategory {
 	private int id;
@@ -9,6 +10,8 @@ public class BudgetCategory {
 	private String categoryName;
 	private BigDecimal catLimit;
 	private int alertPct; // alert threshold %
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 
 	// Computed
 	private BigDecimal spent; // actual spent this month in this category

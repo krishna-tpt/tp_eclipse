@@ -42,7 +42,7 @@ public class SubCategoryDAO {
         try {
             conn.setAutoCommit(false);
             try (PreparedStatement ps1 = conn.prepareStatement(
-                    "UPDATE transactions SET sub_categories_id = NULL WHERE sub_categories_id = ?")) {
+                    "UPDATE transactions SET sub_categories_id = NULL, updated_at=NOW() WHERE sub_categories_id = ?")) {
                 ps1.setInt(1, id);
                 ps1.executeUpdate();
             }

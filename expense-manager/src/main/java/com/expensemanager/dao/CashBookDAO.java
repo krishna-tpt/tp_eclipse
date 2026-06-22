@@ -54,7 +54,7 @@ public class CashBookDAO {
 	}
 
 	public void update(int id, String name, String description) throws SQLException {
-		String sql = "UPDATE cash_books SET name=?, description=? WHERE id=?";
+		String sql = "UPDATE cash_books SET name=?, description=?, updated_at=NOW() WHERE id=?";
 		Connection conn = db.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, name.trim());

@@ -9,6 +9,7 @@ public class CashBook {
 	private String description;
 	private LocalDateTime createdAt;
 	private boolean active;
+	private LocalDateTime updatedAt;
 
 	public CashBook() {
 	}

@@ -1,10 +1,14 @@
 package com.expensemanager.model;
 
+import java.time.LocalDateTime;
+
 public class ColumnDefinition {
 	private int id;
 	private String colName; // display name
 	private String colKey; // snake_case key
 	private String type; // INCOME | EXPENSE
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 
 	public ColumnDefinition() {
 	}

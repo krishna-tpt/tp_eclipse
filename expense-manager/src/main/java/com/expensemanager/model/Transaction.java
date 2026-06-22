@@ -22,6 +22,9 @@ public class Transaction {
 	private int subcategoryid;
 	private String subCategoryName;
 	private int bookId;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
+
 	private Map<String, String> customValues = new LinkedHashMap<>();
 
 	public Transaction() {

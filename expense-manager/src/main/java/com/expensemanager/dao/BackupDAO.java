@@ -63,7 +63,7 @@ public class BackupDAO {
 
 	public void updateCompletion(int id, BackupStatus status, long size, int inc, int exp, String err)
 			throws SQLException {
-		String sql = "UPDATE backup_history SET status=?,file_size_bytes=?,income_count=?,expense_count=?,error_message=?,completed_at=NOW() WHERE id=?";
+		String sql = "UPDATE backup_history SET status=?,file_size_bytes=?,income_count=?,expense_count=?,error_message=?,completed_at=NOW(), updated_at=NOW() WHERE id=?";
 		try (Connection con = DBConnection.getInstance().getInstance().getConnection();
 				PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, status.name());
@@ -81,7 +81,7 @@ public class BackupDAO {
 	public void updateStatus(int id, BackupStatus status) throws SQLException {
 		try (Connection con = DBConnection.getInstance().getConnection();
 				PreparedStatement ps = con
-						.prepareStatement("UPDATE backup_history SET status=?,completed_at=NOW() WHERE id=?")) {
+						.prepareStatement("UPDATE backup_history SET status=?,completed_at=NOW(), updated_at=NOW() WHERE id=?")) {
 			ps.setString(1, status.name());
 			ps.setInt(2, id);
 			ps.executeUpdate();
@@ -93,7 +93,7 @@ public class BackupDAO {
 	public void updateExternalID(int id, BackupStatus status, String externalID) throws SQLException {
 		try (Connection con = DBConnection.getInstance().getConnection();
 				PreparedStatement ps = con
-						.prepareStatement("UPDATE backup_history SET status=?,external_ID=?, completed_at=NOW() WHERE id=?")) {
+						.prepareStatement("UPDATE backup_history SET status=?,external_ID=?, completed_at=NOW(), updated_at=NOW() WHERE id=?")) {
 			ps.setString(1, status.name());
 			ps.setString(2, externalID);
 			ps.setInt(3, id);

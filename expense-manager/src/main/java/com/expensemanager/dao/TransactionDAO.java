@@ -63,7 +63,8 @@ public class TransactionDAO {
 				  category_id       = ?,
 				  sub_categories_id = ?,
 				  note              = ?,
-				  book_id           = ? 
+				  book_id           = ?, 
+				  updated_at=NOW() 
 				WHERE id = ?
 				""";
 		Connection conn = db.getConnection();

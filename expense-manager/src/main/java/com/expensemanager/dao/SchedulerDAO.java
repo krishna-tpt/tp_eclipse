@@ -101,7 +101,7 @@ public class SchedulerDAO {
 			LocalDateTime nextRunAt) throws SQLException {
 		String sql = """
 				UPDATE scheduler_log
-				SET finished_at=NOW(), status=?, message=?, rows_synced=?
+				SET finished_at=NOW(), status=?, message=?, rows_synced=?, updated_at=NOW()
 				WHERE id=?
 				""";
 		String upd = """

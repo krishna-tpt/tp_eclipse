@@ -15,6 +15,8 @@ public class AuditLog {
 	private String oldValue;
 	private String newValue;
 	private String note;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 
 	// Extra context from JOIN (used in global audit view)
 	private BigDecimal txnAmount;
