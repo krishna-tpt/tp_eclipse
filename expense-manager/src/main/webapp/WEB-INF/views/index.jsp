@@ -663,46 +663,6 @@ tbody tr.selected {
 <script>
 const CTX = '${pageContext.request.contextPath}';
 
-function loadDetail(txnId, rowEl) {
-  document.querySelectorAll('tbody tr.selected').forEach(r => r.classList.remove('selected'));
-  rowEl.classList.add('selected');
-  document.getElementById('txnLayout').classList.add('detail-open');
-  document.getElementById('dpTitle').textContent = 'Transaction #' + txnId;
-  document.getElementById('dpFullLink').href     = CTX + '/transaction?id=' + txnId;
-  document.getElementById('dpBody').innerHTML    =
-    '<div style="text-align:center;padding:2rem"><div style="font-size:1.5rem">&#8987;</div>Loading&#8230;</div>';
-
-  fetch(CTX + '/transaction?id=' + txnId + '&panel=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-    .then(r => r.text())
-    .then(html => { document.getElementById('dpBody').innerHTML = html; initDetailPanel(); })
-    .catch(() => {
-      const tds = rowEl.querySelectorAll('td');
-      document.getElementById('dpBody').innerHTML =
-        `<div class="card-title">Transaction #${txnId}</div>
-         <table style="font-size:.875rem;width:100%">
-           <tr><td class="text-muted" style="padding:.3rem 0;width:100px">Date</td><td>${tds[1].textContent.trim()}</td></tr>
-           <tr><td class="text-muted" style="padding:.3rem 0">Type</td><td>${tds[2].textContent.trim()}</td></tr>
-           <tr><td class="text-muted" style="padding:.3rem 0">Category</td><td>${tds[3].textContent.trim()}</td></tr>
-           <tr><td class="text-muted" style="padding:.3rem 0">Amount</td><td>${tds[5].textContent.trim()}</td></tr>
-           <tr><td class="text-muted" style="padding:.3rem 0">Note</td><td>${tds[6].textContent.trim()}</td></tr>
-         </table>
-         <div class="flex gap-1 mt-2">
-           <a href="${CTX}/transaction?id=${txnId}" class="btn btn-primary btn-sm">Open Full Edit &#8594;</a>
-         </div>`;
-    });
-}
-
-function initDetailPanel() {
-  var form = document.querySelector('#dpBody form[id="editForm"]');
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      fetch(form.action, { method:'POST', body: new FormData(form) })
-        .then(() => location.reload());
-    });
-  }
-}
-
 function closeDetail() {
   document.getElementById('txnLayout').classList.remove('detail-open');
   document.querySelectorAll('tbody tr.selected').forEach(r => r.classList.remove('selected'));

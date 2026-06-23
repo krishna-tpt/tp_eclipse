@@ -489,7 +489,8 @@ tbody tr.selected {
 				<tbody>
 					<c:forEach var="t" items="${transactions}" varStatus="st">
 						<tr class="clickable" id="row-${t.id}"
-							onclick="loadDetail(${t.id}, this)">
+							<%-- onclick="loadDetail(${t.id}, this)"> --%>
+							onclick="window.location='${pageContext.request.contextPath}/transaction?id=${t.id}'">
 							<td class="text-muted" style="font-size: .78rem">${total-((page-1)*15)-st.index}</td>
 							<td style="font-size: .82rem; white-space: nowrap">${t.formattedDateTime}</td>
 							<td><c:choose>
@@ -593,53 +594,6 @@ tbody tr.selected {
 
 <script>
 const CTX = '${pageContext.request.contextPath}';
-
-function loadDetail(txnId, rowEl) {
-  // Highlight row
-  document.querySelectorAll('tbody tr.selected').forEach(r => r.classList.remove('selected'));
-  rowEl.classList.add('selected');
-
-  const layout = document.getElementById('txnLayout');
-  const panel  = document.getElementById('detailPanel');
-  layout.classList.add('detail-open');
-
-  document.getElementById('dpTitle').textContent   = 'Transaction #' + txnId;
-  document.getElementById('dpFullLink').href       = CTX + '/transaction?id=' + txnId;
-  document.getElementById('dpBody').innerHTML      =
-    '<div style="text-align:center;padding:2rem"><div style="font-size:1.5rem">&#8987;</div>Loading&#8230;</div>';
-
-  fetch(CTX + '/transaction?id=' + txnId + '&panel=1', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-    .then(r => r.text())
-    .then(html => { document.getElementById('dpBody').innerHTML = html; initDetailPanel(); })
-    .catch(() => {
-      // Fallback: show basic info from row
-      const tds = rowEl.querySelectorAll('td');
-      document.getElementById('dpBody').innerHTML =
-        `<div class="card-title">Transaction #${txnId}</div>
-         <table style="font-size:.875rem;width:100%">
-           <tr><td class="text-muted" style="padding:.3rem 0;width:100px">Date</td><td>${tds[1].textContent.trim()}</td></tr>
-           <tr><td class="text-muted" style="padding:.3rem 0">Type</td><td>${tds[2].textContent.trim()}</td></tr>
-           <tr><td class="text-muted" style="padding:.3rem 0">Category</td><td>${tds[3].textContent.trim()}</td></tr>
-           <tr><td class="text-muted" style="padding:.3rem 0">Amount</td><td>${tds[5].textContent.trim()}</td></tr>
-           <tr><td class="text-muted" style="padding:.3rem 0">Note</td><td>${tds[6].textContent.trim()}</td></tr>
-         </table>
-         <div class="flex gap-1 mt-2">
-           <a href="${CTX}/transaction?id=${txnId}" class="btn btn-primary btn-sm">Open Full Edit &#8594;</a>
-         </div>`;
-    });
-}
-
-function initDetailPanel() {
-  // Make delete/save in panel work
-  var form = document.querySelector('#dpBody form[id="editForm"]');
-  if (form) {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      fetch(form.action, { method:'POST', body: new FormData(form) })
-        .then(() => location.reload());
-    });
-  }
-}
 
 function closeDetail() {
   document.getElementById('txnLayout').classList.remove('detail-open');
