@@ -10,6 +10,14 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="toggleFilter"/>
+			<item value="loadDetail"/>
+			<item value="${transactions}"/>
+			<item value="closeDetail"/>
+			<item value="initDetailPanel"/>
+			<item value="Note"/>
+			<item value="note"/>
+			<item value="datetime-local"/>
 			<item value="switchTab"/>
 			<item value="addEventListener"/>
 			<item value="updated_at&gt;="/>
@@ -17,14 +25,6 @@
 			<item value="transaction"/>
 			<item value="transaction_id"/>
 			<item value="confirmCopyModal"/>
-			<item value="copy with"/>
-			<item value="copy"/>
-			<item value="transform"/>
-			<item value="translateY"/>
-			<item value="border-radius: 18px"/>
-			<item value="#fff"/>
-			<item value="background:#fff"/>
-			<item value="content = content.replace("/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>
