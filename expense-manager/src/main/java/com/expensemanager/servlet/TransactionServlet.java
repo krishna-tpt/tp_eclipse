@@ -30,7 +30,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
-@WebServlet("/transactions")
+@WebServlet(urlPatterns = { "/transactions", "/bulkadd" })
 @MultipartConfig(maxFileSize = 5_242_880, maxRequestSize = 10_485_760)
 public class TransactionServlet extends HttpServlet {
 	private static final Logger log = LoggerFactory.getLogger(TransactionServlet.class);
@@ -40,6 +40,7 @@ public class TransactionServlet extends HttpServlet {
 
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
 		TransactionFilter filter = parseFilter(req, bookId);
+		String path = req.getServletPath();
 
 		try {
 			TransactionDAO txnDAO = new TransactionDAO();
@@ -64,7 +65,12 @@ public class TransactionServlet extends HttpServlet {
 		} catch (Exception e) {
 			req.setAttribute("dbError", e.getMessage());
 		}
-		req.getRequestDispatcher("/WEB-INF/views/transactions.jsp").forward(req, resp);
+
+		if ("/bulkadd".equalsIgnoreCase(path)) {
+			req.getRequestDispatcher("/WEB-INF/views/bulk-transaction.jsp").forward(req, resp);
+		} else {
+			req.getRequestDispatcher("/WEB-INF/views/transactions.jsp").forward(req, resp);
+		}
 	}
 
 	@Override

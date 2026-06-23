@@ -196,7 +196,8 @@ if (request.getAttribute("_allBooks") == null) {
 				class="${activePage=='log'?'active':''}">&#128203; Log</a> <a
 				href="${pageContext.request.contextPath}/schedulers"
 				class="${activePage=='schedulers'?'active':''}">&#9201;
-				Schedulers</a>
+				Schedulers</a><a href="${pageContext.request.contextPath}/bulkadd"
+				class="${activePage=='bulkadd'?'active':''}">&#128203; Bulk Add</a>
 		</div>
 
 		<a href="${pageContext.request.contextPath}/settings"
