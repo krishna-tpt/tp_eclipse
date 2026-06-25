@@ -128,6 +128,10 @@ public class SchedulerEngine {
 	// ── Execute a specific scheduler ───────────────────────────────
 	private void execute(SchedulerConfig s) {
 		int logId = -1;
+		LocalDateTime oneWeekAgo = LocalDateTime.now().minusDays(7);
+		LocalDateTime lastRun = s.getLastRunAt();
+
+		
 		try {
 			logId = dao.logStart(s.getId());
 
@@ -147,7 +151,7 @@ public class SchedulerEngine {
 				rows = Integer.parseInt(r[1]);
 			}
 			case "NEON_SYNC" -> {
-				var sr = runNeonSync(s.getLastRunAt());
+				var sr = runNeonSync(Math.max(s.getLastRunAt(),oneWeekAgo));
 				result = sr.getSummary();
 				rows = sr.totalRows;
 			}

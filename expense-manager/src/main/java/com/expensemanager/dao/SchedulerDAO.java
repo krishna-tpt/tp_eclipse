@@ -1,16 +1,25 @@
 package com.expensemanager.dao;
 
-import com.expensemanager.model.SchedulerConfig;
-import com.expensemanager.model.SchedulerLog;
-import com.expensemanager.util.DBConnection;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SchedulerDAO {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.expensemanager.model.SchedulerConfig;
+import com.expensemanager.model.SchedulerLog;
+import com.expensemanager.util.DBConnection;
+
+public class SchedulerDAO {
+	private static final Logger log = LoggerFactory.getLogger(SchedulerDAO.class);
 	private final DBConnection db = DBConnection.getInstance();
 
 	// ── List all schedulers ────────────────────────────────────────
@@ -217,5 +226,51 @@ public class SchedulerDAO {
 		if (fa != null)
 			l.setFinishedAt(fa.toLocalDateTime());
 		return l;
+	}
+	
+	private void resetSeq(Connection con) throws SQLException {
+	    // Step 1 — Generate SET VAL statements dynamically
+	    String genSql = """
+	            SELECT
+	                'SELECT setval(''' ||
+	                pg_get_serial_sequence(table_name, column_name) ||
+	                ''', COALESCE(MAX(' || column_name || '), 1)) FROM ' ||
+	                table_name || ';'
+	            FROM information_schema.columns
+	            WHERE table_schema = 'public'
+	              AND (
+	                    column_default LIKE 'nextval%'
+	                    OR is_identity = 'YES'
+	                  )
+	            """;
+
+	    List<String> setvalStatements = new ArrayList<>();
+
+	    try (PreparedStatement ps = con.prepareStatement(genSql);
+	         ResultSet rs = ps.executeQuery()) {
+	        while (rs.next()) {
+	            String stmt = rs.getString(1);
+	            if (stmt != null && !stmt.isBlank()) {
+	                setvalStatements.add(stmt);
+	            }
+	        }
+	    }
+
+	    log.debug("resetSeq: {} setval statements generated", setvalStatements.size());
+
+	    // Step 2 — Execute each generated setval statement
+	    try (Statement st = con.createStatement()) {
+	        for (String stmt : setvalStatements) {
+	            log.debug("resetSeq: executing → {}", stmt);
+	            try {
+	                st.execute(stmt);
+	            } catch (SQLException e) {
+	                log.debug("resetSeq: skip error for stmt: {} | {}", stmt, e.getMessage());
+	                // if one table fail also continue remining tables
+	            }
+	        }
+	    }
+
+	    log.info("resetSeq: done — {} sequences updated", setvalStatements.size());
 	}
 }
