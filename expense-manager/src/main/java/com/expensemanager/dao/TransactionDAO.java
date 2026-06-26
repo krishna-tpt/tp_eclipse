@@ -63,8 +63,8 @@ public class TransactionDAO {
 				  category_id       = ?,
 				  sub_categories_id = ?,
 				  note              = ?,
-				  book_id           = ?, 
-				  updated_at=NOW() 
+				  book_id           = ?,
+				  updated_at=NOW()
 				WHERE id = ?
 				""";
 		Connection conn = db.getConnection();
@@ -96,10 +96,11 @@ public class TransactionDAO {
 					nvl(newT.getSubCategoryName()));
 		if (!Objects.equals(oldT.getNote(), newT.getNote()))
 			auditDAO.logUpdate(oldT.getId(), "user", "note", nvl(oldT.getNote()), nvl(newT.getNote()));
-		
+
 		if (!Objects.equals(oldT.getBookId(), newT.getBookId())) {
-			CashBookDAO dao =new CashBookDAO();
-			auditDAO.logUpdate(oldT.getId(), "user", "book", dao.findById(oldT.getBookId()).getName(), dao.findById(newT.getBookId()).getName());
+			CashBookDAO dao = new CashBookDAO();
+			auditDAO.logUpdate(oldT.getId(), "user", "book", dao.findById(oldT.getBookId()).getName(),
+					dao.findById(newT.getBookId()).getName());
 		}
 	}
 
@@ -293,6 +294,210 @@ public class TransactionDAO {
 		}
 	}
 
+	// ── NEW: Category breakdown for a specific month ──────
+	public List<Map<String, Object>> categoryBreakdownByMonth(String type, int year, int month, Integer bookId)
+			throws SQLException {
+		StringBuilder sql = new StringBuilder("""
+				SELECT c.name AS category,
+				       COALESCE(SUM(t.amount), 0) AS total,
+				       COUNT(*) AS txn_count
+				FROM transactions t
+				JOIN categories c ON t.category_id = c.id
+				WHERE t.type = ?::txn_type
+				  AND EXTRACT(YEAR  FROM t.txn_datetime) = ?
+				  AND EXTRACT(MONTH FROM t.txn_datetime) = ?
+				""");
+		if (bookId != null && bookId > 0)
+			sql.append(" AND t.book_id = ").append(bookId);
+		sql.append(" GROUP BY c.name ORDER BY total DESC");
+		Connection conn = db.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			ps.setString(1, type);
+			ps.setInt(2, year);
+			ps.setInt(3, month);
+			ResultSet rs = ps.executeQuery();
+			List<Map<String, Object>> rows = new ArrayList<>();
+			while (rs.next()) {
+				Map<String, Object> m = new LinkedHashMap<>();
+				m.put("category", rs.getString("category"));
+				m.put("total", rs.getBigDecimal("total"));
+				m.put("txnCount", rs.getInt("txn_count"));
+				rows.add(m);
+			}
+			return rows;
+		} finally {
+			db.releaseConnection(conn);
+		}
+	}
+
+	// ── NEW: Sub-category breakdown for a specific month ──
+	public List<Map<String, Object>> subCategoryBreakdownByMonth(String type, int year, int month, Integer bookId)
+			throws SQLException {
+		StringBuilder sql = new StringBuilder("""
+				SELECT c.name AS category,
+				       COALESCE(sc.name, 'Uncategorized') AS subcategory,
+				       COALESCE(SUM(t.amount), 0) AS total,
+				       COUNT(*) AS txn_count
+				FROM transactions t
+				JOIN categories c ON t.category_id = c.id
+				LEFT JOIN sub_categories sc ON t.sub_categories_id = sc.sub_categories_id
+				WHERE t.type = ?::txn_type
+				  AND EXTRACT(YEAR  FROM t.txn_datetime) = ?
+				  AND EXTRACT(MONTH FROM t.txn_datetime) = ?
+				""");
+		if (bookId != null && bookId > 0)
+			sql.append(" AND t.book_id = ").append(bookId);
+		sql.append(" GROUP BY c.name, sc.name ORDER BY total DESC");
+		Connection conn = db.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			ps.setString(1, type);
+			ps.setInt(2, year);
+			ps.setInt(3, month);
+			ResultSet rs = ps.executeQuery();
+			List<Map<String, Object>> rows = new ArrayList<>();
+			while (rs.next()) {
+				Map<String, Object> m = new LinkedHashMap<>();
+				m.put("category", rs.getString("category"));
+				m.put("subcategory", rs.getString("subcategory"));
+				m.put("total", rs.getBigDecimal("total"));
+				m.put("txnCount", rs.getInt("txn_count"));
+				rows.add(m);
+			}
+			return rows;
+		} finally {
+			db.releaseConnection(conn);
+		}
+	}
+
+	// ── NEW: Day-of-week spending pattern ─────────────────
+	public List<Map<String, Object>> dayOfWeekPattern(int year, int month, Integer bookId) throws SQLException {
+		StringBuilder sql = new StringBuilder("""
+				SELECT TO_CHAR(txn_datetime, 'Dy') AS dow_label,
+				       EXTRACT(DOW FROM txn_datetime)::INT AS dow_num,
+				       SUM(CASE WHEN type='INCOME'::txn_type  THEN amount ELSE 0 END) AS income,
+				       SUM(CASE WHEN type='EXPENSE'::txn_type THEN amount ELSE 0 END) AS expense,
+				       COUNT(*) AS txn_count
+				FROM transactions
+				WHERE EXTRACT(YEAR  FROM txn_datetime) = ?
+				  AND EXTRACT(MONTH FROM txn_datetime) = ?
+				""");
+		if (bookId != null && bookId > 0)
+			sql.append(" AND book_id = ").append(bookId);
+		sql.append(" GROUP BY dow_num, dow_label ORDER BY dow_num");
+		Connection conn = db.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			ps.setInt(1, year);
+			ps.setInt(2, month);
+			ResultSet rs = ps.executeQuery();
+			List<Map<String, Object>> rows = new ArrayList<>();
+			// Prefill all 7 days with zero
+			String[] days = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+			Map<Integer, Map<String, Object>> byDow = new LinkedHashMap<>();
+			for (int i = 0; i < 7; i++) {
+				Map<String, Object> m = new LinkedHashMap<>();
+				m.put("dow", i);
+				m.put("label", days[i]);
+				m.put("income", java.math.BigDecimal.ZERO);
+				m.put("expense", java.math.BigDecimal.ZERO);
+				m.put("txnCount", 0);
+				byDow.put(i, m);
+			}
+			while (rs.next()) {
+				int dow = rs.getInt("dow_num");
+				Map<String, Object> m = byDow.getOrDefault(dow, new LinkedHashMap<>());
+				m.put("income", rs.getBigDecimal("income"));
+				m.put("expense", rs.getBigDecimal("expense"));
+				m.put("txnCount", rs.getInt("txn_count"));
+				byDow.put(dow, m);
+			}
+			rows.addAll(byDow.values());
+			return rows;
+		} finally {
+			db.releaseConnection(conn);
+		}
+	}
+
+	// ── NEW: Weekly totals within a month ─────────────────
+	public List<Map<String, Object>> weeklyTotals(int year, int month, Integer bookId) throws SQLException {
+		StringBuilder sql = new StringBuilder("""
+				SELECT EXTRACT(WEEK FROM txn_datetime)::INT AS wk,
+				       MIN(DATE(txn_datetime)) AS week_start,
+				       SUM(CASE WHEN type='INCOME'::txn_type  THEN amount ELSE 0 END) AS income,
+				       SUM(CASE WHEN type='EXPENSE'::txn_type THEN amount ELSE 0 END) AS expense,
+				       COUNT(*) AS txn_count
+				FROM transactions
+				WHERE EXTRACT(YEAR  FROM txn_datetime) = ?
+				  AND EXTRACT(MONTH FROM txn_datetime) = ?
+				""");
+		if (bookId != null && bookId > 0)
+			sql.append(" AND book_id = ").append(bookId);
+		sql.append(" GROUP BY wk ORDER BY wk");
+		Connection conn = db.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			ps.setInt(1, year);
+			ps.setInt(2, month);
+			ResultSet rs = ps.executeQuery();
+			List<Map<String, Object>> rows = new ArrayList<>();
+			int weekNum = 1;
+			while (rs.next()) {
+				Map<String, Object> m = new LinkedHashMap<>();
+				m.put("week", "Week " + weekNum++);
+				m.put("weekStart", rs.getDate("week_start").toString());
+				m.put("income", rs.getBigDecimal("income"));
+				m.put("expense", rs.getBigDecimal("expense"));
+				m.put("txnCount", rs.getInt("txn_count"));
+				rows.add(m);
+			}
+			return rows;
+		} finally {
+			db.releaseConnection(conn);
+		}
+	}
+
+	// ── NEW: Month summary (income, expense, net, txn count) ──
+	public Map<String, Object> monthSummary(int year, int month, Integer bookId) throws SQLException {
+		StringBuilder sql = new StringBuilder("""
+				SELECT
+				  SUM(CASE WHEN type='INCOME'::txn_type  THEN amount ELSE 0 END) AS income,
+				  SUM(CASE WHEN type='EXPENSE'::txn_type THEN amount ELSE 0 END) AS expense,
+				  COUNT(*) AS txn_count,
+				  COUNT(DISTINCT category_id) AS cat_count
+				FROM transactions
+				WHERE EXTRACT(YEAR  FROM txn_datetime) = ?
+				  AND EXTRACT(MONTH FROM txn_datetime) = ?
+				""");
+		if (bookId != null && bookId > 0)
+			sql.append(" AND book_id = ").append(bookId);
+		Connection conn = db.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			ps.setInt(1, year);
+			ps.setInt(2, month);
+			ResultSet rs = ps.executeQuery();
+			Map<String, Object> m = new LinkedHashMap<>();
+			if (rs.next()) {
+				java.math.BigDecimal inc = rs.getBigDecimal("income");
+				java.math.BigDecimal exp = rs.getBigDecimal("expense");
+				if (inc == null)
+					inc = java.math.BigDecimal.ZERO;
+				if (exp == null)
+					exp = java.math.BigDecimal.ZERO;
+				m.put("income", inc);
+				m.put("expense", exp);
+				m.put("net", inc.subtract(exp));
+				m.put("txnCount", rs.getInt("txn_count"));
+				m.put("catCount", rs.getInt("cat_count"));
+				m.put("savingsRate",
+						inc.compareTo(java.math.BigDecimal.ZERO) > 0
+								? inc.subtract(exp).multiply(java.math.BigDecimal.valueOf(100)).divide(inc, 1,
+										java.math.RoundingMode.HALF_UP)
+								: java.math.BigDecimal.ZERO);
+			}
+			return m;
+		} finally {
+			db.releaseConnection(conn);
+		}
+	}
+
 	// ── SQL BUILDER ───────────────────────────────────────
 	/**
 	 * Sum of amounts for transactions matching the given filter. Filter must have
@@ -477,5 +682,5 @@ public class TransactionDAO {
 	private String nvl(String s) {
 		return s != null ? s : "";
 	}
-	
+
 }
