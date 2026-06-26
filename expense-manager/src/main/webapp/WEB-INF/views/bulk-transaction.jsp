@@ -181,6 +181,11 @@
 		</p>
 	</div>
 	<div class="flex gap-1 ml-auto">
+		<label class="btn btn-outline btn-sm" style="cursor: pointer"
+			title="Import CSV or Excel"> &#128196; Import File <input
+			type="file" id="importFileInput" accept=".csv,.xlsx,.xls"
+			style="display: none" onchange="importFile(this)">
+		</label>
 		<button class="btn btn-outline btn-sm" onclick="bulkAddRow()">&#43;
 			Add Row</button>
 		<button class="btn btn-outline btn-sm" onclick="bulkAddRows(5)">&#43;
@@ -190,6 +195,23 @@
 		<button class="btn btn-success" onclick="bulkSubmit()">&#10003;
 			Save All</button>
 	</div>
+
+</div>
+
+<div style="font-size:.75rem;color:var(--text-2);margin-bottom:.75rem;
+            background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:.5rem .85rem">
+    &#128196; <strong>Import format (CSV/Excel):</strong>
+    Columns in order:
+    <code>type</code>,
+    <code>date_time</code>,
+    <code>amount</code>,
+    <code>category</code>,
+    <code>sub_category</code>,
+    <code>note</code>
+    &nbsp;|&nbsp;
+    type = <code>INCOME</code> or <code>EXPENSE</code> &nbsp;|&nbsp;
+    date_time = <code>2026-06-01 10:30</code>
+    &nbsp;|&nbsp; First row = header (skipped)
 </div>
 
 <%-- Success / Error alerts --%>
@@ -403,6 +425,139 @@
         rowCount = 0;
         bulkUpdateSummary();
     };
+    
+    /* ── Import File (CSV / Excel) ───────────────────────── */
+    window.importFile = function(input) {
+        var file = input.files[0];
+        if (!file) return;
+        input.value = ''; // reset so same file can be re-imported
+
+        var reader = new FileReader();
+        var isExcel = file.name.match(/\.(xlsx|xls)$/i);
+
+        reader.onload = function(e) {
+            var rows = [];
+
+            if (isExcel) {
+                // Excel — use SheetJS
+                var wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+                var ws = wb.Sheets[wb.SheetNames[0]];
+                var data = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'yyyy-mm-dd hh:mm' });
+                rows = data;
+            } else {
+                // CSV
+                var text = e.target.result;
+                rows = text.split('\n').map(function(line) {
+                    // Handle quoted fields
+                    var result = [], cur = '', inQ = false;
+                    for (var i = 0; i < line.length; i++) {
+                        var c = line[i];
+                        if (c === '"') { inQ = !inQ; }
+                        else if (c === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+                        else { cur += c; }
+                    }
+                    result.push(cur.trim());
+                    return result;
+                });
+            }
+
+            // Skip header row
+            if (rows.length <= 1) {
+                showAlert('File is empty or has only headers.', 'error');
+                return;
+            }
+
+            var imported = 0, skipped = 0;
+            // Clear existing rows before import
+            if (document.querySelectorAll('#bulkBody tr').length > 0) {
+                if (!confirm('Clear existing rows and load from file?')) return;
+                document.getElementById('bulkBody').innerHTML = '';
+                rowCount = 0;
+            }
+
+            for (var i = 1; i < rows.length; i++) {
+                var r = rows[i];
+                // Skip empty rows
+                if (!r || r.length < 3 || (r[0] === '' && r[2] === '')) {
+                    skipped++;
+                    continue;
+                }
+
+                var rawType = (r[0] || '').toString().trim().toUpperCase();
+                var type    = (rawType === 'INCOME') ? 'INCOME' : 'EXPENSE';
+                var rawDate = (r[1] || '').toString().trim();
+                var amount  = (r[2] || '').toString().trim();
+                var rawCat  = (r[3] || '').toString().trim();
+                var rawSub  = (r[4] || '').toString().trim();
+                var note    = (r[5] || '').toString().trim();
+
+                // Normalize date → datetime-local format (YYYY-MM-DDTHH:mm)
+                var dt = normalizeDate(rawDate);
+
+                // Find category id by name (case-insensitive)
+                var catList = (type === 'INCOME') ? CAT_INCOME : CAT_EXPENSE;
+                var catMatch = catList.filter(function(c) {
+                    return c.name.toLowerCase() === rawCat.toLowerCase();
+                })[0];
+                var catId = catMatch ? catMatch.id : '';
+
+                // Find sub-category id by name
+                var subMatch = SUBCATS.filter(function(s) {
+                    return s.name.toLowerCase() === rawSub.toLowerCase()
+                        && (!catId || s.catId === catId);
+                })[0];
+                var subId = subMatch ? subMatch.id : '';
+
+                // Add row to form
+                bulkAddRow({ type: type, date: dt, catId: catId, subId: subId });
+
+                // Set values that bulkAddRow doesn't set directly
+                var allRows = document.querySelectorAll('#bulkBody tr');
+                var tr = allRows[allRows.length - 1];
+                tr.querySelector('.b-amt').value  = amount;
+                tr.querySelector('.b-note').value = note;
+
+                // Highlight unmatched category in red
+                if (!catId && rawCat) {
+                    tr.querySelector('.b-cat').style.borderColor = '#f59e0b';
+                    tr.querySelector('.b-cat').title = 'Category "' + rawCat + '" not found — please select manually';
+                }
+                if (!subId && rawSub) {
+                    tr.querySelector('.b-sub').style.borderColor = '#f59e0b';
+                    tr.querySelector('.b-sub').title = 'Sub category "' + rawSub + '" not found';
+                }
+
+                imported++;
+            }
+
+            bulkUpdateSummary();
+            showAlert(imported + ' rows imported' + (skipped > 0 ? ', ' + skipped + ' skipped' : '') + '. Review and save.', 'success');
+        };
+
+        if (isExcel) {
+            reader.readAsArrayBuffer(file);
+        } else {
+            reader.readAsText(file);
+        }
+    };
+
+    /* ── Date normalizer ─────────────────────────────────── */
+    function normalizeDate(raw) {
+        if (!raw) return nowLocal();
+        // Already ISO format: 2026-06-01T10:30 or 2026-06-01 10:30
+        var s = raw.replace(' ', 'T');
+        if (s.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
+            return s.substring(0, 16);
+        }
+        // DD/MM/YYYY HH:MM or DD-MM-YYYY HH:MM
+        var m = raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})[\s,T]?(\d{2}:\d{2})?/);
+        if (m) {
+            var dd = m[1].padStart(2,'0'), mo = m[2].padStart(2,'0'), yy = m[3];
+            var tm = m[4] || '00:00';
+            return yy + '-' + mo + '-' + dd + 'T' + tm;
+        }
+        return nowLocal();
+    }
 
     /* ── Submit ──────────────────────────────────────────── */
     window.bulkSubmit = function() {
@@ -491,5 +646,5 @@
 
 })();
 </script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <%@ include file="footer.jsp"%>

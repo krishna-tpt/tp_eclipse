@@ -3,7 +3,6 @@ package com.expensemanager.service;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -130,8 +129,9 @@ public class SchedulerEngine {
 		int logId = -1;
 		LocalDateTime oneWeekAgo = LocalDateTime.now().minusDays(7);
 		LocalDateTime lastRun = s.getLastRunAt();
+		log.debug("oneWeekAgo : {} - lastRun : {}",oneWeekAgo, lastRun);
+		LocalDateTime fromDate = lastRun.isBefore(oneWeekAgo) ? lastRun : oneWeekAgo;
 
-		
 		try {
 			logId = dao.logStart(s.getId());
 
@@ -150,8 +150,13 @@ public class SchedulerEngine {
 				result = r[0];
 				rows = Integer.parseInt(r[1]);
 			}
-			case "NEON_SYNC" -> {
-				var sr = runNeonSync(Math.max(s.getLastRunAt(),oneWeekAgo));
+			case "NEON_SYNC_PUSH" -> {
+				var sr = runNeonSync(fromDate, true);
+				result = sr.getSummary();
+				rows = sr.totalRows;
+			}
+			case "NEON_SYNC_PULL" -> {
+				var sr = runNeonSync(fromDate, false);
 				result = sr.getSummary();
 				rows = sr.totalRows;
 			}
@@ -262,8 +267,8 @@ public class SchedulerEngine {
 	}
 
 	// ── NEON_SYNC ──────────────────────────────────────────────────
-	private NeonSyncService.SyncResult runNeonSync(LocalDateTime lastRunAt) {
-		return new NeonSyncService().sync(lastRunAt);
+	private NeonSyncService.SyncResult runNeonSync(LocalDateTime lastRunAt, Boolean isPush) {
+		return new NeonSyncService().sync(lastRunAt, isPush);
 	}
 
 	// ── Calculate next run time ────────────────────────────────────

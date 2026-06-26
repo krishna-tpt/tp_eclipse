@@ -13,6 +13,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.expensemanager.dao.SchedulerDAO;
 import com.expensemanager.util.DBConnection;
 
 /**
@@ -85,16 +86,23 @@ public class NeonSyncService {
 	}
 
 	// ── Main sync entry point ──────────────────────────────────────
-	public SyncResult sync(LocalDateTime lastrunAt) {
+	public SyncResult sync(LocalDateTime lastrunAt, Boolean isPush) {
 		SyncResult result = new SyncResult();
 		log.info("[NeonSync] Starting full sync...");
+	    SchedulerDAO dao = new SchedulerDAO();
 
-		boolean isPull = false;
+//		boolean isPull = false;
 //		try (Connection local = DBConnection.getInstance().getConnection(); Connection remote = neonConn()) {
 
-		try (Connection local = isPull ? neonConn() : DBConnection.getInstance().getConnection();
-				Connection remote = isPull ? DBConnection.getInstance().getConnection() : neonConn()) {
+//		try (Connection local = isPush ? neonConn() : DBConnection.getInstance().getConnection();
+//				Connection remote = isPush ? DBConnection.getInstance().getConnection() : neonConn()) {
+			try (Connection local = isPush ? DBConnection.getInstance().getConnection(): neonConn();
+					Connection remote = isPush ? neonConn(): DBConnection.getInstance().getConnection()) {
 			remote.setAutoCommit(false);
+			
+			log.debug("ispush : {}", false);
+			log.debug("lastrunAt : {}", lastrunAt);
+			log.debug("local : {} - remote : {}", local, remote);
 
 			try {
 				// Master tables first (FK order)
@@ -220,8 +228,8 @@ public class NeonSyncService {
 								+ "started_at=EXCLUDED.started_at, finished_at=EXCLUDED.finished_at, status=EXCLUDED.status, "
 								+ "message=EXCLUDED.message, rows_synced=EXCLUDED.rows_synced, created_at = EXCLUDED.created_at, updated_at = EXCLUDED.updated_at",
 						9));
-
 				remote.commit();
+				dao.resetSeq(isPush ? remote : local);
 				result.success = true;
 				log.info("[NeonSync] Sync complete. Total rows: {}", result.totalRows);
 

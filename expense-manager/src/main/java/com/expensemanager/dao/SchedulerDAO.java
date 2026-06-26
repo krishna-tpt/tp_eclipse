@@ -186,6 +186,18 @@ public class SchedulerDAO {
 			db.releaseConnection(conn);
 		}
 	}
+	
+//	public void insertscheduler() throws SQLException {
+//		String sql = "INSERT INTO schedulers VALUES (5, 'NEON_SYNC_PULL', 'Neon DB Cloud Syn - Pull data', true, 'DAILY', NULL, 21, 0, '2026-06-25 21:14:58.394468', 'RUNNING', null, '2026-06-26 21:00:00', now(), now());";
+//		Connection conn = db.getConnection();
+//		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+//			ps.executeUpdate();
+//		} finally {
+//			db.releaseConnection(conn);
+//		}
+//	}
+	
+	
 
 	private SchedulerConfig mapConfig(ResultSet rs) throws SQLException {
 		SchedulerConfig s = new SchedulerConfig();
@@ -227,50 +239,81 @@ public class SchedulerDAO {
 			l.setFinishedAt(fa.toLocalDateTime());
 		return l;
 	}
-	
-	private void resetSeq(Connection con) throws SQLException {
-	    // Step 1 — Generate SET VAL statements dynamically
-	    String genSql = """
-	            SELECT
-	                'SELECT setval(''' ||
-	                pg_get_serial_sequence(table_name, column_name) ||
-	                ''', COALESCE(MAX(' || column_name || '), 1)) FROM ' ||
-	                table_name || ';'
-	            FROM information_schema.columns
-	            WHERE table_schema = 'public'
-	              AND (
-	                    column_default LIKE 'nextval%'
-	                    OR is_identity = 'YES'
-	                  )
-	            """;
 
-	    List<String> setvalStatements = new ArrayList<>();
+	public void resetSeq(Connection con) throws SQLException {
+		// Step 1 — Generate SET VAL statements dynamically
+		String genSql = """
+				SELECT
+				    'SELECT setval(''' ||
+				    pg_get_serial_sequence(table_name, column_name) ||
+				    ''', COALESCE(MAX(' || column_name || '), 1)) FROM ' ||
+				    table_name || ';'
+				FROM information_schema.columns
+				WHERE table_schema = 'public'
+				  AND (
+				        column_default LIKE 'nextval%'
+				        OR is_identity = 'YES'
+				      )
+				""";
 
-	    try (PreparedStatement ps = con.prepareStatement(genSql);
-	         ResultSet rs = ps.executeQuery()) {
-	        while (rs.next()) {
-	            String stmt = rs.getString(1);
-	            if (stmt != null && !stmt.isBlank()) {
-	                setvalStatements.add(stmt);
-	            }
-	        }
-	    }
+		List<String> setvalStatements = new ArrayList<>();
 
-	    log.debug("resetSeq: {} setval statements generated", setvalStatements.size());
+		try (PreparedStatement ps = con.prepareStatement(genSql); ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				String stmt = rs.getString(1);
+				if (stmt != null && !stmt.isBlank()) {
+					setvalStatements.add(stmt);
+				}
+			}
+		}
 
-	    // Step 2 — Execute each generated setval statement
-	    try (Statement st = con.createStatement()) {
-	        for (String stmt : setvalStatements) {
-	            log.debug("resetSeq: executing → {}", stmt);
-	            try {
-	                st.execute(stmt);
-	            } catch (SQLException e) {
-	                log.debug("resetSeq: skip error for stmt: {} | {}", stmt, e.getMessage());
-	                // if one table fail also continue remining tables
-	            }
-	        }
-	    }
+		log.debug("resetSeq: {} setval statements generated", setvalStatements.size());
 
-	    log.info("resetSeq: done — {} sequences updated", setvalStatements.size());
+		// Step 2 — Execute each generated setval statement
+		try (Statement st = con.createStatement()) {
+			for (String stmt : setvalStatements) {
+				log.debug("resetSeq: executing → {}", stmt);
+				try {
+					st.execute(stmt);
+				} catch (SQLException e) {
+					log.debug("resetSeq: skip error for stmt: {} | {}", stmt, e.getMessage());
+					// if one table fail also continue remining tables
+				}
+			}
+		}
+//		con.commit();
+		log.info("resetSeq: done — {} sequences updated", setvalStatements.size());
+	}
+
+	public List<SchedulerLog> allRecentLogs(int limit, int offset) throws SQLException {
+		String sql = """
+				SELECT sl.*, s.display_name AS scheduler_name
+				FROM scheduler_log sl
+				JOIN schedulers s ON s.id = sl.scheduler_id
+				ORDER BY sl.started_at DESC
+				LIMIT ? OFFSET ?
+				""";
+		Connection conn = db.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, limit);
+			ps.setInt(2, offset);
+			ResultSet rs = ps.executeQuery();
+			List<SchedulerLog> list = new ArrayList<>();
+			while (rs.next())
+				list.add(mapLog(rs));
+			return list;
+		} finally {
+			db.releaseConnection(conn);
+		}
+	}
+
+	public int countAllLogs() throws SQLException {
+		String sql = "SELECT COUNT(*) FROM scheduler_log";
+		Connection conn = db.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+			return rs.next() ? rs.getInt(1) : 0;
+		} finally {
+			db.releaseConnection(conn);
+		}
 	}
 }

@@ -286,7 +286,8 @@
 						<c:when test="${s.name=='BACKUP'}">&#128230;</c:when>
 						<c:when test="${s.name=='CASHBOOK'}">&#128218;</c:when>
 						<c:when test="${s.name=='BUDGET'}">&#127811;</c:when>
-						<c:when test="${s.name=='NEON_SYNC'}">&#9729;&#65039;</c:when>
+						<c:when test="${s.name=='NEON_SYNC_PUSH'}">&#9729;&#65039;</c:when>
+						<c:when test="${s.name=='NEON_SYNC_PULL'}">&#9729;&#65039;</c:when>
 						<c:otherwise>&#9201;</c:otherwise>
 					</c:choose>
 				</span> <span class="sched-title">${s.displayName}</span>
@@ -353,7 +354,8 @@
 						style="${s.repeatType=='WEEKLY'?'':'display:none'}">
 						<label class="sm">Days</label>
 						<div class="day-btns" id="daybtn-${s.id}">
-							<c:forEach var="d" items="${'SUN,MON,TUE,WED,THU,FRI,SAT'.split(',')}">
+							<c:forEach var="d"
+								items="${'SUN,MON,TUE,WED,THU,FRI,SAT'.split(',')}">
 								<c:set var="sel"
 									value="${not empty s.repeatDays and s.repeatDays.contains(d)}" />
 								<div class="day-btn ${sel?'selected':''}"
@@ -415,10 +417,17 @@
 <%-- ═══ RUN HISTORY LOG ═══ --%>
 <div class="log-section"
 	style="background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem">
-	<h3>&#128203; Recent Run History</h3>
+	<div class="flex mb-2">
+		<h3 style="font-size: .9rem; font-weight: 700">&#128203; Recent
+			Run History</h3>
+		<span class="text-muted" style="font-size: .78rem; margin-left: auto">
+			${logTotal} total records </span>
+	</div>
+
 	<div class="log-row header">
 		<span>Scheduler</span><span>Started</span><span>Status</span><span>Duration</span>
 	</div>
+
 	<c:forEach var="lg" items="${recentLogs}">
 		<div class="log-row">
 			<span style="font-weight: 500">${lg.schedulerName} <c:if
@@ -431,9 +440,52 @@
 			<span class="text-muted">${lg.durationDisplay}</span>
 		</div>
 	</c:forEach>
+
 	<c:if test="${empty recentLogs}">
 		<div class="empty-state" style="padding: 1.5rem">No run history
 			yet.</div>
+	</c:if>
+
+	<%-- Pagination --%>
+	<c:if test="${logTotalPages > 1}">
+		<div class="pagination mt-2">
+			<%-- Prev --%>
+			<c:choose>
+				<c:when test="${logPage > 1}">
+					<a
+						href="${pageContext.request.contextPath}/schedulers?logPage=${logPage-1}"
+						class="page-btn">&#8592;</a>
+				</c:when>
+				<c:otherwise>
+					<span class="page-btn" style="opacity: .4; cursor: default">&#8592;</span>
+				</c:otherwise>
+			</c:choose>
+
+			<%-- Page numbers — max 5 visible --%>
+			<c:forEach begin="1" end="${logTotalPages}" var="p">
+				<c:if test="${p >= logPage-2 and p <= logPage+2}">
+					<a
+						href="${pageContext.request.contextPath}/schedulers?logPage=${p}"
+						class="page-btn ${p==logPage?'active':''}">${p}</a>
+				</c:if>
+			</c:forEach>
+
+			<%-- Next --%>
+			<c:choose>
+				<c:when test="${logPage < logTotalPages}">
+					<a
+						href="${pageContext.request.contextPath}/schedulers?logPage=${logPage+1}"
+						class="page-btn">&#8594;</a>
+				</c:when>
+				<c:otherwise>
+					<span class="page-btn" style="opacity: .4; cursor: default">&#8594;</span>
+				</c:otherwise>
+			</c:choose>
+
+			<span class="text-muted"
+				style="font-size: .75rem; margin-left: .5rem"> Page
+				${logPage} of ${logTotalPages} </span>
+		</div>
 	</c:if>
 </div>
 

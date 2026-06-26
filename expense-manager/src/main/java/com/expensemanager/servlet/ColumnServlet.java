@@ -28,6 +28,7 @@ public class ColumnServlet extends HttpServlet {
                 new ColumnDefinitionDAO().insert(colName.trim(), type);
             } catch (Exception e) {
                 // ignore duplicate
+            	log.debug("doPost method Exception : {}",e.getMessage());
             }
         }
         resp.sendRedirect(req.getContextPath() + "/transactions?success=col&filter=" + type);

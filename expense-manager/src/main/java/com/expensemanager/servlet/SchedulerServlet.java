@@ -1,14 +1,17 @@
 package com.expensemanager.servlet;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.expensemanager.dao.SchedulerDAO;
 import com.expensemanager.model.SchedulerConfig;
+import com.expensemanager.model.SchedulerLog;
 import com.expensemanager.service.SchedulerEngine;
 
 import jakarta.servlet.ServletException;
@@ -24,11 +27,37 @@ public class SchedulerServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
 		SchedulerDAO dao = new SchedulerDAO();
+		int page = 1;
+		try {
+			String p = req.getParameter("logPage");
+			if (p != null)
+				page = Integer.parseInt(p);
+		} catch (Exception ignored) {
+		}
+
+		int pageSize = 15;
+		int offset = (page - 1) * pageSize;
+
+		List<SchedulerLog> logs = null;
+		int totalLogs = 0;
+		try {
+//			dao.insertscheduler();
+			logs = dao.allRecentLogs(pageSize, offset);
+			totalLogs = dao.countAllLogs(); // total count
+		} catch (SQLException e) {
+			log.debug("doGet method SQLException : {}", e.getMessage());
+		}
+
+		int totalPages = (int) Math.ceil((double) totalLogs / pageSize);
+
 		try {
 			req.setAttribute("schedulers", dao.findAll());
-			req.setAttribute("recentLogs", dao.allRecentLogs(50));
+			req.setAttribute("recentLogs", logs);
+			req.setAttribute("logPage", page);
+			req.setAttribute("logTotalPages", totalPages);
+			req.setAttribute("logTotal", totalLogs);
+//			req.setAttribute("recentLogs", dao.allRecentLogs(50));
 		} catch (Exception e) {
 			req.setAttribute("dbError", e.getMessage());
 		}
@@ -125,3 +154,4 @@ public class SchedulerServlet extends HttpServlet {
 		};
 	}
 }
+//
