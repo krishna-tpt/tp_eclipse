@@ -24,6 +24,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
@@ -120,8 +121,25 @@ public class ExportService {
 		doc.add(sectionTitle("Selected Month — " + MONTH_NAMES[selMonth] + " " + selYear));
 		addMonthSummaryTable(doc, monthSummary);
 
-		// ── Monthly trend table ────────────────────────────
+		// ── Monthly trend chart + table ─────────────────────
 		doc.add(sectionTitle("Monthly Trend (Last 12 Months)"));
+		{
+			List<String> mLabels = new java.util.ArrayList<>();
+			List<BigDecimal> mInc = new java.util.ArrayList<>();
+			List<BigDecimal> mExp = new java.util.ArrayList<>();
+			for (Map<String, Object> row : monthly) {
+				mLabels.add(String.valueOf(row.get("month")));
+				mInc.add(toBD(row.get("income")));
+				mExp.add(toBD(row.get("expense")));
+			}
+			if (!mLabels.isEmpty()) {
+				Image chart = drawGroupedBarChart("Income vs Expense", mLabels, mInc, mExp, 700, 260);
+				chart.setAlignment(Element.ALIGN_CENTER);
+				chart.scaleToFit(500, 190);
+				chart.setSpacingAfter(8);
+				doc.add(chart);
+			}
+		}
 		PdfPTable monthTable = new PdfPTable(4);
 		monthTable.setWidthPercentage(85);
 		monthTable.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -145,6 +163,72 @@ public class ExportService {
 
 		// ── Daily / Weekly / Day-of-week (month) ───────────
 		doc.add(sectionTitle("Time Breakdown — " + MONTH_NAMES[selMonth] + " " + selYear));
+
+		// Three mini bar charts side-by-side (Daily, Weekly, DOW)
+		{
+			PdfPTable chartGrid = new PdfPTable(3);
+			chartGrid.setWidthPercentage(100);
+			chartGrid.setSpacingBefore(4);
+			chartGrid.setSpacingAfter(8);
+
+			List<String> dLbl = new java.util.ArrayList<>();
+			List<BigDecimal> dInc = new java.util.ArrayList<>();
+			List<BigDecimal> dExp = new java.util.ArrayList<>();
+			for (Map<String, Object> row : dailyData) {
+				String day = String.valueOf(row.get("day"));
+				dLbl.add(day.length() >= 2 ? day.substring(day.length() - 2) : day);
+				dInc.add(toBD(row.get("income")));
+				dExp.add(toBD(row.get("expense")));
+			}
+			List<String> wLbl = new java.util.ArrayList<>();
+			List<BigDecimal> wInc = new java.util.ArrayList<>();
+			List<BigDecimal> wExp = new java.util.ArrayList<>();
+			for (Map<String, Object> row : weeklyData) {
+				wLbl.add(String.valueOf(row.get("week")).replace("Week ", "W"));
+				wInc.add(toBD(row.get("income")));
+				wExp.add(toBD(row.get("expense")));
+			}
+			List<String> owLbl = new java.util.ArrayList<>();
+			List<BigDecimal> owInc = new java.util.ArrayList<>();
+			List<BigDecimal> owExp = new java.util.ArrayList<>();
+			for (Map<String, Object> row : dowData) {
+				owLbl.add(String.valueOf(row.get("label")));
+				owInc.add(toBD(row.get("income")));
+				owExp.add(toBD(row.get("expense")));
+			}
+
+			PdfPCell c1 = new PdfPCell();
+			c1.setBorder(Rectangle.NO_BORDER);
+			c1.setPadding(2);
+			if (!dLbl.isEmpty()) {
+				Image im = drawGroupedBarChart("Daily", dLbl, dInc, dExp, 420, 230);
+				im.scaleToFit(165, 95);
+				c1.addElement(im);
+			}
+			chartGrid.addCell(c1);
+
+			PdfPCell c2 = new PdfPCell();
+			c2.setBorder(Rectangle.NO_BORDER);
+			c2.setPadding(2);
+			if (!wLbl.isEmpty()) {
+				Image im = drawGroupedBarChart("Weekly", wLbl, wInc, wExp, 420, 230);
+				im.scaleToFit(165, 95);
+				c2.addElement(im);
+			}
+			chartGrid.addCell(c2);
+
+			PdfPCell c3 = new PdfPCell();
+			c3.setBorder(Rectangle.NO_BORDER);
+			c3.setPadding(2);
+			if (!owLbl.isEmpty()) {
+				Image im = drawGroupedBarChart("Day of Week", owLbl, owInc, owExp, 420, 230);
+				im.scaleToFit(165, 95);
+				c3.addElement(im);
+			}
+			chartGrid.addCell(c3);
+
+			doc.add(chartGrid);
+		}
 
 		PdfPTable timeGrid = new PdfPTable(3);
 		timeGrid.setWidthPercentage(100);
@@ -175,6 +259,50 @@ public class ExportService {
 
 		// ── Category breakdown (selected month) ────────────
 		doc.add(sectionTitle("Category Breakdown — " + MONTH_NAMES[selMonth] + " " + selYear));
+
+		// Doughnut charts: expense + income category split
+		{
+			List<String> eLbl = new java.util.ArrayList<>();
+			List<BigDecimal> eVal = new java.util.ArrayList<>();
+			for (Map<String, Object> row : expCatMonth) {
+				eLbl.add(String.valueOf(row.get("category")));
+				eVal.add(toBD(row.get("total")));
+			}
+			List<String> iLbl = new java.util.ArrayList<>();
+			List<BigDecimal> iVal = new java.util.ArrayList<>();
+			for (Map<String, Object> row : incCatMonth) {
+				iLbl.add(String.valueOf(row.get("category")));
+				iVal.add(toBD(row.get("total")));
+			}
+
+			PdfPTable dGrid = new PdfPTable(2);
+			dGrid.setWidthPercentage(100);
+			dGrid.setSpacingBefore(4);
+			dGrid.setSpacingAfter(6);
+
+			PdfPCell dc1 = new PdfPCell();
+			dc1.setBorder(Rectangle.NO_BORDER);
+			dc1.setPadding(2);
+			if (!eLbl.isEmpty()) {
+				Image im = drawDoughnutChart("Expense by Category", eLbl, eVal, AWT_PALETTE, 380, 180);
+				im.scaleToFit(260, 125);
+				dc1.addElement(im);
+			}
+			dGrid.addCell(dc1);
+
+			PdfPCell dc2 = new PdfPCell();
+			dc2.setBorder(Rectangle.NO_BORDER);
+			dc2.setPadding(2);
+			if (!iLbl.isEmpty()) {
+				Image im = drawDoughnutChart("Income by Category", iLbl, iVal, AWT_PALETTE, 380, 180);
+				im.scaleToFit(260, 125);
+				dc2.addElement(im);
+			}
+			dGrid.addCell(dc2);
+
+			doc.add(dGrid);
+		}
+
 		PdfPTable catGrid = new PdfPTable(2);
 		catGrid.setWidthPercentage(100);
 		catGrid.setSpacingBefore(6);
@@ -232,6 +360,49 @@ public class ExportService {
 		// ── All-time category split ─────────────────────────
 		doc.newPage();
 		doc.add(sectionTitle("All-Time Category Split"));
+
+		{
+			List<String> eLbl = new java.util.ArrayList<>();
+			List<BigDecimal> eVal = new java.util.ArrayList<>();
+			for (Map<String, Object> row : expByCatAllTime) {
+				eLbl.add(String.valueOf(row.get("name")));
+				eVal.add(toBD(row.get("total")));
+			}
+			List<String> iLbl = new java.util.ArrayList<>();
+			List<BigDecimal> iVal = new java.util.ArrayList<>();
+			for (Map<String, Object> row : incByCatAllTime) {
+				iLbl.add(String.valueOf(row.get("name")));
+				iVal.add(toBD(row.get("total")));
+			}
+
+			PdfPTable dGrid = new PdfPTable(2);
+			dGrid.setWidthPercentage(100);
+			dGrid.setSpacingBefore(4);
+			dGrid.setSpacingAfter(6);
+
+			PdfPCell dc1 = new PdfPCell();
+			dc1.setBorder(Rectangle.NO_BORDER);
+			dc1.setPadding(2);
+			if (!eLbl.isEmpty()) {
+				Image im = drawDoughnutChart("Expense by Category", eLbl, eVal, AWT_PALETTE, 380, 180);
+				im.scaleToFit(260, 125);
+				dc1.addElement(im);
+			}
+			dGrid.addCell(dc1);
+
+			PdfPCell dc2 = new PdfPCell();
+			dc2.setBorder(Rectangle.NO_BORDER);
+			dc2.setPadding(2);
+			if (!iLbl.isEmpty()) {
+				Image im = drawDoughnutChart("Income by Category", iLbl, iVal, AWT_PALETTE, 380, 180);
+				im.scaleToFit(260, 125);
+				dc2.addElement(im);
+			}
+			dGrid.addCell(dc2);
+
+			doc.add(dGrid);
+		}
+
 		PdfPTable allTimeGrid = new PdfPTable(2);
 		allTimeGrid.setWidthPercentage(100);
 		allTimeGrid.setSpacingBefore(6);
@@ -687,6 +858,205 @@ public class ExportService {
 	private String nvl(String s) {
 		return s != null ? s : "";
 	}
+
+	// ════════════════════════════════════════════════════════════
+	// CHART RENDERING — draws bar/doughnut charts as PNG images
+	// using AWT, embeds into the PDF (mirrors the UI's Chart.js)
+	// ════════════════════════════════════════════════════════════
+
+	private Image drawGroupedBarChart(String title, List<String> labels, List<BigDecimal> incomeVals,
+			List<BigDecimal> expenseVals, int widthPx, int heightPx) throws Exception {
+
+		java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(widthPx, heightPx,
+				java.awt.image.BufferedImage.TYPE_INT_ARGB);
+		java.awt.Graphics2D g = img.createGraphics();
+		g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setColor(java.awt.Color.WHITE);
+		g.fillRect(0, 0, widthPx, heightPx);
+
+		int padLeft = 65, padRight = 20, padTop = 35, padBottom = 45;
+		int chartW = widthPx - padLeft - padRight;
+		int chartH = heightPx - padTop - padBottom;
+
+		double maxVal = 1;
+		for (int i = 0; i < labels.size(); i++) {
+			double inc = incomeVals.get(i).doubleValue();
+			double exp = expenseVals.get(i).doubleValue();
+			maxVal = Math.max(maxVal, Math.max(inc, exp));
+		}
+		maxVal = niceCeil(maxVal);
+
+		g.setColor(new java.awt.Color(71, 85, 105));
+		g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 13));
+		g.drawString(title, padLeft, 20);
+
+		g.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 10));
+		int gridLines = 5;
+		for (int i = 0; i <= gridLines; i++) {
+			double val = maxVal * i / gridLines;
+			int y = padTop + chartH - (int) (chartH * i / (double) gridLines);
+			g.setColor(new java.awt.Color(226, 232, 240));
+			g.drawLine(padLeft, y, padLeft + chartW, y);
+			g.setColor(new java.awt.Color(100, 116, 139));
+			String lbl = "\u20B9" + formatCompact(val);
+			java.awt.FontMetrics fm = g.getFontMetrics();
+			g.drawString(lbl, padLeft - fm.stringWidth(lbl) - 6, y + 4);
+		}
+
+		int n = labels.size();
+		if (n > 0) {
+			int groupW = chartW / n;
+			int barW = Math.max(4, (int) (groupW * 0.32));
+			int gap = Math.max(2, (int) (groupW * 0.06));
+
+			for (int i = 0; i < n; i++) {
+				int groupX = padLeft + i * groupW;
+				double inc = incomeVals.get(i).doubleValue();
+				double exp = expenseVals.get(i).doubleValue();
+
+				int incH = (int) (chartH * inc / maxVal);
+				int expH = (int) (chartH * exp / maxVal);
+
+				int incX = groupX + (groupW - (barW * 2 + gap)) / 2;
+				int expX = incX + barW + gap;
+
+				g.setColor(new java.awt.Color(187, 247, 208));
+				g.fillRect(incX, padTop + chartH - incH, barW, incH);
+				g.setColor(new java.awt.Color(22, 163, 74));
+				g.drawRect(incX, padTop + chartH - incH, barW, incH);
+
+				g.setColor(new java.awt.Color(254, 202, 202));
+				g.fillRect(expX, padTop + chartH - expH, barW, expH);
+				g.setColor(new java.awt.Color(220, 38, 38));
+				g.drawRect(expX, padTop + chartH - expH, barW, expH);
+
+				g.setColor(new java.awt.Color(71, 85, 105));
+				g.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 8));
+				String lbl = labels.get(i);
+				java.awt.FontMetrics fm = g.getFontMetrics();
+				int lblX = groupX + (groupW - fm.stringWidth(lbl)) / 2;
+				if (n > 10) {
+					java.awt.geom.AffineTransform old = g.getTransform();
+					g.rotate(Math.toRadians(45), groupX + groupW / 2.0, padTop + chartH + 12);
+					g.drawString(lbl, groupX + groupW / 2 - fm.stringWidth(lbl), padTop + chartH + 15);
+					g.setTransform(old);
+				} else {
+					g.drawString(lbl, lblX, padTop + chartH + 14);
+				}
+			}
+		}
+
+		g.setColor(new java.awt.Color(148, 163, 184));
+		g.drawLine(padLeft, padTop + chartH, padLeft + chartW, padTop + chartH);
+
+		int legendY = heightPx - 12;
+		g.setColor(new java.awt.Color(187, 247, 208));
+		g.fillRect(padLeft, legendY - 8, 10, 10);
+		g.setColor(new java.awt.Color(22, 163, 74));
+		g.drawRect(padLeft, legendY - 8, 10, 10);
+		g.setColor(java.awt.Color.DARK_GRAY);
+		g.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 9));
+		g.drawString("Income", padLeft + 14, legendY);
+
+		g.setColor(new java.awt.Color(254, 202, 202));
+		g.fillRect(padLeft + 65, legendY - 8, 10, 10);
+		g.setColor(new java.awt.Color(220, 38, 38));
+		g.drawRect(padLeft + 65, legendY - 8, 10, 10);
+		g.setColor(java.awt.Color.DARK_GRAY);
+		g.drawString("Expense", padLeft + 79, legendY);
+
+		g.dispose();
+		return bufferedImageToITextImage(img);
+	}
+
+	private Image drawDoughnutChart(String title, List<String> labels, List<BigDecimal> values,
+			java.awt.Color[] palette, int widthPx, int heightPx) throws Exception {
+
+		java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(widthPx, heightPx,
+				java.awt.image.BufferedImage.TYPE_INT_ARGB);
+		java.awt.Graphics2D g = img.createGraphics();
+		g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setColor(java.awt.Color.WHITE);
+		g.fillRect(0, 0, widthPx, heightPx);
+
+		g.setColor(new java.awt.Color(71, 85, 105));
+		g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 13));
+		g.drawString(title, 10, 20);
+
+		double total = 0;
+		for (BigDecimal v : values)
+			total += v.doubleValue();
+		if (total <= 0)
+			total = 1;
+
+		int pieSize = Math.min(heightPx - 50, widthPx / 2) - 10;
+		int pieX = 15;
+		int pieY = 35;
+
+		double startAngle = 90;
+		for (int i = 0; i < values.size(); i++) {
+			double val = values.get(i).doubleValue();
+			double sweep = 360.0 * val / total;
+			g.setColor(palette[i % palette.length]);
+			g.fillArc(pieX, pieY, pieSize, pieSize, (int) Math.round(startAngle - sweep), (int) Math.round(sweep));
+			startAngle -= sweep;
+		}
+		int innerPad = pieSize / 3;
+		g.setColor(java.awt.Color.WHITE);
+		g.fillOval(pieX + innerPad / 2, pieY + innerPad / 2, pieSize - innerPad, pieSize - innerPad);
+
+		int legendX = pieX + pieSize + 25;
+		int legendY = 40;
+		g.setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 9));
+		for (int i = 0; i < labels.size() && legendY < heightPx - 8; i++) {
+			g.setColor(palette[i % palette.length]);
+			g.fillRect(legendX, legendY - 8, 9, 9);
+			g.setColor(java.awt.Color.DARK_GRAY);
+			double pct = total > 0 ? (values.get(i).doubleValue() / total * 100) : 0;
+			String lbl = labels.get(i) + " (" + String.format("%.0f%%", pct) + ")";
+			g.drawString(lbl, legendX + 13, legendY);
+			legendY += 14;
+		}
+
+		g.dispose();
+		return bufferedImageToITextImage(img);
+	}
+
+	private Image bufferedImageToITextImage(java.awt.image.BufferedImage img) throws Exception {
+		java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+		javax.imageio.ImageIO.write(img, "png", baos);
+		return Image.getInstance(baos.toByteArray());
+	}
+
+	private double niceCeil(double val) {
+		if (val <= 0)
+			return 10;
+		double magnitude = Math.pow(10, Math.floor(Math.log10(val)));
+		double normalized = val / magnitude;
+		double niceNorm;
+		if (normalized <= 1)
+			niceNorm = 1;
+		else if (normalized <= 2)
+			niceNorm = 2;
+		else if (normalized <= 5)
+			niceNorm = 5;
+		else
+			niceNorm = 10;
+		return niceNorm * magnitude;
+	}
+
+	private String formatCompact(double val) {
+		if (val >= 100000)
+			return String.format("%.1fL", val / 100000);
+		if (val >= 1000)
+			return String.format("%.1fk", val / 1000);
+		return String.format("%.0f", val);
+	}
+
+	private static final java.awt.Color[] AWT_PALETTE = { new java.awt.Color(37, 99, 235),
+			new java.awt.Color(22, 163, 74), new java.awt.Color(220, 38, 38), new java.awt.Color(217, 119, 6),
+			new java.awt.Color(124, 58, 237), new java.awt.Color(8, 145, 178), new java.awt.Color(190, 24, 93),
+			new java.awt.Color(5, 150, 105), new java.awt.Color(234, 88, 12), new java.awt.Color(99, 102, 241) };
 
 	private static class PageFooter extends PdfPageEventHelper {
 		@Override
