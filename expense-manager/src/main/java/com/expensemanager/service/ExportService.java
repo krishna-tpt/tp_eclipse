@@ -42,6 +42,9 @@ public class ExportService {
 	private static final BaseColor COL_RED = new BaseColor(254, 226, 226);
 	private static final BaseColor COL_BLUE = new BaseColor(219, 234, 254);
 	private static final BaseColor COL_ALT = new BaseColor(248, 250, 252);
+	private static final BaseColor COL_PURPLE = new BaseColor(237, 233, 254);
+	private static final String[] MONTH_NAMES = { "", "January", "February", "March", "April", "May", "June", "July",
+			"August", "September", "October", "November", "December" };
 
 	// ── Transactions PDF (full or filtered) ──────────────
 	public byte[] generatePDF(CashBook book, List<Transaction> txns, BigDecimal income, BigDecimal expense,
@@ -57,7 +60,6 @@ public class ExportService {
 		addSubtitle(doc, "Generated " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
 		addSummaryTable(doc, income, expense);
 
-		// Transactions table
 		PdfPTable table = new PdfPTable(6);
 		table.setWidthPercentage(100);
 		table.setWidths(new float[] { 2.8f, 1.4f, 2f, 2f, 1.8f, 3f });
@@ -91,7 +93,176 @@ public class ExportService {
 		return bos.toByteArray();
 	}
 
-	// ── Reports PDF ───────────────────────────────────────
+	// ── FULL Reports PDF (matches reports.jsp page) ──────
+	// Parameter object pattern avoided per request; using a builder-ish overload.
+	public byte[] generateReportsPDF(CashBook book, BigDecimal allTimeIncome, BigDecimal allTimeExpense,
+			List<Map<String, Object>> monthly, List<Map<String, Object>> expByCatAllTime,
+			List<Map<String, Object>> incByCatAllTime, int selYear, int selMonth, Map<String, Object> monthSummary,
+			List<Map<String, Object>> dailyData, List<Map<String, Object>> weeklyData,
+			List<Map<String, Object>> dowData, List<Map<String, Object>> expCatMonth,
+			List<Map<String, Object>> incCatMonth, List<Map<String, Object>> expSubCatMonth,
+			List<Map<String, Object>> incSubCatMonth) throws Exception {
+
+		Document doc = new Document(PageSize.A4, 32, 32, 32, 32);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		PdfWriter writer = PdfWriter.getInstance(doc, bos);
+		writer.setPageEvent(new PageFooter());
+		doc.open();
+
+		addTitle(doc, "ExpenseOS — Reports: " + book.getName());
+		addSubtitle(doc, "Generated " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+
+		// ── All-time overview ──────────────────────────────
+		doc.add(sectionTitle("All-Time Overview"));
+		addSummaryTable(doc, allTimeIncome, allTimeExpense);
+
+		// ── Selected month summary ─────────────────────────
+		doc.add(sectionTitle("Selected Month — " + MONTH_NAMES[selMonth] + " " + selYear));
+		addMonthSummaryTable(doc, monthSummary);
+
+		// ── Monthly trend table ────────────────────────────
+		doc.add(sectionTitle("Monthly Trend (Last 12 Months)"));
+		PdfPTable monthTable = new PdfPTable(4);
+		monthTable.setWidthPercentage(85);
+		monthTable.setHorizontalAlignment(Element.ALIGN_LEFT);
+		monthTable.setSpacingBefore(6);
+		addHeaderRow(monthTable, "Month", "Income", "Expense", "Net");
+		boolean alt = false;
+		for (Map<String, Object> row : monthly) {
+			BaseColor bg = alt ? COL_ALT : BaseColor.WHITE;
+			alt = !alt;
+			BigDecimal inc = toBD(row.get("income"));
+			BigDecimal exp = toBD(row.get("expense"));
+			BigDecimal net = inc.subtract(exp);
+			addCell(monthTable, String.valueOf(row.get("month")), 9, bg, Element.ALIGN_LEFT);
+			addCell(monthTable, "₹" + inc, 9, new BaseColor(240, 255, 244), Element.ALIGN_RIGHT);
+			addCell(monthTable, "₹" + exp, 9, new BaseColor(255, 240, 240), Element.ALIGN_RIGHT);
+			addCell(monthTable, "₹" + net, 9,
+					net.signum() >= 0 ? new BaseColor(235, 248, 255) : new BaseColor(255, 235, 235),
+					Element.ALIGN_RIGHT);
+		}
+		doc.add(monthTable);
+
+		// ── Daily / Weekly / Day-of-week (month) ───────────
+		doc.add(sectionTitle("Time Breakdown — " + MONTH_NAMES[selMonth] + " " + selYear));
+
+		PdfPTable timeGrid = new PdfPTable(3);
+		timeGrid.setWidthPercentage(100);
+		timeGrid.setSpacingBefore(6);
+
+		PdfPCell dailyCell = new PdfPCell();
+		dailyCell.setBorder(Rectangle.NO_BORDER);
+		dailyCell.addElement(smallHeading("Daily"));
+		dailyCell.addElement(
+				buildMiniTable(new String[] { "Day", "Inc", "Exp" }, dailyData, "day", "income", "expense", true));
+		timeGrid.addCell(dailyCell);
+
+		PdfPCell weeklyCell = new PdfPCell();
+		weeklyCell.setBorder(Rectangle.NO_BORDER);
+		weeklyCell.addElement(smallHeading("Weekly"));
+		weeklyCell.addElement(
+				buildMiniTable(new String[] { "Week", "Inc", "Exp" }, weeklyData, "week", "income", "expense", false));
+		timeGrid.addCell(weeklyCell);
+
+		PdfPCell dowCell = new PdfPCell();
+		dowCell.setBorder(Rectangle.NO_BORDER);
+		dowCell.addElement(smallHeading("Day of Week"));
+		dowCell.addElement(
+				buildMiniTable(new String[] { "Day", "Inc", "Exp" }, dowData, "label", "income", "expense", false));
+		timeGrid.addCell(dowCell);
+
+		doc.add(timeGrid);
+
+		// ── Category breakdown (selected month) ────────────
+		doc.add(sectionTitle("Category Breakdown — " + MONTH_NAMES[selMonth] + " " + selYear));
+		PdfPTable catGrid = new PdfPTable(2);
+		catGrid.setWidthPercentage(100);
+		catGrid.setSpacingBefore(6);
+
+		PdfPCell expCell = new PdfPCell();
+		expCell.setBorder(Rectangle.NO_BORDER);
+		expCell.addElement(smallHeading("Expense by Category"));
+		PdfPTable expCatTable = new PdfPTable(3);
+		addHeaderRow(expCatTable, "Category", "Amount", "Txns");
+		for (Map<String, Object> row : expCatMonth)
+			buildCatRowWithCount(expCatTable, row, "category");
+		expCell.addElement(expCatTable);
+		catGrid.addCell(expCell);
+
+		PdfPCell incCell = new PdfPCell();
+		incCell.setBorder(Rectangle.NO_BORDER);
+		incCell.addElement(smallHeading("Income by Category"));
+		PdfPTable incCatTable = new PdfPTable(3);
+		addHeaderRow(incCatTable, "Category", "Amount", "Txns");
+		for (Map<String, Object> row : incCatMonth)
+			buildCatRowWithCount(incCatTable, row, "category");
+		incCell.addElement(incCatTable);
+		catGrid.addCell(incCell);
+
+		doc.add(catGrid);
+
+		// ── Sub-category breakdown (selected month) ────────
+		doc.add(sectionTitle("Sub-Category Breakdown — " + MONTH_NAMES[selMonth] + " " + selYear));
+		PdfPTable subGrid = new PdfPTable(2);
+		subGrid.setWidthPercentage(100);
+		subGrid.setSpacingBefore(6);
+
+		PdfPCell expSubCell = new PdfPCell();
+		expSubCell.setBorder(Rectangle.NO_BORDER);
+		expSubCell.addElement(smallHeading("Expense Sub-Categories"));
+		PdfPTable expSubTable = new PdfPTable(4);
+		addHeaderRow(expSubTable, "Category", "Sub-Cat", "Amount", "Txns");
+		for (Map<String, Object> row : expSubCatMonth)
+			buildSubCatRow(expSubTable, row);
+		expSubCell.addElement(expSubTable);
+		subGrid.addCell(expSubCell);
+
+		PdfPCell incSubCell = new PdfPCell();
+		incSubCell.setBorder(Rectangle.NO_BORDER);
+		incSubCell.addElement(smallHeading("Income Sub-Categories"));
+		PdfPTable incSubTable = new PdfPTable(4);
+		addHeaderRow(incSubTable, "Category", "Sub-Cat", "Amount", "Txns");
+		for (Map<String, Object> row : incSubCatMonth)
+			buildSubCatRow(incSubTable, row);
+		incSubCell.addElement(incSubTable);
+		subGrid.addCell(incSubCell);
+
+		doc.add(subGrid);
+
+		// ── All-time category split ─────────────────────────
+		doc.newPage();
+		doc.add(sectionTitle("All-Time Category Split"));
+		PdfPTable allTimeGrid = new PdfPTable(2);
+		allTimeGrid.setWidthPercentage(100);
+		allTimeGrid.setSpacingBefore(6);
+
+		PdfPCell expAllCell = new PdfPCell();
+		expAllCell.setBorder(Rectangle.NO_BORDER);
+		expAllCell.addElement(smallHeading("Expense by Category"));
+		PdfPTable expAllTable = new PdfPTable(2);
+		addHeaderRow(expAllTable, "Category", "Total");
+		for (Map<String, Object> row : expByCatAllTime)
+			buildCatRow(expAllTable, row);
+		expAllCell.addElement(expAllTable);
+		allTimeGrid.addCell(expAllCell);
+
+		PdfPCell incAllCell = new PdfPCell();
+		incAllCell.setBorder(Rectangle.NO_BORDER);
+		incAllCell.addElement(smallHeading("Income by Category"));
+		PdfPTable incAllTable = new PdfPTable(2);
+		addHeaderRow(incAllTable, "Category", "Total");
+		for (Map<String, Object> row : incByCatAllTime)
+			buildCatRow(incAllTable, row);
+		incAllCell.addElement(incAllTable);
+		allTimeGrid.addCell(incAllCell);
+
+		doc.add(allTimeGrid);
+
+		doc.close();
+		return bos.toByteArray();
+	}
+
+	// ── Legacy overload (kept for backward compat — basic version) ──
 	public byte[] generateReportsPDF(CashBook book, BigDecimal income, BigDecimal expense,
 			List<Map<String, Object>> monthly, List<Map<String, Object>> expByCat, List<Map<String, Object>> incByCat)
 			throws Exception {
@@ -105,7 +276,6 @@ public class ExportService {
 		addSubtitle(doc, "Generated " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
 		addSummaryTable(doc, income, expense);
 
-		// Monthly trend table
 		doc.add(sectionTitle("Monthly Trend"));
 		PdfPTable monthTable = new PdfPTable(4);
 		monthTable.setWidthPercentage(80);
@@ -116,8 +286,8 @@ public class ExportService {
 		for (Map<String, Object> row : monthly) {
 			BaseColor bg = alt ? COL_ALT : BaseColor.WHITE;
 			alt = !alt;
-			BigDecimal inc = (BigDecimal) row.get("income");
-			BigDecimal exp = (BigDecimal) row.get("expense");
+			BigDecimal inc = toBD(row.get("income"));
+			BigDecimal exp = toBD(row.get("expense"));
 			BigDecimal net = inc.subtract(exp);
 			addCell(monthTable, row.get("month").toString(), 9, bg, Element.ALIGN_LEFT);
 			addCell(monthTable, "₹" + inc, 9, new BaseColor(240, 255, 244), Element.ALIGN_RIGHT);
@@ -128,7 +298,6 @@ public class ExportService {
 		}
 		doc.add(monthTable);
 
-		// Two-column: expense vs income by category
 		doc.add(sectionTitle("Category Breakdown"));
 		PdfPTable catGrid = new PdfPTable(2);
 		catGrid.setWidthPercentage(100);
@@ -141,7 +310,6 @@ public class ExportService {
 		incHeader.setBorder(Rectangle.NO_BORDER);
 		catGrid.addCell(incHeader);
 
-		// Expense categories nested table
 		PdfPTable expCatTable = new PdfPTable(2);
 		addHeaderRow(expCatTable, "Category", "Total");
 		for (Map<String, Object> row : expByCat)
@@ -168,30 +336,25 @@ public class ExportService {
 	// ── Calendar PDF ──────────────────────────────────────
 	public byte[] generateCalendarPDF(CashBook book, int year, int month, List<Map<String, Object>> dailyData)
 			throws Exception {
-		String[] MONTHS = { "", "January", "February", "March", "April", "May", "June", "July", "August", "September",
-				"October", "November", "December" };
 		Document doc = new Document(PageSize.A4.rotate(), 28, 28, 28, 28);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		PdfWriter writer = PdfWriter.getInstance(doc, bos);
 		writer.setPageEvent(new PageFooter());
 		doc.open();
 
-		addTitle(doc, "ExpenseOS — Calendar: " + MONTHS[month] + " " + year);
+		addTitle(doc, "ExpenseOS — Calendar: " + MONTH_NAMES[month] + " " + year);
 		addSubtitle(doc,
 				book.getName() + " | Generated " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
 
-		// Build daily map
 		Map<String, Map<String, Object>> dayMap = new java.util.LinkedHashMap<>();
 		for (Map<String, Object> d : dailyData)
 			dayMap.put(d.get("day").toString(), d);
 
-		// Calendar grid — 7 columns
 		PdfPTable grid = new PdfPTable(7);
 		grid.setWidthPercentage(100);
-		grid.setWidths(new float[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f }); // equal columns
+		grid.setWidths(new float[] { 1f, 1f, 1f, 1f, 1f, 1f, 1f });
 		grid.setSpacingBefore(12);
 
-		// Day headers
 		String[] days = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 		for (String d : days) {
 			PdfPCell h = new PdfPCell(new Phrase(d, hdrFont()));
@@ -201,17 +364,12 @@ public class ExportService {
 			grid.addCell(h);
 		}
 
-		// ✅ Fix: Sunday=0 based firstDow
-		// Java DayOfWeek: MONDAY=1 ... SUNDAY=7
-		// We need Sunday=0, Monday=1 ... Saturday=6
-		int javaDow = LocalDate.of(year, month, 1).getDayOfWeek().getValue(); // Mon=1, Sun=7
-		int firstDow = javaDow % 7; // Sun=0, Mon=1, Tue=2 ... Sat=6 ✅
-
+		int javaDow = LocalDate.of(year, month, 1).getDayOfWeek().getValue();
+		int firstDow = javaDow % 7;
 		int daysInMonth = LocalDate.of(year, month, 1).lengthOfMonth();
 
 		log.debug("firstDow (Sun=0): {} --> daysInMonth: {}", firstDow, daysInMonth);
 
-		// Empty cells before first day
 		for (int i = 0; i < firstDow; i++) {
 			PdfPCell empty = new PdfPCell(new Phrase(" "));
 			empty.setMinimumHeight(60);
@@ -221,7 +379,6 @@ public class ExportService {
 			grid.addCell(empty);
 		}
 
-		// Day cells
 		for (int d = 1; d <= daysInMonth; d++) {
 			String ds = String.format("%d-%02d-%02d", year, month, d);
 			Map<String, Object> data = dayMap.get(ds);
@@ -230,8 +387,6 @@ public class ExportService {
 			cell.setPadding(4);
 			cell.setBorder(Rectangle.BOX);
 			cell.setBorderColor(new BaseColor(220, 220, 220));
-
-			// ✅ Date number — top of cell
 			cell.addElement(new Phrase(String.valueOf(d), dateFont()));
 
 			if (data != null) {
@@ -249,7 +404,6 @@ public class ExportService {
 			grid.addCell(cell);
 		}
 
-		// ✅ Fill remaining cells to complete last row
 		int totalCells = firstDow + daysInMonth;
 		int remainder = totalCells % 7;
 		if (remainder != 0) {
@@ -268,7 +422,6 @@ public class ExportService {
 		return bos.toByteArray();
 	}
 
-	// ✅ Helper — safe BigDecimal conversion
 	private BigDecimal toBD(Object val) {
 		if (val == null)
 			return BigDecimal.ZERO;
@@ -290,7 +443,6 @@ public class ExportService {
 			CellStyle incStyle = createColorStyle(wb, IndexedColors.DARK_GREEN);
 			CellStyle expStyle = createColorStyle(wb, IndexedColors.RED);
 
-			// Title
 			Row r0 = sheet.createRow(0);
 			Cell c0 = r0.createCell(0);
 			c0.setCellValue("ExpenseOS — " + book.getName()
@@ -303,13 +455,11 @@ public class ExportService {
 			c0.setCellStyle(ts);
 			sheet.addMergedRegion(new org.apache.poi.ss.util.CellRangeAddress(0, 0, 0, 5));
 
-			// Summary
 			Row r1 = sheet.createRow(1);
 			r1.createCell(0).setCellValue("Income: ₹" + income);
 			r1.createCell(2).setCellValue("Expense: ₹" + expense);
 			r1.createCell(4).setCellValue("Balance: ₹" + income.subtract(expense));
 
-			// Header
 			Row hr = sheet.createRow(3);
 			String[] cols = { "Date & Time", "Type", "Category", "Sub Category", "Amount", "Note" };
 			for (int i = 0; i < cols.length; i++) {
@@ -357,9 +507,16 @@ public class ExportService {
 	}
 
 	private Paragraph sectionTitle(String text) {
-		Paragraph p = new Paragraph(text, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.BLACK));
-		p.setSpacingBefore(10);
-		p.setSpacingAfter(4);
+		Paragraph p = new Paragraph(text, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, BaseColor.BLACK));
+		p.setSpacingBefore(12);
+		p.setSpacingAfter(5);
+		return p;
+	}
+
+	private Paragraph smallHeading(String text) {
+		Paragraph p = new Paragraph(text,
+				FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, new BaseColor(71, 85, 105)));
+		p.setSpacingAfter(3);
 		return p;
 	}
 
@@ -374,6 +531,22 @@ public class ExportService {
 		doc.add(t);
 	}
 
+	// ── NEW: Month summary table (income/expense/net/count/savings%) ──
+	private void addMonthSummaryTable(Document doc, Map<String, Object> ms) throws DocumentException {
+		if (ms == null || ms.isEmpty())
+			return;
+		PdfPTable t = new PdfPTable(5);
+		t.setWidthPercentage(95);
+		t.setHorizontalAlignment(Element.ALIGN_LEFT);
+		t.setSpacingAfter(10);
+		addSummaryCellSmall(t, "Income", "₹" + toBD(ms.get("income")), COL_GREEN);
+		addSummaryCellSmall(t, "Expense", "₹" + toBD(ms.get("expense")), COL_RED);
+		addSummaryCellSmall(t, "Net", "₹" + toBD(ms.get("net")), COL_BLUE);
+		addSummaryCellSmall(t, "Transactions", String.valueOf(ms.get("txnCount")), COL_PURPLE);
+		addSummaryCellSmall(t, "Savings Rate", toBD(ms.get("savingsRate")) + "%", new BaseColor(207, 250, 254));
+		doc.add(t);
+	}
+
 	private void addSummaryCell(PdfPTable t, String label, String value, BaseColor bg) {
 		PdfPCell cell = new PdfPCell();
 		cell.addElement(new Phrase(label, FontFactory.getFont(FontFactory.HELVETICA, 8, BaseColor.DARK_GRAY)));
@@ -384,11 +557,21 @@ public class ExportService {
 		t.addCell(cell);
 	}
 
+	private void addSummaryCellSmall(PdfPTable t, String label, String value, BaseColor bg) {
+		PdfPCell cell = new PdfPCell();
+		cell.addElement(new Phrase(label, FontFactory.getFont(FontFactory.HELVETICA, 7, BaseColor.DARK_GRAY)));
+		cell.addElement(new Phrase(value, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9)));
+		cell.setBackgroundColor(bg);
+		cell.setPadding(6);
+		cell.setBorder(Rectangle.NO_BORDER);
+		t.addCell(cell);
+	}
+
 	private void addHeaderRow(PdfPTable table, String... headers) {
 		for (String h : headers) {
 			PdfPCell cell = new PdfPCell(new Phrase(h, hdrFont()));
 			cell.setBackgroundColor(COL_HEADER);
-			cell.setPadding(6);
+			cell.setPadding(5);
 			table.addCell(cell);
 		}
 	}
@@ -412,8 +595,61 @@ public class ExportService {
 	private void buildCatRow(PdfPTable table, Map<String, Object> row) {
 		boolean alt = table.size() % 2 == 0;
 		BaseColor bg = alt ? COL_ALT : BaseColor.WHITE;
-		addCell(table, row.get("name").toString(), 9, bg, Element.ALIGN_LEFT);
-		addCell(table, "₹" + row.get("total"), 9, bg, Element.ALIGN_RIGHT);
+		Object name = row.containsKey("name") ? row.get("name") : row.get("category");
+		addCell(table, String.valueOf(name), 9, bg, Element.ALIGN_LEFT);
+		addCell(table, "₹" + toBD(row.get("total")), 9, bg, Element.ALIGN_RIGHT);
+	}
+
+	// ── NEW: Category row with txn count (3 columns) ──────
+	private void buildCatRowWithCount(PdfPTable table, Map<String, Object> row, String nameKey) {
+		boolean alt = table.size() % 2 == 0;
+		BaseColor bg = alt ? COL_ALT : BaseColor.WHITE;
+		addCell(table, String.valueOf(row.get(nameKey)), 8, bg, Element.ALIGN_LEFT);
+		addCell(table, "₹" + toBD(row.get("total")), 8, bg, Element.ALIGN_RIGHT);
+		addCell(table, String.valueOf(row.getOrDefault("txnCount", 0)), 8, bg, Element.ALIGN_CENTER);
+	}
+
+	// ── NEW: Sub-category row (4 columns) ─────────────────
+	private void buildSubCatRow(PdfPTable table, Map<String, Object> row) {
+		boolean alt = table.size() % 2 == 0;
+		BaseColor bg = alt ? COL_ALT : BaseColor.WHITE;
+		addCell(table, String.valueOf(row.get("category")), 7, bg, Element.ALIGN_LEFT);
+		addCell(table, String.valueOf(row.get("subcategory")), 7, bg, Element.ALIGN_LEFT);
+		addCell(table, "₹" + toBD(row.get("total")), 7, bg, Element.ALIGN_RIGHT);
+		addCell(table, String.valueOf(row.getOrDefault("txnCount", 0)), 7, bg, Element.ALIGN_CENTER);
+	}
+
+	// ── NEW: Generic mini table (used for daily/weekly/dow) ──
+	// keyLabel: label column key | incKey/expKey: value column keys
+	// trimDay: if true, shows only last 2 chars of day (e.g. "2026-06-19" -> "19")
+	private PdfPTable buildMiniTable(String[] headers, List<Map<String, Object>> data, String labelKey, String incKey,
+			String expKey, boolean trimDay) {
+		PdfPTable t = new PdfPTable(3);
+		try {
+			t.setWidths(new float[] { 1.4f, 1f, 1f });
+		} catch (Exception ignored) {
+		}
+		for (String h : headers) {
+			PdfPCell cell = new PdfPCell(
+					new Phrase(h, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 7, BaseColor.WHITE)));
+			cell.setBackgroundColor(COL_HEADER);
+			cell.setPadding(3);
+			t.addCell(cell);
+		}
+		boolean alt = false;
+		for (Map<String, Object> row : data) {
+			BaseColor bg = alt ? COL_ALT : BaseColor.WHITE;
+			alt = !alt;
+			String label = String.valueOf(row.get(labelKey));
+			if (trimDay && label.length() >= 2)
+				label = label.substring(label.length() - 2);
+			addCell(t, label, 7, bg, Element.ALIGN_LEFT);
+			addCell(t, "₹" + toBD(row.get(incKey)).setScale(0, java.math.RoundingMode.HALF_UP), 7, bg,
+					Element.ALIGN_RIGHT);
+			addCell(t, "₹" + toBD(row.get(expKey)).setScale(0, java.math.RoundingMode.HALF_UP), 7, bg,
+					Element.ALIGN_RIGHT);
+		}
+		return t;
 	}
 
 	private com.itextpdf.text.Font hdrFont() {
@@ -452,7 +688,6 @@ public class ExportService {
 		return s != null ? s : "";
 	}
 
-	// Page footer for PDF
 	private static class PageFooter extends PdfPageEventHelper {
 		@Override
 		public void onEndPage(PdfWriter writer, Document document) {

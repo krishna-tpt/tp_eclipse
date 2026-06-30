@@ -224,8 +224,11 @@
 		</p>
 	</div>
 	<div class="flex gap-1 ml-auto">
-		<a href="${pageContext.request.contextPath}/export?type=reports-pdf"
+		<a
+			href="${pageContext.request.contextPath}/export?type=reports-pdf&amp;year=${selYear}&amp;month=${selMonth}"
 			class="btn btn-outline btn-sm">&#128196; Export PDF</a>
+		<button class="btn btn-primary btn-sm"
+			onclick="openModal('reportEmailModal')">&#9993; Email Report</button>
 	</div>
 </div>
 
@@ -796,5 +799,43 @@
 		return Number(r.total || 0);
 	}), PAL2);
 </script>
+
+<c:if test="${not empty param.emailSent}">
+	<div class="alert alert-success">&#10003; Full report sent to
+		your email successfully!</div>
+</c:if>
+<c:if test="${not empty param.exportError}">
+	<div class="alert alert-error">&#10007; Export error:
+		${param.exportError}</div>
+</c:if>
+
+<%-- Email Report Modal --%>
+<div id="reportEmailModal" class="modal-overlay">
+	<div class="modal">
+		<div class="modal-header">
+			<h3>&#9993; Email Full Report</h3>
+			<button class="modal-close" onclick="closeModal('reportEmailModal')">&#x2715;</button>
+		</div>
+		<form action="${pageContext.request.contextPath}/export" method="post">
+			<input type="hidden" name="reportEmail" value="1"> <input
+				type="hidden" name="format" value="pdf">
+			<div class="form-group mb-2">
+				<label>Recipient Email *</label> <input type="email" name="email"
+					placeholder="yourname@gmail.com" required autofocus>
+			</div>
+			<p class="text-muted"
+				style="font-size: .78rem; margin-bottom: .75rem">This sends the
+				complete report PDF — all-time overview, ${selMonth}/${selYear}
+				monthly breakdown, daily/weekly/day-of-week stats, category &amp;
+				sub-category details — exactly as shown on this page.</p>
+			<div class="flex gap-1 mt-2">
+				<button type="button" class="btn btn-outline"
+					onclick="closeModal('reportEmailModal')">Cancel</button>
+				<button type="submit" class="btn btn-primary ml-auto">Send
+					Email</button>
+			</div>
+		</form>
+	</div>
+</div>
 
 <%@ include file="footer.jsp"%>

@@ -19,11 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * GET /export?type=pdf|excel → full book download GET
- * /export?type=pdf&filtered=1&... → filtered transactions download GET
- * /export?type=reports-pdf → reports PDF GET
- * /export?type=calendar-pdf&year=&month= → calendar PDF POST /export
- * action=email → send via Gmail
+ * GET /export?type=pdf|excel              -> full book download
+ * GET /export?type=pdf&filtered=1&...      -> filtered transactions download
+ * GET /export?type=reports-pdf[&year=&month=] -> FULL reports PDF (matches reports.jsp)
+ * GET /export?type=calendar-pdf&year=&month=  -> calendar PDF
+ * POST /export action=email[&reportEmail=1]   -> send via Gmail (transactions OR full report)
  */
 @WebServlet("/export")
 public class ExportServlet extends HttpServlet {
@@ -31,12 +31,12 @@ public class ExportServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
+
 		log.debug("doGet method");
-		
+
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
 		String type = req.getParameter("type");
-		log.debug("type : {}",type);
+		log.debug("type : {}", type);
 
 		try {
 			CashBookDAO cashDAO = new CashBookDAO();
@@ -45,13 +45,10 @@ public class ExportServlet extends HttpServlet {
 			CashBook book = cashDAO.findById(bookId);
 			String safe = book.getName().replaceAll("[^a-zA-Z0-9_-]", "_");
 
-			// ── Reports PDF ───────────────────────────────
+			// ── FULL Reports PDF (matches reports.jsp page exactly) ──
 			if ("reports-pdf".equals(type)) {
-				BigDecimal income = txnDAO.sumByType("INCOME", bookId);
-				BigDecimal expense = txnDAO.sumByType("EXPENSE", bookId);
-				byte[] bytes = exporter.generateReportsPDF(book, income, expense, txnDAO.monthlyTrend(6, bookId),
-						txnDAO.expenseByCategory(bookId), txnDAO.incomeByCategory(bookId));
-				sendFile(resp, bytes, "application/pdf", safe + "_report.pdf");
+				byte[] bytes = buildFullReportsPdf(exporter, txnDAO, book, bookId, req);
+				sendFile(resp, bytes, "application/pdf", safe + "_full_report.pdf");
 				return;
 			}
 
@@ -73,11 +70,9 @@ public class ExportServlet extends HttpServlet {
 			String filterLabel = "";
 
 			if (filtered) {
-				// Rebuild filter from params
 				TransactionFilter f = parseFilterFromParams(req, bookId);
 				f.setPageSize(Integer.MAX_VALUE);
 				txns = txnDAO.findByFilter(f);
-				// Sum from filtered list
 				income = txns.stream().filter(t -> t.getType() == Transaction.Type.INCOME).map(Transaction::getAmount)
 						.reduce(BigDecimal.ZERO, BigDecimal::add);
 				expense = txns.stream().filter(t -> t.getType() == Transaction.Type.EXPENSE).map(Transaction::getAmount)
@@ -99,19 +94,21 @@ public class ExportServlet extends HttpServlet {
 			}
 
 		} catch (Exception e) {
+			log.error("Export error: {}", e.getMessage(), e);
 			resp.sendRedirect(req.getContextPath() + "/home?exportError=" + URLEncoder.encode(e.getMessage(), "UTF-8"));
 		}
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
-		log.debug("doGet doPost");
-		
+
+		log.debug("doPost method");
+
 		req.setCharacterEncoding("UTF-8");
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
 		String to = req.getParameter("email");
 		String fmt = req.getParameter("format"); // pdf | excel
+		boolean isReportEmail = "1".equals(req.getParameter("reportEmail"));
 
 		if (to == null || to.isBlank()) {
 			resp.sendRedirect(req.getContextPath() + "/home?exportError=email_missing");
@@ -128,32 +125,85 @@ public class ExportServlet extends HttpServlet {
 			GmailService gmail = new GmailService(gmailFrom, gmailPass);
 
 			CashBook book = cashDAO.findById(bookId);
-			List<Transaction> txns = txnDAO.findAll(null, 1, Integer.MAX_VALUE, bookId);
-			BigDecimal income = txnDAO.sumByType("INCOME", bookId);
-			BigDecimal expense = txnDAO.sumByType("EXPENSE", bookId);
 			String safe = book.getName().replaceAll("[^a-zA-Z0-9_-]", "_");
 
 			byte[] attachment;
 			String attachName;
 			String mimeType;
-			if ("excel".equals(fmt)) {
-				attachment = exporter.generateExcel(book, txns, income, expense, null);
-				attachName = safe + ".xlsx";
-				mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-			} else {
-				attachment = exporter.generatePDF(book, txns, income, expense, null);
-				attachName = safe + ".pdf";
+			BigDecimal income, expense;
+			int txnCount;
+
+			if (isReportEmail) {
+				// ── Full Reports PDF as email attachment ───────
+				attachment = buildFullReportsPdf(exporter, txnDAO, book, bookId, req);
+				attachName = safe + "_full_report.pdf";
 				mimeType = "application/pdf";
+				income = txnDAO.sumByType("INCOME", bookId);
+				expense = txnDAO.sumByType("EXPENSE", bookId);
+				txnCount = txnDAO.findAll(null, 1, Integer.MAX_VALUE, bookId).size();
+			} else {
+				// ── Standard transaction list export ───────────
+				List<Transaction> txns = txnDAO.findAll(null, 1, Integer.MAX_VALUE, bookId);
+				income = txnDAO.sumByType("INCOME", bookId);
+				expense = txnDAO.sumByType("EXPENSE", bookId);
+				txnCount = txns.size();
+				if ("excel".equals(fmt)) {
+					attachment = exporter.generateExcel(book, txns, income, expense, null);
+					attachName = safe + ".xlsx";
+					mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+				} else {
+					attachment = exporter.generatePDF(book, txns, income, expense, null);
+					attachName = safe + ".pdf";
+					mimeType = "application/pdf";
+				}
 			}
 
-			String subject = "ExpenseOS — " + book.getName() + " Report";
-			String body = buildEmailBody(book, txns.size(), income, expense);
+			String subject = "ExpenseOS — " + book.getName() + (isReportEmail ? " Full Report" : " Report");
+			String body = buildEmailBody(book, txnCount, income, expense);
 			gmail.sendMail(to, subject, body, attachment, attachName, mimeType);
-			resp.sendRedirect(req.getContextPath() + "/home?emailSent=1");
+			resp.sendRedirect(req.getContextPath() + (isReportEmail ? "/reports" : "/home") + "?emailSent=1");
 
 		} catch (Exception e) {
+			log.error("Email export error: {}", e.getMessage(), e);
 			resp.sendRedirect(req.getContextPath() + "/home?exportError=" + URLEncoder.encode(e.getMessage(), "UTF-8"));
 		}
+	}
+
+	// ── Build the FULL reports PDF — fetches all the same data as reports.jsp ──
+	private byte[] buildFullReportsPdf(ExportService exporter, TransactionDAO txnDAO, CashBook book, int bookId,
+			HttpServletRequest req) throws Exception {
+
+		LocalDate now = LocalDate.now();
+		int selYear, selMonth;
+		try {
+			selYear = Integer.parseInt(req.getParameter("year"));
+			selMonth = Integer.parseInt(req.getParameter("month"));
+		} catch (Exception e) {
+			selYear = now.getYear();
+			selMonth = now.getMonthValue();
+		}
+
+		BigDecimal allTimeIncome = txnDAO.sumByType("INCOME", bookId);
+		BigDecimal allTimeExpense = txnDAO.sumByType("EXPENSE", bookId);
+
+		List<Map<String, Object>> monthly = txnDAO.monthlyTrend(12, bookId);
+		List<Map<String, Object>> expByCatAll = txnDAO.expenseByCategory(bookId);
+		List<Map<String, Object>> incByCatAll = txnDAO.incomeByCategory(bookId);
+
+		Map<String, Object> monthSummary = txnDAO.monthSummary(selYear, selMonth, bookId);
+		List<Map<String, Object>> dailyData = txnDAO.dailyTotals(selYear, selMonth, bookId);
+		List<Map<String, Object>> weeklyData = txnDAO.weeklyTotals(selYear, selMonth, bookId);
+		List<Map<String, Object>> dowData = txnDAO.dayOfWeekPattern(selYear, selMonth, bookId);
+		List<Map<String, Object>> expCatMonth = txnDAO.categoryBreakdownByMonth("EXPENSE", selYear, selMonth, bookId);
+		List<Map<String, Object>> incCatMonth = txnDAO.categoryBreakdownByMonth("INCOME", selYear, selMonth, bookId);
+		List<Map<String, Object>> expSubCatMonth = txnDAO.subCategoryBreakdownByMonth("EXPENSE", selYear, selMonth,
+				bookId);
+		List<Map<String, Object>> incSubCatMonth = txnDAO.subCategoryBreakdownByMonth("INCOME", selYear, selMonth,
+				bookId);
+
+		return exporter.generateReportsPDF(book, allTimeIncome, allTimeExpense, monthly, expByCatAll, incByCatAll,
+				selYear, selMonth, monthSummary, dailyData, weeklyData, dowData, expCatMonth, incCatMonth,
+				expSubCatMonth, incSubCatMonth);
 	}
 
 	// ── Helpers ───────────────────────────────────────────
