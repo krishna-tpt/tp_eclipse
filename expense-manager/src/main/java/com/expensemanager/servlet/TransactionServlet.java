@@ -133,7 +133,7 @@ public class TransactionServlet extends HttpServlet {
 			if (contentType != null && contentType.toLowerCase().startsWith("multipart/")) {
 
 				Part filePart = req.getPart("receipt");
-				log.debug("File size : {}", filePart.getSize());
+//				log.debug("File size : {}", filePart.getSize());
 				if (filePart != null && filePart.getSize() > 0) {
 					log.debug("File uploading...");
 					Receipt r = new Receipt();

@@ -51,6 +51,9 @@ public class BackupService {
 	private static final String DEFAULT_DIR = System.getProperty("user.home") + "/expense_backups";
 	private final BackupDAO dao = new BackupDAO();
 	private final FilesApiService fas = new FilesApiService();
+	String[] tables = { "cash_books", "categories", "column_definitions", "sub_categories", "transaction_audit_log",
+			"transaction_custom_values", "transaction_receipts", "transactions", "budgets", "budget_categories",
+			"scheduler_log", "schedulers" };
 
 	// ── CREATE ────────────────────────────────────────────────────────────────
 	public BackupMetadata createBackup(String description, BackupType type, BackupMode backupMode) throws Exception {
@@ -422,8 +425,8 @@ public class BackupService {
 	}
 
 	private void truncate(Connection con) throws SQLException {
-		String[] tables = { "cash_books", "categories", "column_definitions", "sub_categories", "transaction_audit_log",
-				"transaction_custom_values", "transaction_receipts", "transactions" };
+//		String[] tables = { "cash_books", "categories", "column_definitions", "sub_categories", "transaction_audit_log",
+//				"transaction_custom_values", "transaction_receipts", "transactions" };
 
 		try (Statement st = con.createStatement()) {
 			for (String table : tables) {
@@ -436,8 +439,8 @@ public class BackupService {
 	}
 
 	private void resetSeq(Connection con) throws SQLException {
-		String[] tables = { "cash_books", "categories", "column_definitions", "sub_categories", "transaction_audit_log",
-				"transaction_custom_values", "transaction_receipts", "transactions" };
+//		String[] tables = { "cash_books", "categories", "column_definitions", "sub_categories", "transaction_audit_log",
+//				"transaction_custom_values", "transaction_receipts", "transactions" };
 		try (Statement st = con.createStatement()) {
 			for (String table : tables) {
 				if (table.startsWith("sub_categories")) {

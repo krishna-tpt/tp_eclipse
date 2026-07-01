@@ -253,7 +253,7 @@ tbody tr.selected {
 	<div class="flex gap-1 ml-auto">
 		<button class="btn btn-success" onclick="openModal('incomeModal')">+
 			Income</button>
-		<button class="btn btn-danger" onclick="openModal('expenseModal')">+
+		<button class="btn btn-danger" onclick="openModal('incomeModal')">+
 			Expense</button>
 	</div>
 </div>

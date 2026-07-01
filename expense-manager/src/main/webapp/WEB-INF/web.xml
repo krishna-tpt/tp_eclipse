@@ -28,7 +28,7 @@
 
 	<context-param>
 		<param-name>DB_URL</param-name>
-		<param-value>jdbc:postgresql://localhost/expense_manager</param-value>
+		<param-value>jdbc:postgresql://localhost/mydb</param-value>
 	</context-param>
 	<context-param>
 		<param-name>DB_USER</param-name>

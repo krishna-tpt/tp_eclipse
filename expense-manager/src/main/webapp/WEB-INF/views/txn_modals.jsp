@@ -5,11 +5,15 @@
 <%
 if (request.getAttribute("incomeCategories") == null) {
 	try {
+		Integer bookId = (Integer) request.getSession().getAttribute("activeBookId");
+		
 		com.expensemanager.dao.CategoryDAO cDao = new com.expensemanager.dao.CategoryDAO();
 		com.expensemanager.dao.ColumnDefinitionDAO colDao = new com.expensemanager.dao.ColumnDefinitionDAO();
 		com.expensemanager.dao.SubCategoryDAO scDao = new com.expensemanager.dao.SubCategoryDAO();
 		request.setAttribute("incomeCategories", cDao.findByType("INCOME"));
 		request.setAttribute("expenseCategories", cDao.findByType("EXPENSE"));
+		request.setAttribute("incomeCategories", cDao.findByType("INCOME", bookId));
+		request.setAttribute("expenseCategories", cDao.findByType("EXPENSE", bookId));
 		request.setAttribute("incomeColumns", colDao.findByType("INCOME"));
 		request.setAttribute("expenseColumns", colDao.findByType("EXPENSE"));
 		request.setAttribute("subCategories", scDao.findAll());

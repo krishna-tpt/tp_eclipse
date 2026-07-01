@@ -10,6 +10,11 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="incomeModal"/>
+			<item value="switchTxnTab"/>
+			<item value="income"/>
+			<item value="expense"/>
+			<item value="incomeCategories"/>
 			<item value="toggleFilter"/>
 			<item value="loadDetail"/>
 			<item value="${transactions}"/>
@@ -20,11 +25,6 @@
 			<item value="datetime-local"/>
 			<item value="switchTab"/>
 			<item value="addEventListener"/>
-			<item value="updated_at&gt;="/>
-			<item value="update"/>
-			<item value="transaction"/>
-			<item value="transaction_id"/>
-			<item value="confirmCopyModal"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>
