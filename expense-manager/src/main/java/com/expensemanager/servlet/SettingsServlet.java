@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/settings")
 public class SettingsServlet extends HttpServlet {
 	private static final Logger log = LoggerFactory.getLogger(SettingsServlet.class);
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
@@ -32,12 +33,13 @@ public class SettingsServlet extends HttpServlet {
 			SubCategoryDAO scDao = new SubCategoryDAO();
 			ColumnDefinitionDAO colDao = new ColumnDefinitionDAO();
 
-			req.setAttribute("incomeCategories", catDao.findByType("INCOME"));
-			req.setAttribute("expenseCategories", catDao.findByType("EXPENSE"));
+			Integer bookId = (Integer) req.getSession().getAttribute("activeBookId");
+			req.setAttribute("activeBookId", bookId);
+
+			// includes common (book_id IS NULL) + custom for this book, if any
+			req.setAttribute("incomeCategories", catDao.findByType("INCOME", bookId));
+			req.setAttribute("expenseCategories", catDao.findByType("EXPENSE", bookId));
 			req.setAttribute("allSubCategories", scDao.findAll());
-			req.setAttribute("allCategories", catDao.findByType("INCOME").stream().map(c -> c) // combine both
-					.collect(java.util.stream.Collectors.toList()));
-			req.setAttribute("allCategoriesCombined", getAllCategories(catDao));
 			req.setAttribute("incomeColumns", colDao.findByType("INCOME"));
 			req.setAttribute("expenseColumns", colDao.findByType("EXPENSE"));
 		} catch (Exception e) {
@@ -51,60 +53,62 @@ public class SettingsServlet extends HttpServlet {
 		req.setCharacterEncoding("UTF-8");
 		String action = req.getParameter("action");
 
-		System.out.println("Action: "+action);
-		
+		System.out.println("Action: " + action);
+
 		String redirectTab = "cat"; // default
 
 		try {
 			switch (action != null ? action : "") {
-			case "addCategory" :{
+			case "addCategory": {
 				String name = req.getParameter("name");
 				String type = req.getParameter("type");
+				String scope = req.getParameter("scope"); // "common" or "custom"
+				Integer bookId = "custom".equals(scope) ? (Integer) req.getSession().getAttribute("activeBookId"): null;
 				if (name != null && !name.isBlank())
-					new CategoryDAO().insert(name.trim(), type);
+					new CategoryDAO().insert(name.trim(), type, bookId);
 				redirectTab = "cat";
 				break;
 			}
-			case "deleteCategory" : {
+			case "deleteCategory": {
 				int id = Integer.parseInt(req.getParameter("id"));
 				new CategoryDAO().delete(id);
-		        redirectTab = "cat";
+				redirectTab = "cat";
 				break;
 			}
-			case "addSubCategory" : {
+			case "addSubCategory": {
 				System.out.println("Inside addSubCategory:");
-				
-		/**		Enumeration<String> paramNames = req.getParameterNames();
 
-			while (paramNames.hasMoreElements()) {
-				    String key = paramNames.nextElement();
-				    String value = req.getParameter(key);
+				/**
+				 * Enumeration<String> paramNames = req.getParameterNames();
+				 * 
+				 * while (paramNames.hasMoreElements()) { String key = paramNames.nextElement();
+				 * String value = req.getParameter(key);
+				 * 
+				 * System.out.println("Key: " + key + ", Value: " + value); }
+				 */
 
-				    System.out.println("Key: " + key + ", Value: " + value);
-				} */
-				
 				String name = req.getParameter("name");
 				int catId = Integer.parseInt(req.getParameter("categoryId"));
 				if (name != null && !name.isBlank())
 					new SubCategoryDAO().insert(name.trim(), catId);
-		        redirectTab = "subcat";
+				redirectTab = "subcat";
 				break;
 			}
-			case "deleteSubCategory" : {
+			case "deleteSubCategory": {
 				int id = Integer.parseInt(req.getParameter("id"));
 				new SubCategoryDAO().delete(id);
-		        redirectTab = "subcat";
+				redirectTab = "subcat";
 				break;
 			}
-			case "addColumn" : {
+			case "addColumn": {
 				String colName = req.getParameter("colName");
 				String type = req.getParameter("type");
 				if (colName != null && !colName.isBlank())
 					new ColumnDefinitionDAO().insert(colName.trim(), type);
-		        redirectTab = "col";
+				redirectTab = "col";
 				break;
 			}
-			case "deleteColumn" : {
+			case "deleteColumn": {
 				int id = Integer.parseInt(req.getParameter("id"));
 				new ColumnDefinitionDAO().delete(id);
 				redirectTab = "col";
@@ -112,7 +116,7 @@ public class SettingsServlet extends HttpServlet {
 			}
 			}
 		} catch (Exception e) {
-			log.debug("DoPost Exception : {}",e.getMessage());
+			log.debug("DoPost Exception : {}", e.getMessage());
 			/* ignore */ }
 
 //		resp.sendRedirect(req.getContextPath() + "/settings?msg=saved");

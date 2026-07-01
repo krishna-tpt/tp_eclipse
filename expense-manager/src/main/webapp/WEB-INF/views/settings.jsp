@@ -40,6 +40,17 @@
 					type="text" name="name" placeholder="New income category"
 					class="full-w" required
 					onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('form').submit();}">
+				<c:choose>
+					<c:when test="${not empty activeBookId}">
+						<select name="scope" class="full-w" style="max-width: 120px">
+							<option value="common">Common</option>
+							<option value="custom">This book only</option>
+						</select>
+					</c:when>
+					<c:otherwise>
+						<input type="hidden" name="scope" value="common">
+					</c:otherwise>
+				</c:choose>
 				<button type="submit" class="btn btn-success btn-sm"
 					style="white-space: nowrap">+ Add</button>
 			</form>
@@ -48,7 +59,12 @@
 					<tbody>
 						<c:forEach var="cat" items="${incomeCategories}">
 							<tr>
-								<td>${cat.name}</td>
+								<td>${cat.name}<c:if test="${empty cat.bookId}">
+										<span class="chip" style="font-size: .65rem">Common</span>
+									</c:if> <c:if test="${not empty cat.bookId}">
+										<span class="chip" style="font-size: .65rem">Custom</span>
+									</c:if>
+								</td>
 								<td class="text-right">
 									<form action="${pageContext.request.contextPath}/settings"
 										method="post" style="display: inline">
@@ -73,12 +89,24 @@
 		<div class="card">
 			<div class="card-title">Expense Categories</div>
 			<form action="${pageContext.request.contextPath}/settings"
-				method="post" class="flex gap-1 mb-2">
+				method="post" class="flex gap-1 mb-2"
+				onsubmit="return this.name.value.trim()!==''">
 				<input type="hidden" name="action" value="addCategory"> <input
 					type="hidden" name="type" value="EXPENSE"> <input
 					type="text" name="name" placeholder="New expense category"
 					class="full-w" required
 					onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('form').submit();}">
+				<c:choose>
+					<c:when test="${not empty activeBookId}">
+						<select name="scope" class="full-w" style="max-width: 120px">
+							<option value="common">Common</option>
+							<option value="custom">This book only</option>
+						</select>
+					</c:when>
+					<c:otherwise>
+						<input type="hidden" name="scope" value="common">
+					</c:otherwise>
+				</c:choose>
 				<button type="submit" class="btn btn-success btn-sm"
 					style="white-space: nowrap">+ Add</button>
 			</form>
@@ -87,7 +115,12 @@
 					<tbody>
 						<c:forEach var="cat" items="${expenseCategories}">
 							<tr>
-								<td>${cat.name}</td>
+								<td>${cat.name}<c:if test="${empty cat.bookId}">
+										<span class="chip" style="font-size: .65rem">Common</span>
+									</c:if> <c:if test="${not empty cat.bookId}">
+										<span class="chip" style="font-size: .65rem">Custom</span>
+									</c:if>
+								</td>
 								<td class="text-right">
 									<form action="${pageContext.request.contextPath}/settings"
 										method="post" style="display: inline">

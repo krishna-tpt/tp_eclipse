@@ -12,7 +12,7 @@ import java.io.IOException;
 @WebFilter("/*")
 public class BookFilter implements Filter {
 
-	private static final String[] BYPASS = { "/books", "/settings", "/css/", "/js/", "/favicon", "/receipt" };
+	private static final String[] BYPASS = { "/books", "/css/", "/js/", "/favicon"}; //"/settings",  "/receipt"
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)

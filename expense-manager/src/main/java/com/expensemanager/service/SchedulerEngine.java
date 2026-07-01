@@ -127,10 +127,11 @@ public class SchedulerEngine {
 	// ── Execute a specific scheduler ───────────────────────────────
 	private void execute(SchedulerConfig s) {
 		int logId = -1;
-		LocalDateTime oneWeekAgo = LocalDateTime.now().minusDays(7);
-		LocalDateTime lastRun = s.getLastRunAt();
-		log.debug("oneWeekAgo : {} - lastRun : {}",oneWeekAgo, lastRun);
-		LocalDateTime fromDate = lastRun.isBefore(oneWeekAgo) ? lastRun : oneWeekAgo;
+		LocalDateTime oneWeekAgo = null;
+		LocalDateTime lastRun = null;
+//		log.debug("oneWeekAgo : {} - lastRun : {}", oneWeekAgo, lastRun);
+		LocalDateTime fromDate = null;
+		log.debug("Execute Name : {}", s.getName());
 
 		try {
 			logId = dao.logStart(s.getId());
@@ -151,11 +152,19 @@ public class SchedulerEngine {
 				rows = Integer.parseInt(r[1]);
 			}
 			case "NEON_SYNC_PUSH" -> {
+				oneWeekAgo = LocalDateTime.now().minusDays(7);
+				lastRun = s.getLastRunAt();
+				fromDate = lastRun.isBefore(oneWeekAgo) ? lastRun : oneWeekAgo;
+
 				var sr = runNeonSync(fromDate, true);
 				result = sr.getSummary();
 				rows = sr.totalRows;
 			}
 			case "NEON_SYNC_PULL" -> {
+				oneWeekAgo = LocalDateTime.now().minusDays(7);
+				lastRun = s.getLastRunAt();
+				fromDate = lastRun.isBefore(oneWeekAgo) ? lastRun : oneWeekAgo;
+
 				var sr = runNeonSync(fromDate, false);
 				result = sr.getSummary();
 				rows = sr.totalRows;
@@ -172,16 +181,19 @@ public class SchedulerEngine {
 			try {
 				LocalDateTime nextRun = calcNextRun(s);
 				dao.logFinish(logId, s.getId(), "FAILED", ex.getMessage(), 0, nextRun);
+				log.info("[SchedulerEngine] - Exception: {}", ex.getMessage());
 			} catch (Exception ignored) {
+				log.info("[SchedulerEngine] - ex Exception: {}", ignored.getMessage());
 			}
 		}
 	}
 
 	// ── CASHBOOK: create cash book for next month if not exists ────
 	private String[] runCashBook() throws Exception {
-		LocalDate nextMonth = LocalDate.now().plusMonths(1).withDayOfMonth(1);
+		LocalDate nextMonth = LocalDate.now().withDayOfMonth(1);
 		String name = nextMonth.getMonth().name() + " " + nextMonth.getYear();
 		Connection conn = DBConnection.getInstance().getConnection();
+		log.info("[CashBook] name: {}", name);
 		try {
 			// Check if exists
 			try (PreparedStatement ps = conn.prepareStatement("SELECT id FROM cash_books WHERE name=?")) {

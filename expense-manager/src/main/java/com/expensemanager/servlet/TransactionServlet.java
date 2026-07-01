@@ -53,8 +53,8 @@ public class TransactionServlet extends HttpServlet {
 			int totalPages = (int) Math.ceil((double) total / filter.getPageSize());
 
 			req.setAttribute("transactions", txns);
-			req.setAttribute("incomeCategories", catDAO.findByType("INCOME"));
-			req.setAttribute("expenseCategories", catDAO.findByType("EXPENSE"));
+			req.setAttribute("incomeCategories", catDAO.findByType("INCOME",bookId));
+			req.setAttribute("expenseCategories", catDAO.findByType("EXPENSE",bookId));
 			req.setAttribute("incomeColumns", colDAO.findByType("INCOME"));
 			req.setAttribute("expenseColumns", colDAO.findByType("EXPENSE"));
 			req.setAttribute("subCategories", scDAO.findAll());

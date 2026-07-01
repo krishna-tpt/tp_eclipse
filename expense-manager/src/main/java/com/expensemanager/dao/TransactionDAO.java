@@ -49,9 +49,12 @@ public class TransactionDAO {
 				insertCustomValues(conn, newId, t.getCustomValues());
 			auditDAO.logCreate(newId, "user");
 			return newId;
+		} catch (Exception e) {
+			log.debug("insert method exception : {}", e.getMessage());
 		} finally {
 			db.releaseConnection(conn);
 		}
+		return 0;
 	}
 
 	// ── UPDATE ────────────────────────────────────────────
