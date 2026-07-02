@@ -578,18 +578,23 @@ public class TransactionDAO {
 		}
 		// Note + custom field ILIKE
 		if (f.getNoteSearch() != null && !f.getNoteSearch().isBlank()) {
-			
-			String[] split =f.getNoteSearch().split(";");
-			
-			log.debug("split words count : {}",split.length);
-			log.debug("split words : {}",Arrays.toString(split));
-			
+
+			String[] split = f.getNoteSearch().split(";");
+
+//			log.debug("split words count : {}", split.length);
+//			log.debug("split words : {}", Arrays.toString(split));
+
+			if (split.length > 0) 
+				sql.append(" AND (");
+
 			for (int i = 0; i < split.length; i++) {
-				String searchWord = split[i];
-				
-				String like = "%" + searchWord.trim() + "%";
+				String searchWord = split[i].trim();
+				String like = "%" + searchWord + "%";
+				if (i > 0)
+					sql.append(" OR ");
+
 				sql.append("""
-						 AND (t.note ILIKE ?
+						 (t.note ILIKE ?
 						      OR EXISTS (
 						        SELECT 1 FROM transaction_custom_values tcv
 						        WHERE tcv.transaction_id = t.id AND tcv.value ILIKE ?
@@ -598,6 +603,9 @@ public class TransactionDAO {
 				params.add(like);
 				params.add(like);
 			}
+
+			sql.append(" )");
+
 		}
 		if (!countOnly) {
 			sql.append(" ORDER BY t.txn_datetime DESC");
@@ -607,9 +615,9 @@ public class TransactionDAO {
 				params.add((f.getPage() - 1) * f.getPageSize());
 			}
 		}
-		
-		log.debug("params : {}",params);
-		log.debug("sql : {}",sql.toString());
+
+//		log.debug("params : {}", params);
+		log.debug("sql : {}", sql.toString());
 		return new BuildResult(sql.toString(), params);
 	}
 
