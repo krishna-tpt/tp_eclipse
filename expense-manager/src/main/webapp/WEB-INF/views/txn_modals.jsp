@@ -6,7 +6,7 @@
 if (request.getAttribute("incomeCategories") == null) {
 	try {
 		Integer bookId = (Integer) request.getSession().getAttribute("activeBookId");
-		
+
 		com.expensemanager.dao.CategoryDAO cDao = new com.expensemanager.dao.CategoryDAO();
 		com.expensemanager.dao.ColumnDefinitionDAO colDao = new com.expensemanager.dao.ColumnDefinitionDAO();
 		com.expensemanager.dao.SubCategoryDAO scDao = new com.expensemanager.dao.SubCategoryDAO();

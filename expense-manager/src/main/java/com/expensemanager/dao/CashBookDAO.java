@@ -14,14 +14,54 @@ public class CashBookDAO {
 
 	private final DBConnection db = DBConnection.getInstance();
 
+	// Keep old one for backward compatibility (other JSPs might call it)
 	public List<CashBook> findAll() throws SQLException {
-		String sql = "SELECT id, name, description, created_at, is_active FROM cash_books ORDER BY created_at DESC";
+	    return findAll(null, null);
+	}
+
+	/**
+	 * @param search  partial book-name search (case-insensitive), nullable
+	 * @param sort    one of: "updated" (default), "name_asc", "balance_desc", "balance_asc", "created"
+	 */
+	public List<CashBook> findAll(String search, String sort) throws SQLException {
+		StringBuilder sql = new StringBuilder("""
+				SELECT b.id, b.name, b.description, b.created_at, b.updated_at, b.is_active,
+				       COALESCE(t.income,0) - COALESCE(t.expense,0) AS net_balance
+				FROM cash_books b
+				LEFT JOIN (
+				    SELECT book_id,
+				           SUM(CASE WHEN type='INCOME'  THEN amount ELSE 0 END) AS income,
+				           SUM(CASE WHEN type='EXPENSE' THEN amount ELSE 0 END) AS expense
+				    FROM transactions
+				    GROUP BY book_id
+				) t ON t.book_id = b.id
+				""");
+
+		List<String> params = new ArrayList<>();
+		if (search != null && !search.isBlank()) {
+			sql.append("WHERE LOWER(b.name) LIKE LOWER(?) ");
+			params.add("%" + search.trim() + "%");
+		}
+
+		sql.append(switch (sort == null ? "" : sort) {
+		case "name_asc" -> "ORDER BY b.name ASC";
+		case "balance_desc" -> "ORDER BY net_balance DESC";
+		case "balance_asc" -> "ORDER BY net_balance ASC";
+		case "created" -> "ORDER BY b.created_at DESC";
+		default -> "ORDER BY COALESCE(b.updated_at, b.created_at) DESC"; // "updated"
+		});
+
 		Connection conn = db.getConnection();
-		try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
-			List<CashBook> list = new ArrayList<>();
-			while (rs.next())
-				list.add(mapRow(rs));
-			return list;
+		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			for (int i = 0; i < params.size(); i++) {
+				ps.setString(i + 1, params.get(i));
+			}
+			try (ResultSet rs = ps.executeQuery()) {
+				List<CashBook> list = new ArrayList<>();
+				while (rs.next())
+					list.add(mapRow(rs));
+				return list;
+			}
 		} finally {
 			db.releaseConnection(conn);
 		}
@@ -52,14 +92,19 @@ public class CashBookDAO {
 			db.releaseConnection(conn);
 		}
 	}
-
+	
 	public void update(int id, String name, String description) throws SQLException {
-		String sql = "UPDATE cash_books SET name=?, description=?, updated_at=NOW() WHERE id=?";
+		update(id, name, description, true);
+	}
+
+	public void update(int id, String name, String description, boolean active) throws SQLException {
+		String sql = "UPDATE cash_books SET name=?, description=?, is_active=?, updated_at=NOW() WHERE id=?";
 		Connection conn = db.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, name.trim());
 			ps.setString(2, description != null ? description.trim() : "");
-			ps.setInt(3, id);
+			ps.setBoolean(3, active);
+			ps.setInt(4, id);
 			ps.executeUpdate();
 		} finally {
 			db.releaseConnection(conn);

@@ -17,7 +17,7 @@ public class CategoryDAO {
 	 */
 	public List<Category> findByType(String type, Integer bookId) throws SQLException {
 		String sql = "SELECT id, name, type, book_id FROM categories "
-				+ "WHERE type=?::txn_type AND (book_id IS NULL OR book_id=?) " + "ORDER BY book_id NULLS FIRST, name";
+				+ "WHERE type=?::txn_type AND (book_id IS NULL OR book_id=?) ORDER BY book_id NULLS FIRST, name";
 		Connection conn = db.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, type);

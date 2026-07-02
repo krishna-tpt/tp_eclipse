@@ -179,29 +179,46 @@ if (request.getAttribute("_allBooks") == null) {
 			</div>
 		</div>
 
-		<div class="nav-links">
-			<a href="${pageContext.request.contextPath}/home"
-				class="${activePage=='home'?'active':''}">Dashboard</a> <a
-				href="${pageContext.request.contextPath}/transactions"
-				class="${activePage=='txn'?'active':''}">Transactions</a> <a
-				href="${pageContext.request.contextPath}/reports"
-				class="${activePage=='reports'?'active':''}">Reports</a> <a
-				href="${pageContext.request.contextPath}/budget"
-				class="${activePage=='budget'?'active':''}">&#127811; Budget</a> <a
-				href="${pageContext.request.contextPath}/books"
-				class="${activePage=='books'?'active':''}">Books</a><a
-				href="${pageContext.request.contextPath}/backup"
-				class="${activePage=='backup'?'active':''}">Backup</a> <a
-				href="${pageContext.request.contextPath}/log"
-				class="${activePage=='log'?'active':''}">&#128203; Log</a> <a
-				href="${pageContext.request.contextPath}/schedulers"
-				class="${activePage=='schedulers'?'active':''}">&#9201;
-				Schedulers</a><a href="${pageContext.request.contextPath}/bulkadd"
-				class="${activePage=='bulkadd'?'active':''}">&#128203; Bulk Add</a>
-		</div>
+		<c:choose>
+			<c:when test="${not empty sessionScope.activeBookId}">
+				<div class="nav-links">
+					<a href="${pageContext.request.contextPath}/home"
+						class="${activePage=='home'?'active':''}">Dashboard</a> <a
+						href="${pageContext.request.contextPath}/transactions"
+						class="${activePage=='txn'?'active':''}">Transactions</a> <a
+						href="${pageContext.request.contextPath}/reports"
+						class="${activePage=='reports'?'active':''}">Reports</a> <a
+						href="${pageContext.request.contextPath}/budget"
+						class="${activePage=='budget'?'active':''}">&#127811; Budget</a> <a
+						href="${pageContext.request.contextPath}/bulkadd"
+						class="${activePage=='bulkadd'?'active':''}">&#128203; Bulk
+						Add</a><a href="${pageContext.request.contextPath}/books"
+						class="${activePage=='books'?'active':''}">Books</a> <a
+						href="${pageContext.request.contextPath}/backup"
+						class="${activePage=='backup'?'active':''}">Backup</a> <a
+						href="${pageContext.request.contextPath}/log"
+						class="${activePage=='log'?'active':''}">&#128203; Log</a> <a
+						href="${pageContext.request.contextPath}/schedulers"
+						class="${activePage=='schedulers'?'active':''}">&#9201;
+						Schedulers</a> <a href="${pageContext.request.contextPath}/settings"
+						class="btn btn-outline btn-sm">&#9881; Settings</a>
+				</div>
+			</c:when>
+			<c:otherwise>
+				<div class="nav-links">
+					<a href="${pageContext.request.contextPath}/books"
+						class="${activePage=='books'?'active':''}">Books</a> <a
+						href="${pageContext.request.contextPath}/backup"
+						class="${activePage=='backup'?'active':''}">Backup</a> <a
+						href="${pageContext.request.contextPath}/log"
+						class="${activePage=='log'?'active':''}">&#128203; Log</a> <a
+						href="${pageContext.request.contextPath}/schedulers"
+						class="${activePage=='schedulers'?'active':''}">&#9201;
+						Schedulers</a>
+				</div>
+			</c:otherwise>
+		</c:choose>
 
-		<a href="${pageContext.request.contextPath}/settings"
-			class="btn btn-outline btn-sm">&#9881; Settings</a>
 	</nav>
 
 	<script>
