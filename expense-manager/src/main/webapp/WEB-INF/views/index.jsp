@@ -173,6 +173,68 @@
 	line-height: 1;
 }
 
+.ms-search-row {
+	position: sticky;
+	top: 0;
+	background: #fff;
+	padding: .5rem .5rem .35rem;
+	z-index: 2;
+}
+
+.ms-search {
+	width: 100%;
+	padding: .4rem .6rem;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	font-size: .8rem;
+	font-family: inherit;
+	box-sizing: border-box;
+}
+
+.ms-search:focus {
+	outline: none;
+	border-color: var(--primary);
+}
+
+.ms-option.ms-select-all {
+	border-bottom: 1px solid var(--border);
+	font-weight: 600;
+}
+
+.ms-group-header {
+	padding: .3rem .75rem;
+	font-size: .68rem;
+	font-weight: 700;
+	color: var(--text-2);
+	text-transform: uppercase;
+}
+
+.ms-clear-row {
+	position: sticky;
+	bottom: 0;
+	background: #fff;
+	border-top: 1px solid var(--border);
+	padding: .4rem .5rem;
+	text-align: right;
+}
+
+.ms-clear-btn {
+	background: none;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: .3rem .7rem;
+	font-size: .75rem;
+	font-family: inherit;
+	cursor: pointer;
+	color: #b91c1c;
+	transition: background .1s;
+}
+
+.ms-clear-btn:hover {
+	background: #fee2e2;
+	border-color: #fecaca;
+}
+
 /* Rows */
 tbody tr.clickable {
 	cursor: pointer;
@@ -253,8 +315,9 @@ tbody tr.selected {
 	<div class="flex gap-1 ml-auto">
 		<button class="btn btn-success" onclick="openModal('incomeModal')">+
 			Income</button>
-		<button class="btn btn-danger" onclick="openModal('incomeModal')">+
+		<button class="btn btn-danger" onclick="openTxnModal('EXPENSE')">+
 			Expense</button>
+
 	</div>
 </div>
 
@@ -297,6 +360,37 @@ tbody tr.selected {
 	</div>
 </div>
 
+<%-- ═══ Build the current filter query string once — reused by the
+     export links AND the pagination links below, so both stay in
+     sync with whatever filters are currently active. ═══ --%>
+<c:set var="pageQs" value="" />
+<c:if test="${not empty param.filter}">
+	<c:set var="pageQs" value="${pageQs}&amp;filter=${param.filter}" />
+</c:if>
+<c:if test="${filter.dateFrom != null}">
+	<c:set var="pageQs" value="${pageQs}&amp;dateFrom=${filter.dateFrom}" />
+</c:if>
+<c:if test="${filter.dateTo != null}">
+	<c:set var="pageQs" value="${pageQs}&amp;dateTo=${filter.dateTo}" />
+</c:if>
+<c:forEach var="cid" items="${filter.categoryIds}">
+	<c:set var="pageQs" value="${pageQs}&amp;categoryId=${cid}" />
+</c:forEach>
+<c:forEach var="sid" items="${filter.subCategoryIds}">
+	<c:set var="pageQs" value="${pageQs}&amp;subCategoryId=${sid}" />
+</c:forEach>
+<c:if test="${not empty filter.noteSearch}">
+	<c:set var="pageQs" value="${pageQs}&amp;search=${filter.noteSearch}" />
+</c:if>
+<c:if test="${not empty filter.amountOp1}">
+	<c:set var="pageQs"
+		value="${pageQs}&amp;amountOp1=${filter.amountOp1}&amp;amount1=${filter.amount1}" />
+</c:if>
+<c:if test="${not empty filter.amountOp2}">
+	<c:set var="pageQs"
+		value="${pageQs}&amp;amountOp2=${filter.amountOp2}&amp;amount2=${filter.amount2}" />
+</c:if>
+
 <%-- ═══ EXPORT BAR ═══ --%>
 <div class="export-bar">
 	<span style="font-size: .8rem; font-weight: 600; color: var(--text-2)">
@@ -304,30 +398,12 @@ tbody tr.selected {
 			test="${filter.filtered}"> &bull; Filtered (${total} records)</c:if>
 		&nbsp;&#8250;
 	</span>
-	<%-- Build filter query string --%>
+	<%-- Build export query string: same filters as pageQs, plus the
+	     "filtered=1" flag ExportServlet uses to know whether to
+	     honor the filter at all. --%>
 	<c:set var="fqs" value="" />
 	<c:if test="${filter.filtered}">
-		<c:set var="fqs" value="&amp;filtered=1" />
-		<c:if test="${filter.dateFrom != null}">
-			<c:set var="fqs" value="${fqs}&amp;dateFrom=${filter.dateFrom}" />
-		</c:if>
-		<c:if test="${filter.dateTo   != null}">
-			<c:set var="fqs" value="${fqs}&amp;dateTo=${filter.dateTo}" />
-		</c:if>
-		<c:if test="${not empty filter.type}">
-			<c:set var="fqs" value="${fqs}&amp;filter=${filter.type}" />
-		</c:if>
-		<c:if test="${not empty filter.noteSearch}">
-			<c:set var="fqs" value="${fqs}&amp;search=${filter.noteSearch}" />
-		</c:if>
-		<c:if test="${not empty filter.amountOp1}">
-			<c:set var="fqs"
-				value="${fqs}&amp;amountOp1=${filter.amountOp1}&amp;amount1=${filter.amount1}" />
-		</c:if>
-		<c:if test="${not empty filter.amountOp2}">
-			<c:set var="fqs"
-				value="${fqs}&amp;amountOp2=${filter.amountOp2}&amp;amount2=${filter.amount2}" />
-		</c:if>
+		<c:set var="fqs" value="&amp;filtered=1${pageQs}" />
 	</c:if>
 	<%-- Filtered income/expense amounts --%>
 	<c:if test="${filter.filtered}">
@@ -396,9 +472,19 @@ tbody tr.selected {
 								style="font-size: .65rem; opacity: .6">&#9660;</span>
 						</div>
 						<div class="ms-dropdown" id="msCat">
+							<div class="ms-search-row">
+								<input type="text" class="ms-search" placeholder="Search&#8230;"
+									autocomplete="off" onclick="event.stopPropagation()"
+									onkeydown="if(event.key==='Enter'){event.preventDefault();event.stopPropagation();}"
+									oninput="filterMSOptions('msCat', this.value)">
+							</div>
+							<label class="ms-option ms-select-all"> <input
+								type="checkbox" class="ms-select-all-cb"
+								onchange="toggleSelectAllMS('msCat','msCatLabel','msCatTags','categoryId', this.checked)">
+								<strong>(Select All)</strong>
+							</label>
 							<c:if test="${empty param.filter or param.filter == 'INCOME'}">
-								<div
-									style="padding: .3rem .75rem; font-size: .68rem; font-weight: 700; color: var(--text-2); text-transform: uppercase">Income</div>
+								<div class="ms-group-header">Income</div>
 								<c:forEach var="cat" items="${incomeCategories}">
 									<label class="ms-option"> <input type="checkbox"
 										name="categoryId" value="${cat.id}"
@@ -409,8 +495,7 @@ tbody tr.selected {
 								</c:forEach>
 							</c:if>
 							<c:if test="${empty param.filter or param.filter == 'EXPENSE'}">
-								<div
-									style="padding: .3rem .75rem; font-size: .68rem; font-weight: 700; color: var(--text-2); text-transform: uppercase">Expense</div>
+								<div class="ms-group-header">Expense</div>
 								<c:forEach var="cat" items="${expenseCategories}">
 									<label class="ms-option"> <input type="checkbox"
 										name="categoryId" value="${cat.id}"
@@ -420,6 +505,11 @@ tbody tr.selected {
 									</label>
 								</c:forEach>
 							</c:if>
+							<div class="ms-clear-row">
+								<button type="button" class="ms-clear-btn"
+									onclick="clearMSOptions('msCat','msCatLabel','msCatTags','categoryId')">&#10005;
+									Clear</button>
+							</div>
 						</div>
 						<div class="ms-selected-tags" id="msCatTags"></div>
 					</div>
@@ -435,6 +525,17 @@ tbody tr.selected {
 								style="font-size: .65rem; opacity: .6">&#9660;</span>
 						</div>
 						<div class="ms-dropdown" id="msSub">
+							<div class="ms-search-row">
+								<input type="text" class="ms-search" placeholder="Search&#8230;"
+									autocomplete="off" onclick="event.stopPropagation()"
+									onkeydown="if(event.key==='Enter'){event.preventDefault();event.stopPropagation();}"
+									oninput="filterMSOptions('msSub', this.value)">
+							</div>
+							<label class="ms-option ms-select-all"> <input
+								type="checkbox" class="ms-select-all-cb"
+								onchange="toggleSelectAllMS('msSub','msSubLabel','msSubTags','subCategoryId', this.checked)">
+								<strong>(Select All)</strong>
+							</label>
 							<c:forEach var="sc" items="${subCategories}">
 								<label class="ms-option"> <input type="checkbox"
 									name="subCategoryId" value="${sc.id}"
@@ -443,6 +544,11 @@ tbody tr.selected {
 									${sc.name}
 								</label>
 							</c:forEach>
+							<div class="ms-clear-row">
+								<button type="button" class="ms-clear-btn"
+									onclick="clearMSOptions('msSub','msSubLabel','msSubTags','subCategoryId')">&#10005;
+									Clear</button>
+							</div>
 						</div>
 						<div class="ms-selected-tags" id="msSubTags"></div>
 					</div>
@@ -451,8 +557,17 @@ tbody tr.selected {
 				<%-- Note search --%>
 				<div class="form-group" style="grid-column: 1/-1">
 					<label>Search (Note &amp; Custom Fields)</label> <input type="text"
-						name="search" placeholder="Search in note&#8230;"
+						name="search" placeholder="e.g. Dinner; tea"
 						value="${filter.noteSearch}">
+					<div
+						style="font-size: .7rem; color: var(--text-2); margin-top: .25rem">
+						Use
+						<code>;</code>
+						to search multiple keywords &mdash; e.g.
+						<code>Dinner; tea</code>
+						matches notes/custom fields containing &ldquo;Dinner&rdquo; OR
+						&ldquo;tea&rdquo;.
+					</div>
 				</div>
 			</div>
 
@@ -575,12 +690,13 @@ tbody tr.selected {
 			</table>
 		</div>
 
-		<%-- Pagination --%>
+		<%-- Pagination — reuses pageQs so every filter stays applied
+		     when navigating between pages --%>
 		<c:if test="${totalPages > 1}">
 			<div class="pagination mt-2">
 				<c:forEach begin="1" end="${totalPages}" var="p">
 					<a
-						href="${pageContext.request.contextPath}/home?page=${p}<c:if test="${not empty param.filter}">&amp;filter=${param.filter}</c:if>"
+						href="${pageContext.request.contextPath}/home?page=${p}${pageQs}"
 						class="page-btn ${p==page?'active':''}">${p}</a>
 				</c:forEach>
 			</div>
@@ -626,6 +742,12 @@ tbody tr.selected {
 				<c:if test="${not empty filter.type}">
 					<input type="hidden" name="filter" value="${filter.type}">
 				</c:if>
+				<c:forEach var="cid" items="${filter.categoryIds}">
+					<input type="hidden" name="categoryId" value="${cid}">
+				</c:forEach>
+				<c:forEach var="sid" items="${filter.subCategoryIds}">
+					<input type="hidden" name="subCategoryId" value="${sid}">
+				</c:forEach>
 				<c:if test="${not empty filter.noteSearch}">
 					<input type="hidden" name="search" value="${filter.noteSearch}">
 				</c:if>
@@ -679,6 +801,62 @@ function toggleMS(id) {
   var dd = document.getElementById(id);
   dd.classList.toggle('show');
   dd.previousElementSibling.classList.toggle('open', dd.classList.contains('show'));
+  if (dd.classList.contains('show')) {
+    var search = dd.querySelector('.ms-search');
+    if (search) search.focus();
+  }
+}
+
+// ── Filter visible options as user types, WITHOUT touching checked
+//    state — so a category picked before a search stays selected
+//    even while it's scrolled out of view / hidden by the search. ──
+function filterMSOptions(ddId, query) {
+  var dd = document.getElementById(ddId);
+  var q = query.trim().toLowerCase();
+
+  dd.querySelectorAll('.ms-option:not(.ms-select-all)').forEach(function(opt) {
+    var text = opt.textContent.trim().toLowerCase();
+    opt.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+  });
+
+  // Hide a group header (e.g. "Income" / "Expense") if every option
+  // under it is currently filtered out.
+  dd.querySelectorAll('.ms-group-header').forEach(function(hdr) {
+    var el = hdr.nextElementSibling;
+    var anyVisible = false;
+    while (el && el.classList.contains('ms-option')) {
+      if (el.style.display !== 'none') anyVisible = true;
+      el = el.nextElementSibling;
+    }
+    hdr.style.display = anyVisible ? '' : 'none';
+  });
+}
+
+// ── "(Select All)" — applies to whatever options are currently
+//    visible (i.e. respects an active search filter). ──────────
+function toggleSelectAllMS(ddId, labelId, tagsId, inputName, checked) {
+  var dd = document.getElementById(ddId);
+  dd.querySelectorAll('.ms-option:not(.ms-select-all)').forEach(function(opt) {
+    if (opt.style.display !== 'none') {
+      var cb = opt.querySelector('input[type="checkbox"]');
+      if (cb) cb.checked = checked;
+    }
+  });
+  updateMSTags(ddId, labelId, tagsId, inputName);
+}
+
+// ── Clear button inside the dropdown — unchecks everything
+//    regardless of search filter, and resets the search box. ──
+function clearMSOptions(ddId, labelId, tagsId, inputName) {
+  var dd = document.getElementById(ddId);
+  dd.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
+
+  var search = dd.querySelector('.ms-search');
+  if (search) {
+    search.value = '';
+    filterMSOptions(ddId, '');
+  }
+  updateMSTags(ddId, labelId, tagsId, inputName);
 }
 
 document.addEventListener('click', function(e) {
@@ -695,7 +873,7 @@ function updateMSTags(ddId, labelId, tagsId, inputName) {
   var dd     = document.getElementById(ddId);
   var label  = document.getElementById(labelId);
   var tagsEl = document.getElementById(tagsId);
-  var checked = dd.querySelectorAll('input:checked');
+  var checked = dd.querySelectorAll('input[name="' + inputName + '"]:checked');
   if (checked.length === 0) {
     label.textContent = 'All'; tagsEl.innerHTML = '';
   } else {
@@ -709,11 +887,24 @@ function updateMSTags(ddId, labelId, tagsId, inputName) {
       tagsEl.appendChild(tag);
     });
   }
+
+  // Keep the "(Select All)" checkbox in sync: checked only when every
+  // currently visible option is checked.
+  var selAllCb = dd.querySelector('.ms-select-all-cb');
+  if (selAllCb) {
+    var visibleOpts = Array.prototype.filter.call(
+      dd.querySelectorAll('.ms-option:not(.ms-select-all)'),
+      function(o) { return o.style.display !== 'none'; });
+    var visibleChecked = visibleOpts.filter(function(o) {
+      return o.querySelector('input[type="checkbox"]').checked;
+    });
+    selAllCb.checked = visibleOpts.length > 0 && visibleOpts.length === visibleChecked.length;
+  }
 }
 
 function uncheckTag(btn, ddId, labelId, tagsId, inputName) {
   var tagText = btn.previousSibling.textContent.trim();
-  document.getElementById(ddId).querySelectorAll('input:checked').forEach(function(cb) {
+  document.getElementById(ddId).querySelectorAll('input[name="' + inputName + '"]:checked').forEach(function(cb) {
     if (cb.closest('.ms-option').textContent.trim() === tagText) cb.checked = false;
   });
   updateMSTags(ddId, labelId, tagsId, inputName);

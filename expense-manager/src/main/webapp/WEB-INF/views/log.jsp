@@ -1,73 +1,208 @@
 <%@ page contentType="text/html;charset=UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
-<c:set var="pageTitle"   value="Application Log" scope="request"/>
-<c:set var="activePage"  value="log"             scope="request"/>
+<c:set var="pageTitle" value="Application Log" scope="request" />
+<c:set var="activePage" value="log" scope="request" />
 <%@ include file="header.jsp"%>
 
 <style>
-.log-toolbar { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.75rem; }
-.log-toolbar h1 { font-size:1rem; font-weight:700; margin:0; }
-.log-wrap {
-  background:#0f172a; border-radius:var(--radius); padding:1rem;
-  height:calc(100vh - 200px); overflow-y:auto;
-  font-family:'Cascadia Code','Fira Code','Consolas',monospace;
-  font-size:.78rem; line-height:1.6; position:relative;
+.log-toolbar {
+	display: flex;
+	align-items: center;
+	gap: .6rem;
+	flex-wrap: wrap;
+	margin-bottom: .75rem;
 }
-.log-line { display:block; white-space:pre-wrap; word-break:break-all; padding:.05rem 0; border-bottom:1px solid rgba(255,255,255,.03); }
-.log-line.ERROR { color:#f87171; }
-.log-line.WARN  { color:#fbbf24; }
-.log-line.INFO  { color:#86efac; }
-.log-line.DEBUG { color:#93c5fd; }
-.log-line.TRACE { color:#94a3b8; }
-.log-line.SEVERE { color:#f87171; }
-.log-line:hover { background:rgba(255,255,255,.04); }
-.log-line.hidden { display:none; }
-.hl { background:#fef08a; color:#0f172a; border-radius:2px; padding:0 1px; }
-.status-dot { width:8px; height:8px; border-radius:50%; background:#94a3b8; flex-shrink:0; transition:background .3s; }
-.status-dot.connected { background:#4ade80; box-shadow:0 0 6px #4ade80; }
-.status-dot.error     { background:#f87171; }
-.log-count { font-size:.75rem; color:var(--text-2); }
-.level-btns { display:flex; gap:.3rem; }
-.lbtn { padding:.2rem .55rem; border-radius:4px; font-size:.7rem; font-weight:700; cursor:pointer; border:1px solid transparent; transition:opacity .15s; }
-.lbtn.active   { opacity:1; }
-.lbtn.inactive { opacity:.35; }
-.lbtn.ERROR  { background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
-.lbtn.WARN   { background:#fef9c3; color:#92400e; border-color:#fde047; }
-.lbtn.INFO   { background:#dcfce7; color:#166534; border-color:#86efac; }
-.lbtn.DEBUG  { background:#dbeafe; color:#1e40af; border-color:#93c5fd; }
-.lbtn.TRACE  { background:#f1f5f9; color:#475569; border-color:#cbd5e1; }
-#searchBox { padding:.3rem .65rem; border-radius:6px; border:1px solid var(--border); font-size:.8rem; width:180px; }
-.auto-scroll-btn { font-size:.75rem; padding:.28rem .65rem; }
+
+.log-toolbar h1 {
+	font-size: 1rem;
+	font-weight: 700;
+	margin: 0;
+}
+
+.log-wrap {
+	background: #0f172a;
+	border-radius: var(--radius);
+	padding: 1rem;
+	height: calc(100vh - 200px);
+	overflow-y: auto;
+	font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+	font-size: .78rem;
+	line-height: 1.6;
+	position: relative;
+}
+
+.log-line {
+	display: block;
+	white-space: pre-wrap;
+	word-break: break-all;
+	padding: .05rem 0;
+	border-bottom: 1px solid rgba(255, 255, 255, .03);
+}
+
+.log-line.ERROR {
+	color: #f87171;
+}
+
+.log-line.WARN {
+	color: #fbbf24;
+}
+
+.log-line.INFO {
+	color: #86efac;
+}
+
+.log-line.DEBUG {
+	color: #93c5fd;
+}
+
+.log-line.TRACE {
+	color: #94a3b8;
+}
+
+.log-line.SEVERE {
+	color: #f87171;
+}
+
+.log-line:hover {
+	background: rgba(255, 255, 255, .04);
+}
+
+.log-line.hidden {
+	display: none;
+}
+
+.hl {
+	background: #fef08a;
+	color: #0f172a;
+	border-radius: 2px;
+	padding: 0 1px;
+}
+
+.status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #94a3b8;
+	flex-shrink: 0;
+	transition: background .3s;
+}
+
+.status-dot.connected {
+	background: #4ade80;
+	box-shadow: 0 0 6px #4ade80;
+}
+
+.status-dot.error {
+	background: #f87171;
+}
+
+.log-count {
+	font-size: .75rem;
+	color: var(--text-2);
+}
+
+.level-btns {
+	display: flex;
+	gap: .3rem;
+}
+
+.lbtn {
+	padding: .2rem .55rem;
+	border-radius: 4px;
+	font-size: .7rem;
+	font-weight: 700;
+	cursor: pointer;
+	border: 1px solid transparent;
+	transition: opacity .15s;
+}
+
+.lbtn.active {
+	opacity: 1;
+}
+
+.lbtn.inactive {
+	opacity: .35;
+}
+
+.lbtn.ERROR {
+	background: #fee2e2;
+	color: #991b1b;
+	border-color: #fca5a5;
+}
+
+.lbtn.WARN {
+	background: #fef9c3;
+	color: #92400e;
+	border-color: #fde047;
+}
+
+.lbtn.INFO {
+	background: #dcfce7;
+	color: #166534;
+	border-color: #86efac;
+}
+
+.lbtn.DEBUG {
+	background: #dbeafe;
+	color: #1e40af;
+	border-color: #93c5fd;
+}
+
+.lbtn.TRACE {
+	background: #f1f5f9;
+	color: #475569;
+	border-color: #cbd5e1;
+}
+
+#searchBox {
+	padding: .3rem .65rem;
+	border-radius: 6px;
+	border: 1px solid var(--border);
+	font-size: .8rem;
+	width: 180px;
+}
+
+.auto-scroll-btn {
+	font-size: .75rem;
+	padding: .28rem .65rem;
+}
 </style>
 
 <div class="log-toolbar">
-  <div class="status-dot" id="statusDot" title="SSE connection status"></div>
-  <h1>&#128203; Application Log</h1>
-  <span class="log-count" id="lineCount">0 lines</span>
+	<div class="status-dot" id="statusDot" title="SSE connection status"></div>
+	<h1>&#128203; Application Log</h1>
+	<span class="log-count" id="lineCount">0 lines</span>
 
-  <div class="level-btns">
-    <button class="lbtn ERROR active" onclick="toggleLevel('ERROR',this)">ERROR</button>
-    <button class="lbtn WARN  active" onclick="toggleLevel('WARN', this)">WARN</button>
-    <button class="lbtn INFO  active" onclick="toggleLevel('INFO', this)">INFO</button>
-    <button class="lbtn DEBUG active" onclick="toggleLevel('DEBUG',this)">DEBUG</button>
-    <button class="lbtn TRACE active" onclick="toggleLevel('TRACE',this)">TRACE</button>
-  </div>
+	<div class="level-btns">
+		<button class="lbtn ERROR active" onclick="toggleLevel('ERROR',this)">ERROR</button>
+		<button class="lbtn WARN  active" onclick="toggleLevel('WARN', this)">WARN</button>
+		<button class="lbtn INFO  active" onclick="toggleLevel('INFO', this)">INFO</button>
+		<button class="lbtn DEBUG active" onclick="toggleLevel('DEBUG',this)">DEBUG</button>
+		<button class="lbtn TRACE active" onclick="toggleLevel('TRACE',this)">TRACE</button>
+	</div>
 
-  <input id="searchBox" type="text" placeholder="&#128269; Filter text&#8230;" oninput="applySearch(this.value)">
+	<input id="searchBox" type="text"
+		placeholder="&#128269; Filter text&#8230;"
+		oninput="applySearch(this.value)">
 
-  <button class="btn btn-outline btn-sm auto-scroll-btn" id="autoScrollBtn" onclick="toggleAutoScroll()">
-    &#8595; Auto-scroll ON
-  </button>
+	<button class="btn btn-outline btn-sm auto-scroll-btn"
+		id="autoScrollBtn" onclick="toggleAutoScroll()">&#8595;
+		Auto-scroll ON</button>
 
-  <%-- isELIgnored இல்லாம் normal EL use பண்றோம் --%>
-  <form method="post" action="${pageContext.request.contextPath}/log/clear" style="margin-left:auto">
-    <button type="submit" class="btn btn-outline btn-sm" style="color:var(--red)"
-            onclick="return confirm('Clear log buffer?')">&#128465; Clear</button>
-  </form>
+	<%-- isELIgnored இல்லாம் normal EL use பண்றோம் --%>
+	<form method="post"
+		action="${pageContext.request.contextPath}/log/clear"
+		style="margin-left: auto">
+		<button type="submit" class="btn btn-outline btn-sm"
+			style="color: var(--red)"
+			onclick="return confirm('Clear log buffer?')">&#128465;
+			Clear</button>
+	</form>
 </div>
 
 <div class="log-wrap" id="logWrap">
-  <span style="color:#475569;font-size:.75rem">Connecting to log stream&#8230;</span>
+	<span style="color: #475569; font-size: .75rem">Connecting to
+		log stream&#8230;</span>
 </div>
 
 <script>

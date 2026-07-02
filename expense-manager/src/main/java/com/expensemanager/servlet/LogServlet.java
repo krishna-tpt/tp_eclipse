@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * GET /log → HTML log viewer page GET /log/stream → SSE stream of log lines
  * (real-time) POST /log/clear → clear in-memory buffer
  */
-@WebServlet(urlPatterns = { "/log", "/log/stream", "/log/clear" })
+@WebServlet(urlPatterns = { "/log", "/log/stream", "/log/clear" }, loadOnStartup = 1)
 public class LogServlet extends HttpServlet {
 
 	// ── In-memory ring buffer (last 500 lines) ─────────────────────

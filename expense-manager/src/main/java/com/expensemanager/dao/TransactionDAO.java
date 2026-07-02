@@ -578,6 +578,13 @@ public class TransactionDAO {
 		}
 		// Note + custom field ILIKE
 		if (f.getNoteSearch() != null && !f.getNoteSearch().isBlank()) {
+			
+			String[] split =f.getNoteSearch().split(";");
+			
+			log.debug("split words count : {}",split.length);
+			log.debug("split words : {}",Arrays.toString(split));
+			
+			
 			String like = "%" + f.getNoteSearch().trim() + "%";
 			sql.append("""
 					 AND (t.note ILIKE ?
@@ -597,6 +604,8 @@ public class TransactionDAO {
 				params.add((f.getPage() - 1) * f.getPageSize());
 			}
 		}
+		
+		log.debug("params : {}",params);
 		return new BuildResult(sql.toString(), params);
 	}
 

@@ -19,11 +19,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * GET /export?type=pdf|excel              -> full book download
- * GET /export?type=pdf&filtered=1&...      -> filtered transactions download
- * GET /export?type=reports-pdf[&year=&month=] -> FULL reports PDF (matches reports.jsp)
- * GET /export?type=calendar-pdf&year=&month=  -> calendar PDF
- * POST /export action=email[&reportEmail=1]   -> send via Gmail (transactions OR full report)
+ * GET /export?type=pdf|excel -> full book download GET
+ * /export?type=pdf&filtered=1&... -> filtered transactions download GET
+ * /export?type=reports-pdf[&year=&month=] -> FULL reports PDF (matches
+ * reports.jsp) GET /export?type=calendar-pdf&year=&month= -> calendar PDF POST
+ * /export action=email[&reportEmail=1] -> send via Gmail (transactions OR full
+ * report)
  */
 @WebServlet("/export")
 public class ExportServlet extends HttpServlet {
@@ -142,18 +143,32 @@ public class ExportServlet extends HttpServlet {
 				expense = txnDAO.sumByType("EXPENSE", bookId);
 				txnCount = txnDAO.findAll(null, 1, Integer.MAX_VALUE, bookId).size();
 			} else {
-				// ── Standard transaction list export ───────────
-				List<Transaction> txns = txnDAO.findAll(null, 1, Integer.MAX_VALUE, bookId);
-				income = txnDAO.sumByType("INCOME", bookId);
-				expense = txnDAO.sumByType("EXPENSE", bookId);
+				// ── Standard transaction list export (honors active filter) ───
+				boolean filtered = "1".equals(req.getParameter("filteredExport"));
+				List<Transaction> txns;
+				String filterLabel = null;
+				if (filtered) {
+					TransactionFilter f = parseFilterFromParams(req, bookId);
+					f.setPageSize(Integer.MAX_VALUE);
+					txns = txnDAO.findByFilter(f);
+					income = txns.stream().filter(t -> t.getType() == Transaction.Type.INCOME)
+							.map(Transaction::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+					expense = txns.stream().filter(t -> t.getType() == Transaction.Type.EXPENSE)
+							.map(Transaction::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+					filterLabel = buildFilterLabel(req);
+				} else {
+					txns = txnDAO.findAll(null, 1, Integer.MAX_VALUE, bookId);
+					income = txnDAO.sumByType("INCOME", bookId);
+					expense = txnDAO.sumByType("EXPENSE", bookId);
+				}
 				txnCount = txns.size();
 				if ("excel".equals(fmt)) {
-					attachment = exporter.generateExcel(book, txns, income, expense, null);
-					attachName = safe + ".xlsx";
+					attachment = exporter.generateExcel(book, txns, income, expense, filterLabel);
+					attachName = safe + (filtered ? "_filtered" : "") + ".xlsx";
 					mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 				} else {
-					attachment = exporter.generatePDF(book, txns, income, expense, null);
-					attachName = safe + ".pdf";
+					attachment = exporter.generatePDF(book, txns, income, expense, filterLabel);
+					attachName = safe + (filtered ? "_filtered" : "") + ".pdf";
 					mimeType = "application/pdf";
 				}
 			}
@@ -229,12 +244,12 @@ public class ExportServlet extends HttpServlet {
 		if (type != null && !type.isBlank())
 			f.setType(type);
 		try {
-			if (req.getParameter("dateFrom") != null)
+			if (req.getParameter("dateFrom") != null && !req.getParameter("dateFrom").isBlank())
 				f.setDateFrom(LocalDate.parse(req.getParameter("dateFrom")));
 		} catch (Exception ignored) {
 		}
 		try {
-			if (req.getParameter("dateTo") != null)
+			if (req.getParameter("dateTo") != null && !req.getParameter("dateTo").isBlank())
 				f.setDateTo(LocalDate.parse(req.getParameter("dateTo")));
 		} catch (Exception ignored) {
 		}
@@ -243,10 +258,26 @@ public class ExportServlet extends HttpServlet {
 			List<Integer> ids = new java.util.ArrayList<>();
 			for (String s : catIds)
 				try {
-					ids.add(Integer.parseInt(s));
+					if (s != null && !s.isBlank())
+						ids.add(Integer.parseInt(s));
 				} catch (Exception ignored) {
 				}
-			f.setCategoryIds(ids);
+			if (!ids.isEmpty())
+				f.setCategoryIds(ids);
+		}
+		// NOTE: this was previously missing entirely, so the sub-category
+		// part of the filter was silently dropped on export.
+		String[] subIds = req.getParameterValues("subCategoryId");
+		if (subIds != null) {
+			List<Integer> ids = new java.util.ArrayList<>();
+			for (String s : subIds)
+				try {
+					if (s != null && !s.isBlank())
+						ids.add(Integer.parseInt(s));
+				} catch (Exception ignored) {
+				}
+			if (!ids.isEmpty())
+				f.setSubCategoryIds(ids);
 		}
 		String amt1 = req.getParameter("amount1"), op1 = req.getParameter("amountOp1");
 		String amt2 = req.getParameter("amount2"), op2 = req.getParameter("amountOp2");

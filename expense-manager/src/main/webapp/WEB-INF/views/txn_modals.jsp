@@ -715,13 +715,18 @@ if (request.getAttribute("incomeCategories") == null) {
 
             showTxnMsg('Transaction saved!', 'success');
 
-            if (typeof loadSummary === 'function') loadSummary();
+            refreshBackgroundData();
 
             if (mode === 'continue') {
                 form.reset();
 
-                // Restore only the date
+                // Restore the date & time (both the hidden combined field
+                // AND the visible date input, which form.reset() clears
+                // back to its empty "dd/mm/yyyy" placeholder state)
                 form.querySelector('[name="dateTime"]').value = snapshot.dateTime;
+                if (snapshot.dateTime) {
+                    document.getElementById('txnDate').value = snapshot.dateTime.split('T')[0];
+                }
 
                 // Reset subcategory dropdown
                 var subSel = document.getElementById('incSubCatSelect');
@@ -744,6 +749,22 @@ if (request.getAttribute("incomeCategories") == null) {
                                 .toISOString().slice(0, 16);
                 form.querySelector('[name="dateTime"]').value = local;
 
+                // form.reset() also blanks the visible date input back to
+                // its "dd/mm/yyyy" placeholder — restore it to today
+                document.getElementById('txnDate').value = local.split('T')[0];
+
+                // Reset the clock-picker trigger label + internal state to "now"
+                var h24 = now.getHours();
+                cpAmPm = h24 >= 12 ? 'PM' : 'AM';
+                cpHour = h24 % 12 || 12;
+                cpMin  = Math.round(now.getMinutes() / 5) * 5;
+                if (cpMin === 60) cpMin = 55;
+                document.getElementById('cpAM').classList.toggle('active', cpAmPm === 'AM');
+                document.getElementById('cpPM').classList.toggle('active', cpAmPm === 'PM');
+                var hh = cpHour < 10 ? '0' + cpHour : cpHour;
+                var mm = cpMin  < 10 ? '0' + cpMin  : cpMin;
+                document.getElementById('clockDisplayTrigger').textContent = hh + ':' + mm + ' ' + cpAmPm;
+
                 var subSel = document.getElementById('incSubCatSelect');
                 subSel.value = '';
                 subSel.disabled = true;
@@ -758,6 +779,31 @@ if (request.getAttribute("incomeCategories") == null) {
             showTxnMsg('Save failed: ' + err.message, 'error');
         });
 }
+
+	// ── Refresh dashboard/list data behind the modal ────────
+	// Re-fetches the current page in the background and swaps in the
+	// updated stats cards + transaction table, without closing the
+	// modal or doing a disruptive full page reload.
+	function refreshBackgroundData() {
+		fetch(window.location.href, { credentials: 'same-origin' })
+			.then(function(resp) { return resp.text(); })
+			.then(function(html) {
+				var doc = new DOMParser().parseFromString(html, 'text/html');
+				['.stats-grid', '.table-wrap', '.pagination'].forEach(function(sel) {
+					var oldEl = document.querySelector(sel);
+					var newEl = doc.querySelector(sel);
+					if (oldEl && newEl) {
+						oldEl.outerHTML = newEl.outerHTML;
+					} else if (oldEl && !newEl) {
+						// e.g. pagination disappeared because only 1 page now
+						oldEl.remove();
+					}
+				});
+			})
+			.catch(function(err) {
+				console.error('Background refresh failed:', err);
+			});
+	}
 
 	// ── Inline status message inside modal ──────────────────
 	function showTxnMsg(msg, type) {
