@@ -45,6 +45,8 @@ public class LogServlet extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		// ── 1. Logback appender ────────────────────────────────────
+		System.out.println("LogServlet init() called at " + new java.util.Date());
+		
 		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
 		appender = new InMemoryAppender();
 		appender.setContext(ctx);

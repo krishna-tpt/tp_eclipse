@@ -10,6 +10,13 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="HomeServlet error"/>
+			<item value="expensemanager"/>
+			<item value="refreshBackgroundData"/>
+			<item value="loadSummary"/>
+			<item value="openTxnModal"/>
+			<item value="&lt;button class=&quot;btn btn-danger&quot; "/>
+			<item value="openmoda"/>
 			<item value="incomeModal"/>
 			<item value="switchTxnTab"/>
 			<item value="income"/>
@@ -18,13 +25,6 @@
 			<item value="toggleFilter"/>
 			<item value="loadDetail"/>
 			<item value="${transactions}"/>
-			<item value="closeDetail"/>
-			<item value="initDetailPanel"/>
-			<item value="Note"/>
-			<item value="note"/>
-			<item value="datetime-local"/>
-			<item value="switchTab"/>
-			<item value="addEventListener"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>

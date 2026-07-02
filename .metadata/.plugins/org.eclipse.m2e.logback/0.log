@@ -7932,3 +7932,19 @@ Caused by: org.codehaus.plexus.util.xml.pull.XmlPullParserException: end tag nam
 2026-07-02 11:57:05,763 [Worker-9: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
 2026-07-02 11:59:15,478 [Worker-11: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 3 resources from src/main/resources to target/classes
 2026-07-02 11:59:15,481 [Worker-11: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-07-02 12:01:31,302 [Worker-2: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 3 resources from src/main/resources to target/classes
+2026-07-02 12:01:31,304 [Worker-2: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-07-02 12:02:01,694 [Worker-9: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 3 resources from src/main/resources to target/classes
+2026-07-02 12:02:01,698 [Worker-9: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-07-02 12:03:36,623 [Worker-0: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 3 resources from src/main/resources to target/classes
+2026-07-02 12:03:36,624 [Worker-0: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-07-02 12:04:06,616 [Worker-0: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 3 resources from src/main/resources to target/classes
+2026-07-02 12:04:06,618 [Worker-0: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-07-02 12:04:39,734 [Worker-9: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 3 resources from src/main/resources to target/classes
+2026-07-02 12:04:39,735 [Worker-9: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-07-02 12:08:07,823 [Worker-20: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 3 resources from src/main/resources to target/classes
+2026-07-02 12:08:07,825 [Worker-20: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-07-02 12:58:50,549 [Worker-5: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 3 resources from src/main/resources to target/classes
+2026-07-02 12:58:50,550 [Worker-5: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources
+2026-07-02 12:59:22,468 [Worker-20: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 3 resources from src/main/resources to target/classes
+2026-07-02 12:59:22,469 [Worker-20: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory /home/dev021/eclipse/expense-manager/src/test/resources

@@ -584,17 +584,20 @@ public class TransactionDAO {
 			log.debug("split words count : {}",split.length);
 			log.debug("split words : {}",Arrays.toString(split));
 			
-			
-			String like = "%" + f.getNoteSearch().trim() + "%";
-			sql.append("""
-					 AND (t.note ILIKE ?
-					      OR EXISTS (
-					        SELECT 1 FROM transaction_custom_values tcv
-					        WHERE tcv.transaction_id = t.id AND tcv.value ILIKE ?
-					      ))
-					""");
-			params.add(like);
-			params.add(like);
+			for (int i = 0; i < split.length; i++) {
+				String searchWord = split[i];
+				
+				String like = "%" + searchWord.trim() + "%";
+				sql.append("""
+						 AND (t.note ILIKE ?
+						      OR EXISTS (
+						        SELECT 1 FROM transaction_custom_values tcv
+						        WHERE tcv.transaction_id = t.id AND tcv.value ILIKE ?
+						      ))
+						""");
+				params.add(like);
+				params.add(like);
+			}
 		}
 		if (!countOnly) {
 			sql.append(" ORDER BY t.txn_datetime DESC");
@@ -606,6 +609,7 @@ public class TransactionDAO {
 		}
 		
 		log.debug("params : {}",params);
+		log.debug("sql : {}",sql.toString());
 		return new BuildResult(sql.toString(), params);
 	}
 
