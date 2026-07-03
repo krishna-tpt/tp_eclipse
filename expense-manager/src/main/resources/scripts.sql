@@ -25,4 +25,16 @@ ON categories (name, type)
 WHERE book_id IS NULL;
 
 
-     
+-----
+--Jul3
+
+CREATE TABLE IF NOT EXISTS deleted_records (
+    id          BIGSERIAL PRIMARY KEY,
+    table_name  VARCHAR(64)  NOT NULL,
+    record_id   INTEGER      NOT NULL,
+    deleted_at  TIMESTAMP    NOT NULL DEFAULT NOW(),
+    UNIQUE (table_name, record_id)
+);
+ 
+CREATE INDEX IF NOT EXISTS idx_deleted_records_lookup
+    ON deleted_records (table_name, deleted_at);

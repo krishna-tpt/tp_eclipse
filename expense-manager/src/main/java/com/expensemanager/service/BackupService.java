@@ -174,39 +174,42 @@ public class BackupService {
 				truncate(con);
 				restoreCSV(con, zip, "cash_books.csv",
 						"INSERT INTO cash_books (id, name, description, created_at, is_active, updated_at) VALUES (?,?,?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), r[1], r[2], tsOf(r[3]), boolOf(r[4]), tsOf(r[5])});
+						r -> new Object[] { iOf(r[0]), r[1], r[2], tsOf(r[3]), boolOf(r[4]), tsOf(r[5]) });
 
 				restoreCSV(con, zip, "categories.csv",
-						"INSERT INTO categories (id, name, type, created_at, updated_at, book_id) VALUES (?,?,?::txn_type,?)",
-						r -> new Object[] { iOf(r[0]), r[1], r[2], tsOf(r[3]) });
+						"INSERT INTO categories (id, name, type, created_at, updated_at, book_id) VALUES (?,?,?::txn_type,?,?,?)",
+						r -> new Object[] { iOf(r[0]), r[1], r[2], tsOf(r[3]), tsOf(r[4]), iOf(r[5]) });
 
 				restoreCSV(con, zip, "column_definitions.csv",
-						"INSERT INTO column_definitions (id, col_name, col_key, type, created_at) VALUES (?,?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), r[1], r[2], r[3], tsOf(r[4]) });
+						"INSERT INTO column_definitions (id, col_name, col_key, type, created_at, updated_at) VALUES (?,?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), r[1], r[2], r[3], tsOf(r[4]), tsOf(r[5]) });
 
 				restoreCSV(con, zip, "sub_categories.csv",
-						"INSERT INTO sub_categories (sub_categories_id, name, created, category_id) VALUES (?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), r[1], tsOf(r[2]), iOf(r[3]) });
+						"INSERT INTO sub_categories (sub_categories_id, name, created, category_id, updated_at) VALUES (?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), r[1], tsOf(r[2]), iOf(r[3]), tsOf(r[4]) });
 
 				restoreCSV(con, zip, "transactions.csv",
-						"INSERT INTO transactions (id, type, txn_datetime, amount, category_id, note, created_at, sub_categories_id, book_id) VALUES (?,?::txn_type,?,?,?,?,?,?,?)",
+						"INSERT INTO transactions (id, type, txn_datetime, amount, category_id, note, created_at, sub_categories_id, book_id, updated_at) VALUES (?,?::txn_type,?,?,?,?,?,?,?,?)",
 						r -> new Object[] { iOf(r[0]), r[1], tsOf(r[2]), bdOf(r[3]), iOf(r[4]), r[5], tsOf(r[6]),
-								iOf(r[7]), iOf(r[8]) });
+								iOf(r[7]), iOf(r[8]), tsOf(r[9]) });
 				restoreCSV(con, zip, "transaction_custom_values.csv",
-						"INSERT INTO transaction_custom_values (id, transaction_id, col_def_id, value) VALUES (?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), iOf(r[1]), iOf(r[2]), r[3] });
+						"INSERT INTO transaction_custom_values (id, transaction_id, col_def_id, value,created_at, updated_at) VALUES (?,?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), iOf(r[2]), r[3], tsOf(r[4]), tsOf(r[5]) });
 
 				restoreCSV(con, zip, "transaction_audit_log.csv",
-						"INSERT INTO transaction_audit_log (id, transaction_id, action, changed_by, changed_at, field_name, old_value, new_value, note) VALUES (?,?,?,?,?,?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), iOf(r[1]), r[2], r[3], tsOf(r[4]), r[5], r[6], r[7], r[8] });
+						"INSERT INTO transaction_audit_log (id, transaction_id, action, changed_by, changed_at, field_name, old_value, new_value, note,created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), r[2], r[3], tsOf(r[4]), r[5], r[6], r[7], r[8],
+								tsOf(r[9]), tsOf(r[10]) });
 
 				restoreCSV(con, zip, "transaction_receipts.csv",
-						"INSERT INTO transaction_receipts (id, transaction_id, file_name, file_type, file_size, uploaded_at) VALUES (?,?,?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), iOf(r[1]), r[2], r[3], iOf(r[4]), tsOf(r[5]) });
+						"INSERT INTO transaction_receipts (id, transaction_id, file_name, file_type, file_size, uploaded_at, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), r[2], r[3], iOf(r[4]), tsOf(r[5]), tsOf(r[6]),
+								tsOf(r[7]) });
 
 				restoreCSV(con, zip, "budget_categories.csv",
-						"INSERT INTO budget_categories(id, budget_id, category_id, cat_limit, alert_pct) VALUES (?, ?, ?, ?, ?)",
-						r -> new Object[] { iOf(r[0]), iOf(r[1]), iOf(r[2]), bdOf(r[3]), iOf(r[4]) });
+						"INSERT INTO budget_categories(id, budget_id, category_id, cat_limit, alert_pct, created_at, updated_at) VALUES (?, ?, ?, ?, ?,?,?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), iOf(r[2]), bdOf(r[3]), iOf(r[4]), tsOf(r[5]),
+								tsOf(r[6]) });
 
 				restoreCSV(con, zip, "budgets.csv",
 						"INSERT INTO budgets(id, book_id, year, month, overall_limit, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -221,8 +224,9 @@ public class BackupService {
 								tsOf(r[8]), r[9], r[10], tsOf(r[11]), tsOf(r[12]), tsOf(r[13]) });
 
 				restoreCSV(con, zip, "scheduler_log.csv",
-						"INSERT INTO scheduler_log(id, scheduler_id, started_at, finished_at, status, message, rows_synced) VALUES (?, ?, ?, ?, ?, ?, ?)",
-						r -> new Object[] { iOf(r[0]), iOf(r[1]), tsOf(r[2]), tsOf(r[3]), r[4], r[5], iOf(r[6]) });
+						"INSERT INTO scheduler_log(id, scheduler_id, started_at, finished_at, status, message, rows_synced, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?,?, ?)",
+						r -> new Object[] { iOf(r[0]), iOf(r[1]), tsOf(r[2]), tsOf(r[3]), r[4], r[5], iOf(r[6]),
+								tsOf(r[7]), tsOf(r[8]) });
 
 				con.commit();
 

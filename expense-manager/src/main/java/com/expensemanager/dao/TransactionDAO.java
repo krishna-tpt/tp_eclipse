@@ -108,15 +108,45 @@ public class TransactionDAO {
 	}
 
 	// ── DELETE ────────────────────────────────────────────
+	// Also writes a tombstone to deleted_records so NeonSyncService can
+	// propagate this delete on the next sync (a plain DELETE leaves no
+	// trace for an "updated_at >= ?" sync query to find).
 	public void delete(int id) throws SQLException {
 		auditDAO.logDelete(id, "user");
-		String sql = "DELETE FROM transactions WHERE id = ?";
 		Connection conn = db.getConnection();
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setInt(1, id);
-			ps.executeUpdate();
+		boolean prevAutoCommit = true;
+		try {
+			prevAutoCommit = conn.getAutoCommit();
+			conn.setAutoCommit(false);
+
+			try (PreparedStatement ps = conn.prepareStatement("DELETE FROM transactions WHERE id = ?")) {
+				ps.setInt(1, id);
+				ps.executeUpdate();
+			}
+			recordTombstone(conn, "transactions", id);
+
+			conn.commit();
+		} catch (SQLException e) {
+			conn.rollback();
+			throw e;
 		} finally {
+			conn.setAutoCommit(prevAutoCommit);
 			db.releaseConnection(conn);
+		}
+	}
+
+	// ── Tombstone helper — shared by every DAO's delete() so
+	// NeonSyncService can find & propagate deletions. ──────
+	private void recordTombstone(Connection conn, String tableName, int recordId) throws SQLException {
+		String sql = """
+				INSERT INTO deleted_records (table_name, record_id, deleted_at)
+				VALUES (?, ?, NOW())
+				ON CONFLICT (table_name, record_id) DO UPDATE SET deleted_at = EXCLUDED.deleted_at
+				""";
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, tableName);
+			ps.setInt(2, recordId);
+			ps.executeUpdate();
 		}
 	}
 
