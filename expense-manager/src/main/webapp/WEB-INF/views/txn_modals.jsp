@@ -832,7 +832,7 @@ if (request.getAttribute("incomeCategories") == null) {
     var openModalEl = document.querySelector('.modal-overlay.open');
     if (!openModalEl) return;
     e.preventDefault();
-    submitTxn('save');
+    submitTxn(e.shiftKey ? 'continue' : 'save');
 });
 
 	// ── Auto-fill datetime on load ───────────────────────────

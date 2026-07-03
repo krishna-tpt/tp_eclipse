@@ -181,6 +181,33 @@
 	color: var(--primary);
 }
 
+/* ── Prev / Next detail navigation ── */
+.txn-nav-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: .3rem;
+	padding: .5rem 1rem;
+	border-radius: 20px;
+	border: 1px solid var(--border);
+	background: #fff;
+	color: var(--text-1);
+	font-size: .85rem;
+	font-weight: 600;
+	text-decoration: none;
+	transition: background .12s, border-color .12s;
+}
+
+.txn-nav-btn:hover {
+	background: #f0f7ff;
+	border-color: var(--primary);
+}
+
+.txn-nav-btn.disabled {
+	opacity: .4;
+	pointer-events: none;
+	cursor: default;
+}
+
 /* ── iOS-style Copy Modal — theme colors ── */
 .ios-overlay {
 	position: fixed;
@@ -332,6 +359,32 @@ to {
 			style="display: inline-block; padding: 10px 18px; background: linear-gradient(135deg, #43B6F0, #7B7EF0, #D91EF0); color: white; text-decoration: none; border-radius: 25px; font-size: .9rem; font-weight: 600; box-shadow: 0 4px 10px rgba(0, 0, 0, .15);">
 			&#8592; Back </a>
 		<h1 style="margin-top: 1rem">Transaction Detail</h1>
+	</div>
+	<%-- ═══ Prev / Next — step through records without going back
+	     to the list. Same order the list uses (most recent first),
+	     scoped to the current cash book. ═══ --%>
+	<div class="flex gap-1 ml-auto"
+		style="align-items: flex-start; margin-top: .15rem">
+		<c:choose>
+			<c:when test="${not empty prevTxnId}">
+				<a id="navPrevBtn"
+					href="${pageContext.request.contextPath}/transaction?id=${prevTxnId}"
+					class="txn-nav-btn" title="Newer transaction">&#8249; Prev</a>
+			</c:when>
+			<c:otherwise>
+				<span class="txn-nav-btn disabled">&#8249; Prev</span>
+			</c:otherwise>
+		</c:choose>
+		<c:choose>
+			<c:when test="${not empty nextTxnId}">
+				<a id="navNextBtn"
+					href="${pageContext.request.contextPath}/transaction?id=${nextTxnId}"
+					class="txn-nav-btn" title="Older transaction">Next &#8250;</a>
+			</c:when>
+			<c:otherwise>
+				<span class="txn-nav-btn disabled">Next &#8250;</span>
+			</c:otherwise>
+		</c:choose>
 	</div>
 </div>
 
@@ -807,6 +860,26 @@ to {
 				return;
 			e.preventDefault();
 			document.getElementById('editForm').requestSubmit();
+		}
+	});
+
+	// ── Alt+Left / Alt+Right → Prev / Next transaction ─────
+	// (Alt-gated so it doesn't fire while typing in the note/amount fields.)
+	document.addEventListener('keydown', function(e) {
+		if (!e.altKey)
+			return;
+		if (e.key === 'ArrowLeft') {
+			var el = document.getElementById('navPrevBtn');
+			if (el) {
+				e.preventDefault();
+				el.click();
+			}
+		} else if (e.key === 'ArrowRight') {
+			var el = document.getElementById('navNextBtn');
+			if (el) {
+				e.preventDefault();
+				el.click();
+			}
 		}
 	});
 </script>

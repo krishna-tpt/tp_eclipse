@@ -115,11 +115,11 @@ public class NeonSyncService {
 						6));
 
 				result.add(syncTable(local, remote, "categories",
-						"SELECT id, name, type, created_at, updated_at FROM categories where updated_at>= ? ",
+						"SELECT id, name, type, created_at, updated_at, book_id FROM categories where updated_at>= ? ",
 						lastrunAt,
-						"INSERT INTO categories (id, name, type, created_at, updated_at) VALUES (?,?,?::txn_type, ?,?) "
+						"INSERT INTO categories (id, name, type, created_at, updated_at, book_id) VALUES (?,?,?::txn_type, ?,?) "
 								+ "ON CONFLICT (id) DO UPDATE SET name=EXCLUDED.name , type=EXCLUDED.type, "
-								+ "created_at=EXCLUDED.created_at, updated_at=EXCLUDED.updated_at",
+								+ "created_at=EXCLUDED.created_at, updated_at=EXCLUDED.updated_at, book_id=EXCLUDED.book_id",
 						5));
 
 				result.add(syncTable(local, remote, "sub_categories",
@@ -190,14 +190,6 @@ public class NeonSyncService {
 								+ "completed_at = EXCLUDED.completed_at, backupmode = EXCLUDED.backupmode, external_id = EXCLUDED.external_id, updated_at=EXCLUDED.updated_at",
 						15));
 
-				result.add(syncTable(local, remote, "budget_categories",
-						"SELECT id, budget_id, category_id, cat_limit, alert_pct, created_at, updated_at FROM budget_categories where updated_at>= ? ",
-						lastrunAt,
-						"INSERT INTO budget_categories(id, budget_id, category_id, cat_limit, alert_pct, created_at, updated_at) VALUES (?, ?, ?, ?, ?,?,?)"
-								+ " ON CONFLICT (id) DO UPDATE SET budget_id=EXCLUDED.budget_id, "
-								+ "category_id=EXCLUDED.category_id, cat_limit=EXCLUDED.cat_limit, alert_pct=EXCLUDED.alert_pct , created_at=EXCLUDED.created_at, updated_at=EXCLUDED.updated_at",
-						7));
-
 				result.add(syncTable(local, remote, "budgets",
 						"SELECT id, book_id, year, month, overall_limit, created_at, updated_at FROM budgets where updated_at>= ? ",
 						lastrunAt,
@@ -207,6 +199,16 @@ public class NeonSyncService {
 								+ "created_at=EXCLUDED.created_at, updated_at=EXCLUDED.updated_at",
 						7));
 
+				
+				result.add(syncTable(local, remote, "budget_categories",
+						"SELECT id, budget_id, category_id, cat_limit, alert_pct, created_at, updated_at FROM budget_categories where updated_at>= ? ",
+						lastrunAt,
+						"INSERT INTO budget_categories(id, budget_id, category_id, cat_limit, alert_pct, created_at, updated_at) VALUES (?, ?, ?, ?, ?,?,?)"
+								+ " ON CONFLICT (id) DO UPDATE SET budget_id=EXCLUDED.budget_id, "
+								+ "category_id=EXCLUDED.category_id, cat_limit=EXCLUDED.cat_limit, alert_pct=EXCLUDED.alert_pct , created_at=EXCLUDED.created_at, updated_at=EXCLUDED.updated_at",
+						7));
+
+				
 				result.add(syncTable(local, remote, "schedulers",
 						"SELECT id, name, display_name, enabled, repeat_type, repeat_days, run_hour, run_minute, last_run_at, "
 								+ "last_run_status, last_run_msg, next_run_at, created_at, updated_at FROM schedulers where updated_at>= ? ",

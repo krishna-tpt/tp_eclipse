@@ -43,7 +43,7 @@ public class EditTransactionServlet extends HttpServlet {
 			CategoryDAO catDAO = new CategoryDAO();
 			SubCategoryDAO scDAO = new SubCategoryDAO();
 			ReceiptDAO recDAO = new ReceiptDAO();
-			CashBookDAO cashDAO=new CashBookDAO();
+			CashBookDAO cashDAO = new CashBookDAO();
 
 			Transaction t = txnDAO.findById(id);
 			if (t == null) {
@@ -54,10 +54,16 @@ public class EditTransactionServlet extends HttpServlet {
 			req.setAttribute("txn", t);
 			req.setAttribute("auditLogs", audDAO.findByTransactionId(id));
 			req.setAttribute("receipts", recDAO.findMetaByTransactionId(id));
-			req.setAttribute("incomeCategories", catDAO.findByType("INCOME"));
-			req.setAttribute("expenseCategories", catDAO.findByType("EXPENSE"));
+			req.setAttribute("incomeCategories", catDAO.findByType("INCOME", bookId));
+			req.setAttribute("expenseCategories", catDAO.findByType("EXPENSE", bookId));
 			req.setAttribute("subCategories", scDAO.findAll());
 			req.setAttribute("cashbooks", cashDAO.findAll());
+
+			// ── Prev / Next navigation (same order as the transactions list:
+			// most-recent first) so you can step through records without
+			// going back to the list each time. ──
+			req.setAttribute("prevTxnId", txnDAO.findPrevId(id, t.getBookId()));
+			req.setAttribute("nextTxnId", txnDAO.findNextId(id, t.getBookId()));
 
 		} catch (Exception e) {
 			req.setAttribute("dbError", e.getMessage());
@@ -103,7 +109,7 @@ public class EditTransactionServlet extends HttpServlet {
 				}
 				return;
 			}
-			
+
 //			if ("move".equalsIgnoreCase(action)) {
 //				String newBookID = req.getParameter("newbookid");
 //				
@@ -184,8 +190,8 @@ public class EditTransactionServlet extends HttpServlet {
 			String subcatStr = req.getParameter("subcategoryId");
 			String note = req.getParameter("note");
 			String newbookid = req.getParameter("newbookid");
-			
-			if(newbookid==null) {
+
+			if (newbookid == null) {
 				newbookid = Integer.toString(old.getBookId());
 			}
 

@@ -95,6 +95,7 @@ public class BackupService {
 				writeCSV(zos, con, "budget_categories.csv", "Select * From budget_categories order by id desc");
 				writeCSV(zos, con, "scheduler_log.csv", "Select * From scheduler_log order by id desc");
 				writeCSV(zos, con, "schedulers.csv", "Select * From schedulers order by id desc");
+				writeCSV(zos, con, "backup_history.csv", "Select * From backup_history order by id desc");
 
 				writeFileBackup(zos, con, filePath, "Receipts", "SELECT * FROM transaction_receipts ORDER BY id");
 			}
@@ -172,11 +173,11 @@ public class BackupService {
 
 				truncate(con);
 				restoreCSV(con, zip, "cash_books.csv",
-						"INSERT INTO cash_books (id, name, description, created_at, is_active) VALUES (?,?,?,?,?)",
-						r -> new Object[] { iOf(r[0]), r[1], r[2], tsOf(r[3]), boolOf(r[4]) });
+						"INSERT INTO cash_books (id, name, description, created_at, is_active, updated_at) VALUES (?,?,?,?,?,?)",
+						r -> new Object[] { iOf(r[0]), r[1], r[2], tsOf(r[3]), boolOf(r[4]), tsOf(r[5])});
 
 				restoreCSV(con, zip, "categories.csv",
-						"INSERT INTO categories (id, name, type, created_at) VALUES (?,?,?::txn_type,?)",
+						"INSERT INTO categories (id, name, type, created_at, updated_at, book_id) VALUES (?,?,?::txn_type,?)",
 						r -> new Object[] { iOf(r[0]), r[1], r[2], tsOf(r[3]) });
 
 				restoreCSV(con, zip, "column_definitions.csv",

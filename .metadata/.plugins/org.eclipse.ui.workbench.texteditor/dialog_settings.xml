@@ -10,6 +10,7 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="Category"/>
 			<item value="HomeServlet error"/>
 			<item value="expensemanager"/>
 			<item value="refreshBackgroundData"/>
@@ -24,7 +25,6 @@
 			<item value="incomeCategories"/>
 			<item value="toggleFilter"/>
 			<item value="loadDetail"/>
-			<item value="${transactions}"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>

@@ -92,7 +92,7 @@ public class TransactionServlet extends HttpServlet {
 		String typeStr = req.getParameter("type");
 		String amountStr = req.getParameter("amount");
 		String catIdStr = req.getParameter("categoryid");
-		String subcatStr = req.getParameter("subcategoryId");
+		String subcatStr = req.getParameter("subcategory_id");
 		String note = req.getParameter("note");
 		String dateStr = req.getParameter("dateTime");
 

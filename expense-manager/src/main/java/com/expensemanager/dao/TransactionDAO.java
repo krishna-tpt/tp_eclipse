@@ -138,6 +138,47 @@ public class TransactionDAO {
 		}
 	}
 
+	// ── ADJACENT (Prev/Next) — for the transaction detail page ────
+	// "Prev" = one row NEWER (up) in the same order the list uses
+	// (txn_datetime DESC, id DESC as a tiebreaker for equal timestamps).
+	// "Next" = one row OLDER (down). Scoped to the same book only —
+	// does not currently account for an active list filter.
+	public Integer findPrevId(int id, int bookId) throws SQLException {
+		return findAdjacentId(id, bookId, true);
+	}
+
+	public Integer findNextId(int id, int bookId) throws SQLException {
+		return findAdjacentId(id, bookId, false);
+	}
+
+	private Integer findAdjacentId(int id, int bookId, boolean newer) throws SQLException {
+		Connection conn = db.getConnection();
+		try {
+			Timestamp curTs;
+			try (PreparedStatement ps = conn.prepareStatement("SELECT txn_datetime FROM transactions WHERE id = ?")) {
+				ps.setInt(1, id);
+				ResultSet rs = ps.executeQuery();
+				if (!rs.next())
+					return null;
+				curTs = rs.getTimestamp("txn_datetime");
+			}
+
+			String sql = newer
+					? "SELECT id FROM transactions WHERE book_id = ? AND (txn_datetime > ? OR (txn_datetime = ? AND id > ?)) ORDER BY txn_datetime ASC, id ASC LIMIT 1"
+					: "SELECT id FROM transactions WHERE book_id = ? AND (txn_datetime < ? OR (txn_datetime = ? AND id < ?)) ORDER BY txn_datetime DESC, id DESC LIMIT 1";
+
+			try (PreparedStatement ps = conn.prepareStatement(sql)) {
+				ps.setInt(1, bookId);
+				ps.setTimestamp(2, curTs);
+				ps.setTimestamp(3, curTs);
+				ps.setInt(4, id);
+				ResultSet rs = ps.executeQuery();
+				return rs.next() ? rs.getInt("id") : null;
+			}
+		} finally {
+			db.releaseConnection(conn);
+		}
+	}
 	// ── LEGACY find (backward compat) ─────────────────────
 	public List<Transaction> findAll(String typeFilter, int page, int pageSize, Integer bookId) throws SQLException {
 		TransactionFilter f = new TransactionFilter();
