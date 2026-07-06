@@ -299,6 +299,24 @@ tbody tr.selected {
 		border-radius: 0;
 	}
 }
+
+.sort-link {
+	display: inline-flex;
+	align-items: center;
+	gap: .25rem;
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.sort-link:hover {
+	color: var(--primary);
+}
+
+.sort-arrow {
+	font-size: .65rem;
+	color: var(--primary);
+}
 </style>
 
 <%-- ═══ PAGE HEADER ═══ --%>
@@ -634,15 +652,46 @@ tbody tr.selected {
 	<div>
 		<div class="table-wrap">
 			<table>
+				<
 				<thead>
 					<tr>
 						<th>#</th>
-						<th>Date &amp; Time</th>
-						<th>Type</th>
-						<th>Category</th>
-						<th>Sub Cat</th>
-						<th>Amount</th>
-						<th>Note</th>
+						<th><a class="sort-link"
+							href="${pageContext.request.contextPath}/home?sortBy=date&amp;sortDir=${(filter.sortBy=='date' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
+								Date &amp; Time <c:if test="${filter.sortBy=='date'}">
+									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
+								</c:if>
+						</a></th>
+						<th><a class="sort-link"
+							href="${pageContext.request.contextPath}/home?sortBy=type&amp;sortDir=${(filter.sortBy=='type' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
+								Type <c:if test="${filter.sortBy=='type'}">
+									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
+								</c:if>
+						</a></th>
+						<th><a class="sort-link"
+							href="${pageContext.request.contextPath}/home?sortBy=category&amp;sortDir=${(filter.sortBy=='category' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
+								Category <c:if test="${filter.sortBy=='category'}">
+									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
+								</c:if>
+						</a></th>
+						<th><a class="sort-link"
+							href="${pageContext.request.contextPath}/home?sortBy=subcategory&amp;sortDir=${(filter.sortBy=='subcategory' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
+								Sub Cat <c:if test="${filter.sortBy=='subcategory'}">
+									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
+								</c:if>
+						</a></th>
+						<th><a class="sort-link"
+							href="${pageContext.request.contextPath}/home?sortBy=amount&amp;sortDir=${(filter.sortBy=='amount' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
+								Amount <c:if test="${filter.sortBy=='amount'}">
+									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
+								</c:if>
+						</a></th>
+						<th><a class="sort-link"
+							href="${pageContext.request.contextPath}/home?sortBy=note&amp;sortDir=${(filter.sortBy=='note' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
+								Note <c:if test="${filter.sortBy=='note'}">
+									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
+								</c:if>
+						</a></th>
 						<th style="width: 42px"></th>
 					</tr>
 				</thead>

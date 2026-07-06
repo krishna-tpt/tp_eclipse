@@ -192,8 +192,8 @@
 			5 Rows</button>
 		<button class="btn btn-outline btn-sm" onclick="bulkClearAll()"
 			style="color: var(--red)">&#10005; Clear All</button>
-		<button class="btn btn-success" onclick="bulkSubmit()">&#10003;
-			Save All</button>
+		<button type="button" class="btn btn-success" id="bulkSaveBtn"
+			onclick="bulkSubmit()">&#10003; Save All</button>
 	</div>
 
 </div>
@@ -645,6 +645,10 @@
     });
 
 })();
+
+
+
+
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <%@ include file="footer.jsp"%>

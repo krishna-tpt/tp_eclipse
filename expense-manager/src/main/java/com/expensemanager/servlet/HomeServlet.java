@@ -184,6 +184,15 @@ public class HomeServlet extends HttpServlet {
 				f.setPage(Integer.parseInt(p));
 		} catch (Exception ignored) {
 		}
+		
+		String sortBy = req.getParameter("sortBy");
+		if (sortBy != null && !sortBy.isBlank())
+		    f.setSortBy(sortBy);
+
+		String sortDir = req.getParameter("sortDir");
+		f.setSortDir("asc".equalsIgnoreCase(sortDir) ? "asc" : "desc");
+		
+		
 
 		return f;
 	}

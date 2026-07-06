@@ -19,6 +19,9 @@ public class TransactionDAO {
 
 	private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
 
+	private static final Map<String, String> SORT_COLUMNS = Map.of("date", "t.txn_datetime", "type", "t.type",
+			"category", "c.name", "subcategory", "sc.name", "amount", "t.amount", "note", "t.note");
+
 	// ── INSERT ────────────────────────────────────────────
 	public int insert(Transaction t) throws SQLException {
 		String sql = """
@@ -209,6 +212,7 @@ public class TransactionDAO {
 			db.releaseConnection(conn);
 		}
 	}
+
 	// ── LEGACY find (backward compat) ─────────────────────
 	public List<Transaction> findAll(String typeFilter, int page, int pageSize, Integer bookId) throws SQLException {
 		TransactionFilter f = new TransactionFilter();
@@ -655,7 +659,7 @@ public class TransactionDAO {
 //			log.debug("split words count : {}", split.length);
 //			log.debug("split words : {}", Arrays.toString(split));
 
-			if (split.length > 0) 
+			if (split.length > 0)
 				sql.append(" AND (");
 
 			for (int i = 0; i < split.length; i++) {
@@ -679,7 +683,10 @@ public class TransactionDAO {
 
 		}
 		if (!countOnly) {
-			sql.append(" ORDER BY t.txn_datetime DESC");
+			String col = resolveSortColumn(f.getSortBy());
+			String dir = "asc".equalsIgnoreCase(f.getSortDir()) ? "ASC" : "DESC";
+			sql.append(" ORDER BY ").append(col).append(" ").append(dir).append(", t.id ").append(dir); 
+			// tiebreaker for equal values
 			if (f.getPageSize() < Integer.MAX_VALUE) {
 				sql.append(" LIMIT ? OFFSET ?");
 				params.add(f.getPageSize());
@@ -688,7 +695,7 @@ public class TransactionDAO {
 		}
 
 //		log.debug("params : {}", params);
-		log.debug("sql : {}", sql.toString());
+//		log.debug("sql : {}", sql.toString());
 		return new BuildResult(sql.toString(), params);
 	}
 
@@ -776,6 +783,10 @@ public class TransactionDAO {
 
 	private String nvl(String s) {
 		return s != null ? s : "";
+	}
+
+	private String resolveSortColumn(String key) {
+		return SORT_COLUMNS.getOrDefault(key, "t.txn_datetime");
 	}
 
 }

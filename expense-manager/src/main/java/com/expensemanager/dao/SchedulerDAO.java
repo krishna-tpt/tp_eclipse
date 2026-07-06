@@ -106,6 +106,12 @@ public class SchedulerDAO {
 	}
 
 	// ── Mark run finished ──────────────────────────────────────────
+	// NOTE: last_run_at only advances on a real "SUCCESS". On "FAILED"
+	// it is left untouched, so the NEXT attempt's sync window still
+	// starts from the last time the job actually succeeded — instead
+	// of drifting forward on every failed attempt and risking older
+	// unsynced data eventually falling outside the 7-day safety window
+	// in SchedulerEngine.
 	public void logFinish(int logId, int schedulerId, String status, String message, int rowsSynced,
 			LocalDateTime nextRunAt) throws SQLException {
 		String sql = """
@@ -115,7 +121,8 @@ public class SchedulerDAO {
 				""";
 		String upd = """
 				UPDATE schedulers SET
-				    last_run_at=NOW(), last_run_status=?, last_run_msg=?,
+				    last_run_at = CASE WHEN ? = 'SUCCESS' THEN NOW() ELSE last_run_at END,
+				    last_run_status=?, last_run_msg=?,
 				    next_run_at=?, updated_at=NOW()
 				WHERE id=?
 				""";
@@ -130,12 +137,13 @@ public class SchedulerDAO {
 			}
 			try (PreparedStatement ps = conn.prepareStatement(upd)) {
 				ps.setString(1, status);
-				ps.setString(2, message);
+				ps.setString(2, status);
+				ps.setString(3, message);
 				if (nextRunAt != null)
-					ps.setTimestamp(3, Timestamp.valueOf(nextRunAt));
+					ps.setTimestamp(4, Timestamp.valueOf(nextRunAt));
 				else
-					ps.setNull(3, Types.TIMESTAMP);
-				ps.setInt(4, schedulerId);
+					ps.setNull(4, Types.TIMESTAMP);
+				ps.setInt(5, schedulerId);
 				ps.executeUpdate();
 			}
 		} finally {
@@ -186,18 +194,16 @@ public class SchedulerDAO {
 			db.releaseConnection(conn);
 		}
 	}
-	
-//	public void insertscheduler() throws SQLException {
-//		String sql = "INSERT INTO schedulers VALUES (5, 'NEON_SYNC_PULL', 'Neon DB Cloud Syn - Pull data', true, 'DAILY', NULL, 21, 0, '2026-06-25 21:14:58.394468', 'RUNNING', null, '2026-06-26 21:00:00', now(), now());";
-//		Connection conn = db.getConnection();
-//		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//			ps.executeUpdate();
-//		} finally {
-//			db.releaseConnection(conn);
-//		}
-//	}
-	
-	
+
+//        public void insertscheduler() throws SQLException {
+//                String sql = "INSERT INTO schedulers VALUES (5, 'NEON_SYNC_PULL', 'Neon DB Cloud Syn - Pull data', true, 'DAILY', NULL, 21, 0, '2026-06-25 21:14:58.394468', 'RUNNING', null, '2026-06-26 21:00:00', now(), now());";
+//                Connection conn = db.getConnection();
+//                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+//                        ps.executeUpdate();
+//                } finally {
+//                        db.releaseConnection(conn);
+//                }
+//        }
 
 	private SchedulerConfig mapConfig(ResultSet rs) throws SQLException {
 		SchedulerConfig s = new SchedulerConfig();
@@ -281,7 +287,7 @@ public class SchedulerDAO {
 				}
 			}
 		}
-//		con.commit();
+//                con.commit();
 		log.info("resetSeq: done — {} sequences updated", setvalStatements.size());
 	}
 

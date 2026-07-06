@@ -180,7 +180,7 @@
 
 			<div class="form-group mb-2">
 				<label class="flex"
-					style="align-items: center; gap: .5rem; font-weight: 400">
+					style="align-items: center; justify-content: flex-start; gap: .5rem; font-weight: 400">
 					<input type="radio" name="sort" value="updated"
 					${empty sort || sort eq 'updated' ? 'checked' : ''}> Last
 					Updated

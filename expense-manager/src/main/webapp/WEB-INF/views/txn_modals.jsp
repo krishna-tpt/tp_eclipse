@@ -623,14 +623,18 @@ if (request.getAttribute("incomeCategories") == null) {
 		}
 
 		document.querySelectorAll('#incCategorySelect option.cat-opt-INCOME')
-				.forEach(function(o) {
-					o.style.display = isIncome ? '' : 'none';
-				});
-		document.querySelectorAll('#incCategorySelect option.cat-opt-EXPENSE')
-				.forEach(function(o) {
-					o.style.display = isIncome ? 'none' : '';
-				});
-		document.getElementById('incCategorySelect').value = '';
+	    .forEach(function(o) {
+	        o.style.display = isIncome ? '' : 'none';
+	        o.disabled = !isIncome;
+	        o.hidden   = !isIncome;
+	    });
+	document.querySelectorAll('#incCategorySelect option.cat-opt-EXPENSE')
+	    .forEach(function(o) {
+	        o.style.display = isIncome ? 'none' : '';
+	        o.disabled = isIncome;
+	        o.hidden   = isIncome;
+	    });
+	document.getElementById('incCategorySelect').value = '';
 
 		var subSel = document.getElementById('incSubCatSelect');
 		subSel.value = '';
@@ -654,21 +658,22 @@ if (request.getAttribute("incomeCategories") == null) {
 
 	// ── Sub-category filter ─────────────────────────────────
 	function filterSubCat(prefix) {
-		var catSel = document.getElementById(prefix + 'CategorySelect');
-		var subSel = document.getElementById(prefix + 'SubCatSelect');
-		var selCat = catSel.value;
+    var catSel = document.getElementById(prefix + 'CategorySelect');
+    var subSel = document.getElementById(prefix + 'SubCatSelect');
+    var selCat = catSel.value;
 
-		subSel.value = '';
-		var opts = subSel.querySelectorAll('option[data-cat]');
-		var has = false;
-		opts.forEach(function(o) {
-			var show = o.getAttribute('data-cat') === selCat;
-			o.style.display = show ? '' : 'none';
-			if (show)
-				has = true;
-		});
-		subSel.disabled = !has;
-	}
+    subSel.value = '';
+    var opts = subSel.querySelectorAll('option[data-cat]');
+    var has = false;
+    opts.forEach(function(o) {
+        var show = o.getAttribute('data-cat') === selCat;
+        o.style.display = show ? '' : 'none';
+        o.disabled = !show;   // ← add
+        o.hidden   = !show;   // ← add (extra safety)
+        if (show) has = true;
+    });
+    subSel.disabled = !has;
+}
 
 	// ── Gather custom_ fields before submit ─────────────────
 	function prepareSubmit(formId) {

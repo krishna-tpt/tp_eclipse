@@ -19,6 +19,8 @@ public class TransactionFilter {
 	private String noteSearch;
 	private int page = 1;
 	private int pageSize = 15;
+	private String sortBy = "date"; // date | type | category | subcategory | amount | note
+	private String sortDir = "desc"; // asc | desc
 
 	public boolean isFiltered() {
 		return dateFrom != null || dateTo != null || (categoryIds != null && !categoryIds.isEmpty())
@@ -139,5 +141,21 @@ public class TransactionFilter {
 
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
+	}
+
+	public String getSortBy() {
+		return sortBy;
+	}
+
+	public void setSortBy(String sortBy) {
+		this.sortBy = sortBy;
+	}
+
+	public String getSortDir() {
+		return sortDir;
+	}
+
+	public void setSortDir(String sortDir) {
+		this.sortDir = sortDir;
 	}
 }

@@ -154,18 +154,34 @@ public class SchedulerEngine {
 			case "NEON_SYNC_PUSH" -> {
 				oneWeekAgo = LocalDateTime.now().minusDays(7);
 				lastRun = s.getLastRunAt();
+				// First-ever run for this scheduler: lastRunAt is null.
+				// Without this guard, lastRun.isBefore(...) below throws
+				// an NPE and the sync silently fails every time.
+				if (lastRun == null)
+					lastRun = oneWeekAgo;
 				fromDate = lastRun.isBefore(oneWeekAgo) ? lastRun : oneWeekAgo;
 
 				var sr = runNeonSync(fromDate, true);
+				// sync() swallows its own exceptions and just returns
+				// success=false — it never throws. Without this check,
+				// execute() falls through to logFinish(..., "SUCCESS", ...)
+				// below even when the push actually failed, hiding the
+				// real failure and letting last_run_at advance anyway.
+				if (!sr.success)
+					throw new Exception(sr.error);
 				result = sr.getSummary();
 				rows = sr.totalRows;
 			}
 			case "NEON_SYNC_PULL" -> {
 				oneWeekAgo = LocalDateTime.now().minusDays(7);
 				lastRun = s.getLastRunAt();
+				if (lastRun == null)
+					lastRun = oneWeekAgo;
 				fromDate = lastRun.isBefore(oneWeekAgo) ? lastRun : oneWeekAgo;
 
 				var sr = runNeonSync(fromDate, false);
+				if (!sr.success)
+					throw new Exception(sr.error);
 				result = sr.getSummary();
 				rows = sr.totalRows;
 			}
