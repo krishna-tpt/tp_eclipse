@@ -7806,3 +7806,56 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main b9d827d] Auto sync - 2026-07-06 12:00:02
+ 69 files changed, 2708 insertions(+), 2411 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.wst.server.core/publish/publish0.dat (71%)
+ create mode 100644 ExcelToOracleInserter/target/classes/.gitignore
+ delete mode 100644 LLDPrograms/bin/.gitignore
+ create mode 100644 LLDPrograms/bin/com/elevator/ElevatorSimulation.class
+ create mode 100644 LLDPrograms/bin/com/elevator/controller/ElevatorController$1.class
+ create mode 100644 LLDPrograms/bin/com/elevator/controller/ElevatorController.class
+ create mode 100644 LLDPrograms/bin/com/elevator/enums/Direction.class
+ create mode 100644 LLDPrograms/bin/com/elevator/enums/DoorStatus.class
+ create mode 100644 LLDPrograms/bin/com/elevator/enums/ElevatorState.class
+ create mode 100644 LLDPrograms/bin/com/elevator/model/Building.class
+ create mode 100644 LLDPrograms/bin/com/elevator/model/Door.class
+ create mode 100644 LLDPrograms/bin/com/elevator/model/Elevator.class
+ create mode 100644 LLDPrograms/bin/com/elevator/model/Floor.class
+ create mode 100644 LLDPrograms/bin/com/elevator/observer/ElevatorEventListener.class
+ create mode 100644 LLDPrograms/bin/com/elevator/observer/FloorRequestListener.class
+ create mode 100644 LLDPrograms/bin/com/elevator/request/ExternalRequest.class
+ create mode 100644 LLDPrograms/bin/com/elevator/request/InternalRequest.class
+ create mode 100644 LLDPrograms/bin/com/elevator/request/Request.class
+ create mode 100644 LLDPrograms/bin/com/elevator/request/RequestQueue.class
+ create mode 100644 LLDPrograms/bin/com/elevator/strategy/DispatchStrategy.class
+ create mode 100644 LLDPrograms/bin/com/elevator/strategy/NearestCarStrategy.class
+ create mode 100644 LLDPrograms/bin/com/elevator/strategy/RoundRobinStrategy.class
+ create mode 100644 LLDPrograms/bin/com/elevatorSystem/Direction.class
+ create mode 100644 LLDPrograms/bin/com/elevatorSystem/DoorState.class
+ create mode 100644 LLDPrograms/bin/com/elevatorSystem/Elevator.class
+ create mode 100644 LLDPrograms/bin/com/elevatorSystem/ElevatorController.class
+ create mode 100644 LLDPrograms/bin/com/elevatorSystem/ElevatorSelectionStrategy.class
+ create mode 100644 LLDPrograms/bin/com/elevatorSystem/ElevatorStatus.class
+ create mode 100644 LLDPrograms/bin/com/elevatorSystem/ElevatorSystem.class
+ create mode 100644 LLDPrograms/bin/com/elevatorSystem/NearestElevatorStrategy.class
+ create mode 100644 LLDPrograms/bin/com/elevatorSystem/Request.class
+ create mode 100644 demo/target/classes/.gitignore
+ rewrite expense-manager/target/classes/com/expensemanager/dao/TransactionDAO.class (80%)
+ rewrite expense-manager/target/classes/com/expensemanager/model/TransactionFilter.class (79%)
+To https://github.com/krishna-tpt/tp_eclipse.git
+   d9ee02e..b9d827d  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-07-06 12:00:07[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-07-06 15:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m

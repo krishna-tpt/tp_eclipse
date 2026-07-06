@@ -26,6 +26,98 @@
 	</div>
 </c:if>
 
+<style>
+.view-toggle {
+	display: flex;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.view-toggle-btn {
+	background: #fff;
+	border: none;
+	padding: .5rem .7rem;
+	cursor: pointer;
+	font-size: .95rem;
+	color: var(--text-2);
+	line-height: 1;
+	transition: background .15s, color .15s;
+}
+
+.view-toggle-btn + .view-toggle-btn {
+	border-left: 1px solid var(--border);
+}
+
+.view-toggle-btn.active {
+	background: var(--primary);
+	color: #fff;
+}
+
+/* ── Grid mode (default) ── */
+.books-container.grid-view {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+	gap: 1rem;
+}
+
+/* ── List mode ── */
+.books-container.list-view {
+	display: flex;
+	flex-direction: column;
+	gap: .6rem;
+}
+
+.books-container.list-view .card {
+	display: flex;
+	align-items: center;
+	gap: 1.25rem;
+	padding: .75rem 1rem;
+}
+
+.books-container.list-view .card > div:first-of-type {
+	/* name */
+	padding-right: 0 !important;
+	min-width: 160px;
+	flex-shrink: 0;
+}
+
+.books-container.list-view .card .text-muted:nth-of-type(1) {
+	/* description */
+	display: none; /* hide description in list mode to keep rows compact */
+}
+
+.books-container.list-view .card > div[style*="grid-template-columns: 1fr 1fr"] {
+	display: flex !important;
+	gap: .75rem;
+	margin-bottom: 0 !important;
+	flex-shrink: 0;
+}
+
+.books-container.list-view .card > div[style*="grid-template-columns: 1fr 1fr"] > div {
+	padding: .3rem .6rem !important;
+	white-space: nowrap;
+}
+
+.books-container.list-view .card .text-muted[style*="margin-bottom: .75rem"] {
+	/* created date */
+	margin-bottom: 0 !important;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.books-container.list-view .card .flex.gap-1 {
+	margin-left: auto;
+	flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+	.books-container.list-view .card {
+		flex-wrap: wrap;
+	}
+}
+</style>
+
 <div class="page-header flex">
 	<div>
 		<h1>&#128216; Cash Books</h1>
@@ -34,42 +126,50 @@
 	</div>
 
 	<div class="flex gap-1 ml-auto" style="align-items: center">
-		<form action="${pageContext.request.contextPath}/books" method="get"
-			class="flex gap-1">
-			<c:if test="${not empty sort}">
-				<input type="hidden" name="sort" value="${sort}">
-			</c:if>
-			<input type="text" name="search" id="bookSearchInput"
-				value="${search}" placeholder="Search book name...">
-			<button type="submit" class="btn btn-outline btn-sm">&#128269;
-			</button>
-			<c:if test="${not empty search}">
-				<a
-					href="${pageContext.request.contextPath}/books${not empty sort ? '?sort='.concat(sort) : ''}"
-					class="btn btn-outline btn-sm">Clear</a>
-			</c:if>
-		</form>
-
-		<button type="button" class="btn btn-outline btn-sm"
-			onclick="openModal('sortModal')">
-			&#8645;
-			<c:choose>
-				<c:when test="${sort eq 'name_asc'}">Name (A-Z)</c:when>
-				<c:when test="${sort eq 'balance_desc'}">Balance (High-Low)</c:when>
-				<c:when test="${sort eq 'balance_asc'}">Balance (Low-High)</c:when>
-				<c:when test="${sort eq 'created'}">Last Created</c:when>
-				<c:otherwise>Last Updated</c:otherwise>
-			</c:choose>
+	<form action="${pageContext.request.contextPath}/books" method="get"
+		class="flex gap-1">
+		<c:if test="${not empty sort}">
+			<input type="hidden" name="sort" value="${sort}">
+		</c:if>
+		<input type="text" name="search" id="bookSearchInput"
+			value="${search}" placeholder="Search book name...">
+		<button type="submit" class="btn btn-outline btn-sm">&#128269;
 		</button>
+		<c:if test="${not empty search}">
+			
+				href="${pageContext.request.contextPath}/books${not empty sort ? '?sort='.concat(sort) : ''}"
+				class="btn btn-outline btn-sm">Clear</a>
+		</c:if>
+	</form>
 
-		<button class="btn btn-primary" onclick="openModal('newBookModal')">+
-			New Book</button>
+	<%-- View toggle --%>
+	<div class="view-toggle" id="viewToggle">
+		<button type="button" class="view-toggle-btn active" data-view="grid"
+			onclick="setViewMode('grid')" title="Grid view">&#9638;</button>
+		<button type="button" class="view-toggle-btn" data-view="list"
+			onclick="setViewMode('list')" title="List view">&#9776;</button>
 	</div>
+
+	<button type="button" class="btn btn-outline btn-sm"
+		onclick="openModal('sortModal')">
+		&#8645;
+		<c:choose>
+			<c:when test="${sort eq 'name_asc'}">Name (A-Z)</c:when>
+			<c:when test="${sort eq 'balance_desc'}">Balance (High-Low)</c:when>
+			<c:when test="${sort eq 'balance_asc'}">Balance (Low-High)</c:when>
+			<c:when test="${sort eq 'created'}">Last Created</c:when>
+			<c:otherwise>Last Updated</c:otherwise>
+		</c:choose>
+	</button>
+
+	<button class="btn btn-primary" onclick="openModal('newBookModal')">+
+		New Book</button>
+</div>
 </div>
 
 <!-- Books Grid -->
-<div
-	style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1rem">
+<!-- Books Grid/List -->
+<div class="books-container grid-view" id="booksContainer">
 	<c:forEach var="book" items="${books}">
 		<c:set var="sum" value="${summaries[book.id]}" />
 		<c:set var="isActive" value="${sessionScope.activeBookId == book.id}" />
@@ -306,6 +406,29 @@ document.addEventListener('keydown', function(e) {
     var searchBox = document.getElementById('bookSearchInput');
     if (searchBox) searchBox.focus();
   }
+});
+
+function setViewMode(mode) {
+    var container = document.getElementById('booksContainer');
+    container.classList.remove('grid-view', 'list-view');
+    container.classList.add(mode + '-view');
+
+    document.querySelectorAll('.view-toggle-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-view') === mode);
+    });
+
+    try {
+        localStorage.setItem('booksViewMode', mode);
+    } catch (e) { /* ignore if storage unavailable */ }
+}
+
+// Restore saved preference on load (default: grid)
+document.addEventListener('DOMContentLoaded', function() {
+    var saved = 'grid';
+    try {
+        saved = localStorage.getItem('booksViewMode') || 'grid';
+    } catch (e) { /* ignore */ }
+    setViewMode(saved);
 });
 </script>
 
