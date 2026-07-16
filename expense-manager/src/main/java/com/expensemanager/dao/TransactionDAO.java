@@ -349,7 +349,7 @@ public class TransactionDAO {
 				FROM transactions
 				WHERE EXTRACT(YEAR FROM txn_datetime)  = ?
 				  AND EXTRACT(MONTH FROM txn_datetime) = ?
-				""" + (bookId != null && bookId > 0 ? " AND book_id = " + bookId : "") + """
+				""" + (bookId != null && bookId > 0 ? " AND book_id = " + bookId + " " : "") + """
 				GROUP BY DATE(txn_datetime)
 				ORDER BY day
 				""";
@@ -685,7 +685,7 @@ public class TransactionDAO {
 		if (!countOnly) {
 			String col = resolveSortColumn(f.getSortBy());
 			String dir = "asc".equalsIgnoreCase(f.getSortDir()) ? "ASC" : "DESC";
-			sql.append(" ORDER BY ").append(col).append(" ").append(dir).append(", t.id ").append(dir); 
+			sql.append(" ORDER BY ").append(col).append(" ").append(dir).append(", t.id ").append(dir);
 			// tiebreaker for equal values
 			if (f.getPageSize() < Integer.MAX_VALUE) {
 				sql.append(" LIMIT ? OFFSET ?");

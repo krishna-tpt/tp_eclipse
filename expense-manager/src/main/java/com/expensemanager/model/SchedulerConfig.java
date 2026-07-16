@@ -36,6 +36,8 @@ public class SchedulerConfig {
 
 	public String getRepeatDescription() {
 		switch (repeatType) {
+		case "HOURLY":
+			return "Every hour at " + pad(runHour) + ":" + pad(runMinute);
 		case "DAILY":
 			return "Every Day at " + pad(runHour) + ":" + pad(runMinute);
 		case "WEEKLY":

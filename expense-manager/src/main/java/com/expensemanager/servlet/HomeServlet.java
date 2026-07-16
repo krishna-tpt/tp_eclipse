@@ -4,6 +4,7 @@ import com.expensemanager.dao.CategoryDAO;
 import com.expensemanager.dao.ColumnDefinitionDAO;
 import com.expensemanager.dao.SubCategoryDAO;
 import com.expensemanager.dao.TransactionDAO;
+import com.expensemanager.model.DayGroup;
 import com.expensemanager.model.Transaction;
 import com.expensemanager.model.TransactionFilter;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -28,6 +30,10 @@ public class HomeServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		int bookId = (Integer) req.getSession().getAttribute("activeBookId");
+
+		// Default so the JSP never sees a null dayGroups, even if an
+		// exception happens before we reach the grouping step below.
+		req.setAttribute("dayGroups", Collections.emptyList());
 
 		try {
 			TransactionDAO dao = new TransactionDAO();
@@ -50,6 +56,7 @@ public class HomeServlet extends HttpServlet {
 			int totalPages = (int) Math.ceil((double) total / filter.getPageSize());
 
 			req.setAttribute("transactions", txns);
+			req.setAttribute("dayGroups", DayGroup.groupByDay(txns));
 			req.setAttribute("filter", filter);
 			req.setAttribute("page", filter.getPage());
 			req.setAttribute("totalPages", totalPages);
@@ -184,15 +191,13 @@ public class HomeServlet extends HttpServlet {
 				f.setPage(Integer.parseInt(p));
 		} catch (Exception ignored) {
 		}
-		
+
 		String sortBy = req.getParameter("sortBy");
 		if (sortBy != null && !sortBy.isBlank())
-		    f.setSortBy(sortBy);
+			f.setSortBy(sortBy);
 
 		String sortDir = req.getParameter("sortDir");
 		f.setSortDir("asc".equalsIgnoreCase(sortDir) ? "asc" : "desc");
-		
-		
 
 		return f;
 	}

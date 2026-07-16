@@ -225,27 +225,27 @@ public class NeonSyncService {
 								+ "category_id=EXCLUDED.category_id, cat_limit=EXCLUDED.cat_limit, alert_pct=EXCLUDED.alert_pct , created_at=EXCLUDED.created_at, updated_at=EXCLUDED.updated_at",
 						7));
 
-				result.add(syncTable(local, remote, "schedulers",
-						"SELECT id, name, display_name, enabled, repeat_type, repeat_days, run_hour, run_minute, last_run_at, "
-								+ "last_run_status, last_run_msg, next_run_at, created_at, updated_at FROM schedulers where updated_at>= ? ",
-						lastrunAt,
-						"INSERT INTO schedulers(id, name, display_name, enabled, repeat_type, repeat_days, run_hour, run_minute, "
-								+ "last_run_at, last_run_status, last_run_msg, next_run_at, created_at, updated_at) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
-								+ " ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, display_name = EXCLUDED.display_name, "
-								+ "enabled = EXCLUDED.enabled, repeat_type = EXCLUDED.repeat_type, repeat_days = EXCLUDED.repeat_days, "
-								+ "run_hour = EXCLUDED.run_hour, run_minute = EXCLUDED.run_minute, last_run_at = EXCLUDED.last_run_at, "
-								+ "last_run_status = EXCLUDED.last_run_status, last_run_msg = EXCLUDED.last_run_msg, "
-								+ "next_run_at = EXCLUDED.next_run_at, created_at = EXCLUDED.created_at, updated_at = EXCLUDED.updated_at",
-						14));
-				result.add(syncTable(local, remote, "scheduler_log",
-						"SELECT id, scheduler_id, started_at, finished_at, status, message, rows_synced, created_at, updated_at FROM scheduler_log where updated_at>= ? ",
-						lastrunAt,
-						"INSERT INTO scheduler_log(id, scheduler_id, started_at, finished_at, status, message, rows_synced, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)"
-								+ " ON CONFLICT (id) DO UPDATE SET scheduler_id=EXCLUDED.scheduler_id, "
-								+ "started_at=EXCLUDED.started_at, finished_at=EXCLUDED.finished_at, status=EXCLUDED.status, "
-								+ "message=EXCLUDED.message, rows_synced=EXCLUDED.rows_synced, created_at = EXCLUDED.created_at, updated_at = EXCLUDED.updated_at",
-						9));
+//				result.add(syncTable(local, remote, "schedulers",
+//						"SELECT id, name, display_name, enabled, repeat_type, repeat_days, run_hour, run_minute, last_run_at, "
+//								+ "last_run_status, last_run_msg, next_run_at, created_at, updated_at FROM schedulers where updated_at>= ? ",
+//						lastrunAt,
+//						"INSERT INTO schedulers(id, name, display_name, enabled, repeat_type, repeat_days, run_hour, run_minute, "
+//								+ "last_run_at, last_run_status, last_run_msg, next_run_at, created_at, updated_at) "
+//								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+//								+ " ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, display_name = EXCLUDED.display_name, "
+//								+ "enabled = EXCLUDED.enabled, repeat_type = EXCLUDED.repeat_type, repeat_days = EXCLUDED.repeat_days, "
+//								+ "run_hour = EXCLUDED.run_hour, run_minute = EXCLUDED.run_minute, last_run_at = EXCLUDED.last_run_at, "
+//								+ "last_run_status = EXCLUDED.last_run_status, last_run_msg = EXCLUDED.last_run_msg, "
+//								+ "next_run_at = EXCLUDED.next_run_at, created_at = EXCLUDED.created_at, updated_at = EXCLUDED.updated_at",
+//						14));
+//				result.add(syncTable(local, remote, "scheduler_log",
+//						"SELECT id, scheduler_id, started_at, finished_at, status, message, rows_synced, created_at, updated_at FROM scheduler_log where updated_at>= ? ",
+//						lastrunAt,
+//						"INSERT INTO scheduler_log(id, scheduler_id, started_at, finished_at, status, message, rows_synced, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?,?,?)"
+//								+ " ON CONFLICT (id) DO UPDATE SET scheduler_id=EXCLUDED.scheduler_id, "
+//								+ "started_at=EXCLUDED.started_at, finished_at=EXCLUDED.finished_at, status=EXCLUDED.status, "
+//								+ "message=EXCLUDED.message, rows_synced=EXCLUDED.rows_synced, created_at = EXCLUDED.created_at, updated_at = EXCLUDED.updated_at",
+//						9));
 
 				// ── Deletions — propagate any local delete(s) recorded as
 				// tombstones since the last sync. Runs AFTER the upserts

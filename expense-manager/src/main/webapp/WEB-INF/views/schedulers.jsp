@@ -338,8 +338,10 @@
 
 					<%-- Repeat type --%>
 					<div class="form-row">
-						<label class="sm">Repeat</label> <select name="repeatType"
-							id="rt-${s.id}" onchange="onRepeatChange(${s.id})">
+						<select name="repeatType" id="rt-${s.id}"
+							onchange="onRepeatChange(${s.id})">
+							<option value="HOURLY" ${s.repeatType=='HOURLY' ?'selected':''}>Every
+								Hour</option>
 							<option value="DAILY" ${s.repeatType=='DAILY'  ?'selected':''}>Every
 								Day</option>
 							<option value="WEEKLY" ${s.repeatType=='WEEKLY' ?'selected':''}>Weekly
@@ -383,13 +385,14 @@
 
 					<%-- Time --%>
 					<div class="form-row">
-						<label class="sm">Time</label> <select name="runHour"
-							id="rh-${s.id}">
-							<c:forEach begin="0" end="23" var="h">
-								<option value="${h}" ${h==s.runHour?'selected':''}>${h<10?'0':''}${h}</option>
-							</c:forEach>
-						</select> <span style="font-size: .78rem; font-weight: 700">Hrs</span> <select
-							name="runMinute" id="rm-${s.id}">
+						<label class="sm">Time</label> <span id="hourgroup-${s.id}"
+							style="${s.repeatType=='HOURLY'?'display:none':''}"> <select
+							name="runHour" id="rh-${s.id}">
+								<c:forEach begin="0" end="23" var="h">
+									<option value="${h}" ${h==s.runHour?'selected':''}>${h<10?'0':''}${h}</option>
+								</c:forEach>
+						</select> <span style="font-size: .78rem; font-weight: 700">Hrs</span>
+						</span> <select name="runMinute" id="rm-${s.id}">
 							<c:forEach begin="0" end="59" var="m">
 								<option value="${m}" ${m==s.runMinute?'selected':''}>${m<10?'0':''}${m}</option>
 							</c:forEach>
@@ -500,10 +503,12 @@
 // ── Repeat type toggle ─────────────────────────────────
 function onRepeatChange(id) {
   var rt = document.getElementById('rt-' + id).value;
-  document.getElementById('weekly-'  + id).style.display = rt === 'WEEKLY'  ? '' : 'none';
-  document.getElementById('monthly-' + id).style.display = rt === 'MONTHLY' ? '' : 'none';
+  document.getElementById('weekly-'   + id).style.display = rt === 'WEEKLY'  ? '' : 'none';
+  document.getElementById('monthly-'  + id).style.display = rt === 'MONTHLY' ? '' : 'none';
+  document.getElementById('hourgroup-'+ id).style.display = rt === 'HOURLY' ? 'none' : '';
   updateOverview(id);
 }
+
 
 // ── Day button toggle ──────────────────────────────────
 function toggleDay(id, day, el) {
@@ -533,7 +538,9 @@ function updateOverview(id) {
   var mm  = String(m).padStart(2,'0');
   var msg = '';
 
-  if (rt === 'DAILY') {
+  if (rt === 'HOURLY') {
+    msg = 'The task will run every hour at minute ' + mm + '.';
+  } else if (rt === 'DAILY') {
     msg = 'The task will run every day at ' + hh + ':' + mm + ' Hrs.';
   } else if (rt === 'WEEKLY') {
     var days = document.getElementById('weekdays-' + id).value || 'no day selected';

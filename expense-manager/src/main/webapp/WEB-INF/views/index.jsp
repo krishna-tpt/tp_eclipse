@@ -5,6 +5,8 @@
 <c:set var="activePage" value="home" scope="request" />
 <c:set var="currentYear" value="<%=java.time.Year.now().getValue()%>"
 	scope="request" />
+<c:set var="todayStr" value="<%=java.time.LocalDate.now().toString()%>"
+	scope="page" />
 <%@ include file="header.jsp"%>
 
 <style>
@@ -317,7 +319,132 @@ tbody tr.selected {
 	font-size: .65rem;
 	color: var(--primary);
 }
+
+/* Day-grouped view (mirrors the mobile app's Daily tab) */
+.day-header-row td {
+	padding: 0;
+	border-bottom: none;
+}
+
+.day-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: #f8fafc;
+	padding: .55rem 1rem;
+	border-top: 1px solid var(--border);
+	border-bottom: 1px solid var(--border);
+}
+
+.day-date {
+	display: flex;
+	align-items: baseline;
+	gap: .5rem;
+}
+
+.day-num {
+	font-size: 1.05rem;
+	font-weight: 700;
+}
+
+.day-dow {
+	background: var(--border);
+	color: var(--text-2);
+	font-size: .66rem;
+	font-weight: 700;
+	padding: .1rem .4rem;
+	border-radius: 4px;
+}
+
+.day-my {
+	font-size: .75rem;
+	color: var(--text-2);
+}
+
+.day-totals {
+	display: flex;
+	gap: 1.1rem;
+	font-size: .8rem;
+	font-weight: 600;
+}
+
+.day-income {
+	color: var(--green, #16a34a);
+}
+
+.day-expense {
+	color: var(--red, #dc2626);
+}
+
+/* Tighter dashboard header + export controls moved inline with it */
+.page-header {
+	margin-bottom: 1rem;
+	align-items: center;
+}
+
+.page-header p {
+	margin: .15rem 0 0;
+}
+
+.header-actions {
+	align-items: center;
+}
+
+.header-divider {
+	width: 1px;
+	height: 22px;
+	background: var(--border);
+	margin: 0 .35rem;
+}
+
+.filtered-summary {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+	font-size: .78rem;
+	margin: -.3rem 0 1rem;
+	padding: 0 .1rem;
+	color: var(--text-2);
+}
 </style>
+
+<%-- ═══ Build the current filter query string once — reused by the
+     export links AND the pagination links below, so both stay in
+     sync with whatever filters are currently active. ═══ --%>
+<c:set var="pageQs" value="" />
+<c:if test="${not empty param.filter}">
+	<c:set var="pageQs" value="${pageQs}&amp;filter=${param.filter}" />
+</c:if>
+<c:if test="${filter.dateFrom != null}">
+	<c:set var="pageQs" value="${pageQs}&amp;dateFrom=${filter.dateFrom}" />
+</c:if>
+<c:if test="${filter.dateTo != null}">
+	<c:set var="pageQs" value="${pageQs}&amp;dateTo=${filter.dateTo}" />
+</c:if>
+<c:forEach var="cid" items="${filter.categoryIds}">
+	<c:set var="pageQs" value="${pageQs}&amp;categoryId=${cid}" />
+</c:forEach>
+<c:forEach var="sid" items="${filter.subCategoryIds}">
+	<c:set var="pageQs" value="${pageQs}&amp;subCategoryId=${sid}" />
+</c:forEach>
+<c:if test="${not empty filter.noteSearch}">
+	<c:set var="pageQs" value="${pageQs}&amp;search=${filter.noteSearch}" />
+</c:if>
+<c:if test="${not empty filter.amountOp1}">
+	<c:set var="pageQs"
+		value="${pageQs}&amp;amountOp1=${filter.amountOp1}&amp;amount1=${filter.amount1}" />
+</c:if>
+<c:if test="${not empty filter.amountOp2}">
+	<c:set var="pageQs"
+		value="${pageQs}&amp;amountOp2=${filter.amountOp2}&amp;amount2=${filter.amount2}" />
+</c:if>
+<%-- Export query string: same filters as pageQs, plus the "filtered=1"
+     flag ExportServlet uses to know whether to honor the filter. --%>
+<c:set var="fqs" value="" />
+<c:if test="${filter.filtered}">
+	<c:set var="fqs" value="&amp;filtered=1${pageQs}" />
+</c:if>
 
 <%-- ═══ PAGE HEADER ═══ --%>
 <div class="page-header flex">
@@ -330,12 +457,20 @@ tbody tr.selected {
 			</c:choose>
 		</p>
 	</div>
-	<div class="flex gap-1 ml-auto">
+	<div class="flex gap-1 ml-auto header-actions">
+		<a href="${pageContext.request.contextPath}/export?type=pdf${fqs}"
+			class="btn btn-outline btn-sm" title="Export PDF">&#128196; PDF</a> <a
+			href="${pageContext.request.contextPath}/export?type=excel${fqs}"
+			class="btn btn-outline btn-sm" title="Export Excel">&#128202;
+			Excel</a>
+		<button class="btn btn-outline btn-sm"
+			onclick="openModal('emailModal')" title="Email report">&#9993;
+			Email</button>
+		<span class="header-divider"></span>
 		<button class="btn btn-success" onclick="openModal('incomeModal')">+
 			Income</button>
 		<button class="btn btn-danger" onclick="openTxnModal('EXPENSE')">+
 			Expense</button>
-
 	</div>
 </div>
 
@@ -378,74 +513,19 @@ tbody tr.selected {
 	</div>
 </div>
 
-<%-- ═══ Build the current filter query string once — reused by the
-     export links AND the pagination links below, so both stay in
-     sync with whatever filters are currently active. ═══ --%>
-<c:set var="pageQs" value="" />
-<c:if test="${not empty param.filter}">
-	<c:set var="pageQs" value="${pageQs}&amp;filter=${param.filter}" />
+<%-- ═══ Filtered summary — only shows once a filter is actually active,
+     so it doesn't sit around as an empty-looking bar the rest of the time. ═══ --%>
+<c:if test="${filter.filtered}">
+	<div class="filtered-summary">
+		<span>&#128269; Filtered &bull; ${total} records</span> <span
+			style="color: var(--green); font-weight: 600">&#8593; &#8377;<fmt:formatNumber
+				value="${filteredIncome}" pattern="#,##0.00" /></span> <span
+			style="color: var(--red); font-weight: 600">&#8595; &#8377;<fmt:formatNumber
+				value="${filteredExpense}" pattern="#,##0.00" /></span> <span
+			style="color: var(--primary); font-weight: 600">Net: &#8377;<fmt:formatNumber
+				value="${filteredNet}" pattern="#,##0.00" /></span>
+	</div>
 </c:if>
-<c:if test="${filter.dateFrom != null}">
-	<c:set var="pageQs" value="${pageQs}&amp;dateFrom=${filter.dateFrom}" />
-</c:if>
-<c:if test="${filter.dateTo != null}">
-	<c:set var="pageQs" value="${pageQs}&amp;dateTo=${filter.dateTo}" />
-</c:if>
-<c:forEach var="cid" items="${filter.categoryIds}">
-	<c:set var="pageQs" value="${pageQs}&amp;categoryId=${cid}" />
-</c:forEach>
-<c:forEach var="sid" items="${filter.subCategoryIds}">
-	<c:set var="pageQs" value="${pageQs}&amp;subCategoryId=${sid}" />
-</c:forEach>
-<c:if test="${not empty filter.noteSearch}">
-	<c:set var="pageQs" value="${pageQs}&amp;search=${filter.noteSearch}" />
-</c:if>
-<c:if test="${not empty filter.amountOp1}">
-	<c:set var="pageQs"
-		value="${pageQs}&amp;amountOp1=${filter.amountOp1}&amp;amount1=${filter.amount1}" />
-</c:if>
-<c:if test="${not empty filter.amountOp2}">
-	<c:set var="pageQs"
-		value="${pageQs}&amp;amountOp2=${filter.amountOp2}&amp;amount2=${filter.amount2}" />
-</c:if>
-
-<%-- ═══ EXPORT BAR ═══ --%>
-<div class="export-bar">
-	<span style="font-size: .8rem; font-weight: 600; color: var(--text-2)">
-		&#128216; ${sessionScope.activeBookName} <c:if
-			test="${filter.filtered}"> &bull; Filtered (${total} records)</c:if>
-		&nbsp;&#8250;
-	</span>
-	<%-- Build export query string: same filters as pageQs, plus the
-	     "filtered=1" flag ExportServlet uses to know whether to
-	     honor the filter at all. --%>
-	<c:set var="fqs" value="" />
-	<c:if test="${filter.filtered}">
-		<c:set var="fqs" value="&amp;filtered=1${pageQs}" />
-	</c:if>
-	<%-- Filtered income/expense amounts --%>
-	<c:if test="${filter.filtered}">
-		<span style="font-size: .78rem; color: var(--green); font-weight: 600">
-			&#8593; &#8377;<fmt:formatNumber value="${filteredIncome}"
-				pattern="#,##0.00" />
-		</span>
-		<span style="font-size: .78rem; color: var(--red); font-weight: 600">
-			&#8595; &#8377;<fmt:formatNumber value="${filteredExpense}"
-				pattern="#,##0.00" />
-		</span>
-		<span
-			style="font-size: .78rem; color: var(--primary); font-weight: 600">
-			Net: &#8377;<fmt:formatNumber value="${filteredNet}"
-				pattern="#,##0.00" />
-		</span>
-	</c:if>
-	<a href="${pageContext.request.contextPath}/export?type=pdf${fqs}"
-		class="btn btn-outline btn-sm">&#128196; PDF</a> <a
-		href="${pageContext.request.contextPath}/export?type=excel${fqs}"
-		class="btn btn-outline btn-sm">&#128202; Excel</a>
-	<button class="btn btn-primary btn-sm"
-		onclick="openModal('emailModal')">&#9993; Email</button>
-</div>
 
 <%-- ═══ FILTER PANEL ═══ --%>
 <div class="filter-panel ${filter.filtered ? '' : 'collapsed'}"
@@ -473,11 +553,11 @@ tbody tr.selected {
 				style="grid-template-columns: repeat(auto-fit, minmax(165px, 1fr))">
 				<div class="form-group">
 					<label>Date From</label> <input type="date" name="dateFrom"
-						value="${filter.dateFrom}">
+						value="${empty filter.dateFrom ? todayStr : filter.dateFrom}">
 				</div>
 				<div class="form-group">
 					<label>Date To</label> <input type="date" name="dateTo"
-						value="${filter.dateTo}">
+						value="${empty filter.dateTo ? todayStr : filter.dateTo}">
 				</div>
 
 				<%-- Multi-select: Category --%>
@@ -501,28 +581,24 @@ tbody tr.selected {
 								onchange="toggleSelectAllMS('msCat','msCatLabel','msCatTags','categoryId', this.checked)">
 								<strong>(Select All)</strong>
 							</label>
-							<c:if test="${empty param.filter or param.filter == 'INCOME'}">
-								<div class="ms-group-header">Income</div>
-								<c:forEach var="cat" items="${incomeCategories}">
-									<label class="ms-option"> <input type="checkbox"
-										name="categoryId" value="${cat.id}"
-										${filter.categoryIds != null && filter.categoryIds.contains(cat.id) ? 'checked' : ''}
-										onchange="updateMSTags('msCat','msCatLabel','msCatTags','categoryId')">
-										${cat.name}
-									</label>
-								</c:forEach>
-							</c:if>
-							<c:if test="${empty param.filter or param.filter == 'EXPENSE'}">
-								<div class="ms-group-header">Expense</div>
-								<c:forEach var="cat" items="${expenseCategories}">
-									<label class="ms-option"> <input type="checkbox"
-										name="categoryId" value="${cat.id}"
-										${filter.categoryIds != null && filter.categoryIds.contains(cat.id) ? 'checked' : ''}
-										onchange="updateMSTags('msCat','msCatLabel','msCatTags','categoryId')">
-										${cat.name}
-									</label>
-								</c:forEach>
-							</c:if>
+							<div class="ms-group-header">Income</div>
+							<c:forEach var="cat" items="${incomeCategories}">
+								<label class="ms-option"> <input type="checkbox"
+									name="categoryId" value="${cat.id}"
+									${filter.categoryIds != null && filter.categoryIds.contains(cat.id) ? 'checked' : ''}
+									onchange="updateMSTags('msCat','msCatLabel','msCatTags','categoryId')">
+									${cat.name}
+								</label>
+							</c:forEach>
+							<div class="ms-group-header">Expense</div>
+							<c:forEach var="cat" items="${expenseCategories}">
+								<label class="ms-option"> <input type="checkbox"
+									name="categoryId" value="${cat.id}"
+									${filter.categoryIds != null && filter.categoryIds.contains(cat.id) ? 'checked' : ''}
+									onchange="updateMSTags('msCat','msCatLabel','msCatTags','categoryId')">
+									${cat.name}
+								</label>
+							</c:forEach>
 							<div class="ms-clear-row">
 								<button type="button" class="ms-clear-btn"
 									onclick="clearMSOptions('msCat','msCatLabel','msCatTags','categoryId')">&#10005;
@@ -637,58 +713,40 @@ tbody tr.selected {
 	</div>
 </div>
 
-<%-- Type tabs --%>
-<div class="tabs">
-	<a href="${pageContext.request.contextPath}/home"
-		class="tab ${empty param.filter?'active':''}">All</a> <a
-		href="${pageContext.request.contextPath}/home?filter=INCOME"
-		class="tab income  ${param.filter=='INCOME' ?'active':''}">Income</a>
-	<a href="${pageContext.request.contextPath}/home?filter=EXPENSE"
-		class="tab expense ${param.filter=='EXPENSE'?'active':''}">Expenses</a>
-</div>
-
 <%-- ═══ MAIN LAYOUT: table + detail panel ═══ --%>
 <div class="txn-layout" id="txnLayout">
 	<div>
 		<div class="table-wrap">
 			<table>
-				<
 				<thead>
 					<tr>
-						<th>#</th>
 						<th><a class="sort-link"
-							href="${pageContext.request.contextPath}/home?sortBy=date&amp;sortDir=${(filter.sortBy=='date' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
-								Date &amp; Time <c:if test="${filter.sortBy=='date'}">
+							href="${pageContext.request.contextPath}/home?sortBy=date&amp;sortDir=${(filter.sortBy=='date' && filter.sortDir=='asc') ? 'desc' : 'asc'}${pageQs}">
+								Time <c:if test="${filter.sortBy=='date'}">
 									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
 								</c:if>
 						</a></th>
 						<th><a class="sort-link"
-							href="${pageContext.request.contextPath}/home?sortBy=type&amp;sortDir=${(filter.sortBy=='type' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
-								Type <c:if test="${filter.sortBy=='type'}">
-									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
-								</c:if>
-						</a></th>
-						<th><a class="sort-link"
-							href="${pageContext.request.contextPath}/home?sortBy=category&amp;sortDir=${(filter.sortBy=='category' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
+							href="${pageContext.request.contextPath}/home?sortBy=category&amp;sortDir=${(filter.sortBy=='category' && filter.sortDir=='asc') ? 'desc' : 'asc'}${pageQs}">
 								Category <c:if test="${filter.sortBy=='category'}">
 									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
 								</c:if>
 						</a></th>
 						<th><a class="sort-link"
-							href="${pageContext.request.contextPath}/home?sortBy=subcategory&amp;sortDir=${(filter.sortBy=='subcategory' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
+							href="${pageContext.request.contextPath}/home?sortBy=subcategory&amp;sortDir=${(filter.sortBy=='subcategory' && filter.sortDir=='asc') ? 'desc' : 'asc'}${pageQs}">
 								Sub Cat <c:if test="${filter.sortBy=='subcategory'}">
 									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
 								</c:if>
 						</a></th>
 						<th><a class="sort-link"
-							href="${pageContext.request.contextPath}/home?sortBy=amount&amp;sortDir=${(filter.sortBy=='amount' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
-								Amount <c:if test="${filter.sortBy=='amount'}">
+							href="${pageContext.request.contextPath}/home?sortBy=note&amp;sortDir=${(filter.sortBy=='note' && filter.sortDir=='asc') ? 'desc' : 'asc'}${pageQs}">
+								Note <c:if test="${filter.sortBy=='note'}">
 									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
 								</c:if>
 						</a></th>
 						<th><a class="sort-link"
-							href="${pageContext.request.contextPath}/home?sortBy=note&amp;sortDir=${(filter.sortBy=='note' && filter.sortDir=='asc') ? 'desc' : 'asc'}${filterQs}">
-								Note <c:if test="${filter.sortBy=='note'}">
+							href="${pageContext.request.contextPath}/home?sortBy=amount&amp;sortDir=${(filter.sortBy=='amount' && filter.sortDir=='asc') ? 'desc' : 'asc'}${pageQs}">
+								Amount <c:if test="${filter.sortBy=='amount'}">
 									<span class="sort-arrow">${filter.sortDir=='asc' ? '&#9650;' : '&#9660;'}</span>
 								</c:if>
 						</a></th>
@@ -696,43 +754,53 @@ tbody tr.selected {
 					</tr>
 				</thead>
 				<tbody>
-					<c:forEach var="t" items="${transactions}" varStatus="st">
-						<tr class="clickable" id="row-${t.id}"
-							<%-- onclick="loadDetail(${t.id}, this)"> --%>
-							onclick="window.location='${pageContext.request.contextPath}/transaction?id=${t.id}'">
-							<td class="text-muted" style="font-size: .78rem">${total-((page-1)*15)-st.index}</td>
-							<td style="font-size: .82rem; white-space: nowrap">${t.formattedDateTime}</td>
-							<td><c:choose>
-									<c:when test="${t.type=='INCOME'}">
-										<span class="badge income">INCOME</span>
-									</c:when>
-									<c:otherwise>
-										<span class="badge expense">EXPENSE</span>
-									</c:otherwise>
-								</c:choose></td>
-							<td><span class="chip">${t.categoryName}</span></td>
-							<td><c:if test="${not empty t.subCategoryName}">
-									<span class="chip chip-amber">${t.subCategoryName}</span>
-								</c:if></td>
-							<td><c:choose>
-									<c:when test="${t.type=='INCOME'}">
-										<span class="amount-pos">+&#8377;${t.amount}</span>
-									</c:when>
-									<c:otherwise>
-										<span class="amount-neg">-&#8377;${t.amount}</span>
-									</c:otherwise>
-								</c:choose></td>
-							<td class="text-muted"
-								style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">${t.note}</td>
-							<td><a
-								href="${pageContext.request.contextPath}/transaction?id=${t.id}"
-								class="btn btn-outline btn-sm" onclick="event.stopPropagation()"
-								title="Full page">&#8599;</a></td>
+					<c:forEach var="grp" items="${dayGroups}">
+						<%-- ═══ Day header row: date + that day's income/expense subtotal ═══ --%>
+						<tr class="day-header-row">
+							<td colspan="6">
+								<div class="day-header">
+									<div class="day-date">
+										<span class="day-num">${grp.dayOfMonth}</span> <span
+											class="day-dow">${grp.dayOfWeek}</span> <span class="day-my">${grp.monthYear}</span>
+									</div>
+									<div class="day-totals">
+										<span class="day-income">&#8377;<fmt:formatNumber
+												value="${grp.income}" pattern="#,##0.00" /></span> <span
+											class="day-expense">&#8377;<fmt:formatNumber
+												value="${grp.expense}" pattern="#,##0.00" /></span>
+									</div>
+								</div>
+							</td>
 						</tr>
+						<c:forEach var="t" items="${grp.transactions}">
+							<tr class="clickable" id="row-${t.id}"
+								onclick="window.location='${pageContext.request.contextPath}/transaction?id=${t.id}'">
+								<td class="text-muted"
+									style="font-size: .8rem; white-space: nowrap">${t.formattedTime}</td>
+								<td><span class="chip">${t.categoryName}</span></td>
+								<td><c:if test="${not empty t.subCategoryName}">
+										<span class="chip chip-amber">${t.subCategoryName}</span>
+									</c:if></td>
+								<td class="text-muted"
+									style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">${t.note}</td>
+								<td><c:choose>
+										<c:when test="${t.type=='INCOME'}">
+											<span class="amount-pos">+&#8377;${t.amount}</span>
+										</c:when>
+										<c:otherwise>
+											<span class="amount-neg">-&#8377;${t.amount}</span>
+										</c:otherwise>
+									</c:choose></td>
+								<td><a
+									href="${pageContext.request.contextPath}/transaction?id=${t.id}"
+									class="btn btn-outline btn-sm"
+									onclick="event.stopPropagation()" title="Full page">&#8599;</a></td>
+							</tr>
+						</c:forEach>
 					</c:forEach>
-					<c:if test="${empty transactions}">
+					<c:if test="${empty dayGroups}">
 						<tr>
-							<td colspan="8" class="empty-state">No transactions found.</td>
+							<td colspan="6" class="empty-state">No transactions found.</td>
 						</tr>
 					</c:if>
 				</tbody>

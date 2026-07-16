@@ -246,49 +246,20 @@ public class SchedulerDAO {
 		return l;
 	}
 
-	public void resetSeq(Connection con) throws SQLException {
-		// Step 1 — Generate SET VAL statements dynamically
-		String genSql = """
-				SELECT
-				    'SELECT setval(''' ||
-				    pg_get_serial_sequence(table_name, column_name) ||
-				    ''', COALESCE(MAX(' || column_name || '), 1)) FROM ' ||
-				    table_name || ';'
-				FROM information_schema.columns
-				WHERE table_schema = 'public'
-				  AND (
-				        column_default LIKE 'nextval%'
-				        OR is_identity = 'YES'
-				      )
-				""";
+	// ── Reset all sequences — delegates to DB function reset_all_sequences() ──
+	public String resetSeq(Connection con) throws SQLException {
+	    String sql = "SELECT reset_all_sequences();";
+	    String result = "";
 
-		List<String> setvalStatements = new ArrayList<>();
+	    try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+	        if (rs.next()) {
+	            result = rs.getString(1);
+	        }
+	    }
 
-		try (PreparedStatement ps = con.prepareStatement(genSql); ResultSet rs = ps.executeQuery()) {
-			while (rs.next()) {
-				String stmt = rs.getString(1);
-				if (stmt != null && !stmt.isBlank()) {
-					setvalStatements.add(stmt);
-				}
-			}
-		}
-
-		log.debug("resetSeq: {} setval statements generated", setvalStatements.size());
-
-		// Step 2 — Execute each generated setval statement
-		try (Statement st = con.createStatement()) {
-			for (String stmt : setvalStatements) {
-				log.debug("resetSeq: executing → {}", stmt);
-				try {
-					st.execute(stmt);
-				} catch (SQLException e) {
-					log.debug("resetSeq: skip error for stmt: {} | {}", stmt, e.getMessage());
-					// if one table fail also continue remining tables
-				}
-			}
-		}
-//                con.commit();
-		log.info("resetSeq: done — {} sequences updated", setvalStatements.size());
+	    log.debug("resetSeq: result → {}", result);
+	    log.info("resetSeq: done via reset_all_sequences()");
+	    return result;
 	}
 
 	public List<SchedulerLog> allRecentLogs(int limit, int offset) throws SQLException {

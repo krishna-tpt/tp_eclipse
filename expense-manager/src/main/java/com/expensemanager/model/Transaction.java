@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Transaction {
-
 	public enum Type {
 		INCOME, EXPENSE
 	}
@@ -24,7 +23,6 @@ public class Transaction {
 	private int bookId;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-
 	private Map<String, String> customValues = new LinkedHashMap<>();
 
 	public Transaction() {
@@ -40,6 +38,12 @@ public class Transaction {
 		if (dateTime == null)
 			return "";
 		return dateTime.format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm"));
+	}
+
+	public String getFormattedTime() {
+		if (dateTime == null)
+			return "";
+		return dateTime.format(DateTimeFormatter.ofPattern("hh:mm a"));
 	}
 
 	// Getters / Setters

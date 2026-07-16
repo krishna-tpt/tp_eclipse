@@ -38,3 +38,46 @@ CREATE TABLE IF NOT EXISTS deleted_records (
  
 CREATE INDEX IF NOT EXISTS idx_deleted_records_lookup
     ON deleted_records (table_name, deleted_at);
+    
+-------------------
+--Jul 7
+    
+CREATE OR REPLACE FUNCTION reset_all_sequences()
+RETURNS text
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    r RECORD;
+    seq_name text;
+    max_val bigint;
+    result text := '';
+BEGIN
+    FOR r IN
+        SELECT table_name, column_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND (
+                column_default LIKE 'nextval%'
+                OR is_identity = 'YES'
+              )
+    LOOP
+        seq_name := pg_get_serial_sequence(r.table_name, r.column_name);
+
+        IF seq_name IS NOT NULL THEN
+            EXECUTE format(
+                'SELECT COALESCE(MAX(%I), 1) FROM %I',
+                r.column_name, r.table_name
+            ) INTO max_val;
+
+            EXECUTE format('SELECT setval(%L, %s)', seq_name, max_val);
+
+            result := result || r.table_name || ': ' || max_val::text || E'\n';
+        END IF;
+    END LOOP;
+
+    RETURN result;
+END;
+$$;
+
+SELECT reset_all_sequences();
+

@@ -308,7 +308,7 @@ tbody tr.selected {
 		onclick="openModal('emailModal')">&#9993; Email</button>
 </div>
 
-<%-- FILTER PANEL --%>
+<%-- ═══ FILTER PANEL ═══ --%>
 <div class="filter-panel ${filter.filtered ? '' : 'collapsed'}"
 	id="filterPanel">
 	<div class="filter-head" onclick="toggleFilter()">
@@ -317,7 +317,7 @@ tbody tr.selected {
 		<c:if test="${filter.filtered}">
 			<span class="filter-badge">Active</span>
 		</c:if>
-		<a href="${pageContext.request.contextPath}/transactions"
+		<a href="${pageContext.request.contextPath}/home"
 			class="btn btn-outline btn-sm ml-auto" style="font-size: .72rem"
 			onclick="event.stopPropagation()">&#10005; Clear</a> <span
 			id="fArrow" style="font-size: .7rem; transition: transform .2s">&#9660;</span>
@@ -325,7 +325,7 @@ tbody tr.selected {
 
 	<div class="filter-body">
 		<form id="filterForm" method="get"
-			action="${pageContext.request.contextPath}/transactions">
+			action="${pageContext.request.contextPath}/home">
 			<c:if test="${not empty param.filter}">
 				<input type="hidden" name="filter" value="${param.filter}">
 			</c:if>
@@ -334,11 +334,11 @@ tbody tr.selected {
 				style="grid-template-columns: repeat(auto-fit, minmax(165px, 1fr))">
 				<div class="form-group">
 					<label>Date From</label> <input type="date" name="dateFrom"
-						value="${filter.dateFrom}">
+						value="${empty filter.dateFrom ? todayStr : filter.dateFrom}">
 				</div>
 				<div class="form-group">
 					<label>Date To</label> <input type="date" name="dateTo"
-						value="${filter.dateTo}">
+						value="${empty filter.dateTo ? todayStr : filter.dateTo}">
 				</div>
 
 				<%-- Multi-select: Category --%>
@@ -351,9 +351,19 @@ tbody tr.selected {
 								style="font-size: .65rem; opacity: .6">&#9660;</span>
 						</div>
 						<div class="ms-dropdown" id="msCat">
+							<div class="ms-search-row">
+								<input type="text" class="ms-search" placeholder="Search&#8230;"
+									autocomplete="off" onclick="event.stopPropagation()"
+									onkeydown="if(event.key==='Enter'){event.preventDefault();event.stopPropagation();}"
+									oninput="filterMSOptions('msCat', this.value)">
+							</div>
+							<label class="ms-option ms-select-all"> <input
+								type="checkbox" class="ms-select-all-cb"
+								onchange="toggleSelectAllMS('msCat','msCatLabel','msCatTags','categoryId', this.checked)">
+								<strong>(Select All)</strong>
+							</label>
 							<c:if test="${empty param.filter or param.filter == 'INCOME'}">
-								<div
-									style="padding: .3rem .75rem; font-size: .68rem; font-weight: 700; color: var(--text-2); text-transform: uppercase">Income</div>
+								<div class="ms-group-header">Income</div>
 								<c:forEach var="cat" items="${incomeCategories}">
 									<label class="ms-option"> <input type="checkbox"
 										name="categoryId" value="${cat.id}"
@@ -364,8 +374,7 @@ tbody tr.selected {
 								</c:forEach>
 							</c:if>
 							<c:if test="${empty param.filter or param.filter == 'EXPENSE'}">
-								<div
-									style="padding: .3rem .75rem; font-size: .68rem; font-weight: 700; color: var(--text-2); text-transform: uppercase">Expense</div>
+								<div class="ms-group-header">Expense</div>
 								<c:forEach var="cat" items="${expenseCategories}">
 									<label class="ms-option"> <input type="checkbox"
 										name="categoryId" value="${cat.id}"
@@ -375,6 +384,11 @@ tbody tr.selected {
 									</label>
 								</c:forEach>
 							</c:if>
+							<div class="ms-clear-row">
+								<button type="button" class="ms-clear-btn"
+									onclick="clearMSOptions('msCat','msCatLabel','msCatTags','categoryId')">&#10005;
+									Clear</button>
+							</div>
 						</div>
 						<div class="ms-selected-tags" id="msCatTags"></div>
 					</div>
@@ -390,6 +404,17 @@ tbody tr.selected {
 								style="font-size: .65rem; opacity: .6">&#9660;</span>
 						</div>
 						<div class="ms-dropdown" id="msSub">
+							<div class="ms-search-row">
+								<input type="text" class="ms-search" placeholder="Search&#8230;"
+									autocomplete="off" onclick="event.stopPropagation()"
+									onkeydown="if(event.key==='Enter'){event.preventDefault();event.stopPropagation();}"
+									oninput="filterMSOptions('msSub', this.value)">
+							</div>
+							<label class="ms-option ms-select-all"> <input
+								type="checkbox" class="ms-select-all-cb"
+								onchange="toggleSelectAllMS('msSub','msSubLabel','msSubTags','subCategoryId', this.checked)">
+								<strong>(Select All)</strong>
+							</label>
 							<c:forEach var="sc" items="${subCategories}">
 								<label class="ms-option"> <input type="checkbox"
 									name="subCategoryId" value="${sc.id}"
@@ -398,6 +423,11 @@ tbody tr.selected {
 									${sc.name}
 								</label>
 							</c:forEach>
+							<div class="ms-clear-row">
+								<button type="button" class="ms-clear-btn"
+									onclick="clearMSOptions('msSub','msSubLabel','msSubTags','subCategoryId')">&#10005;
+									Clear</button>
+							</div>
 						</div>
 						<div class="ms-selected-tags" id="msSubTags"></div>
 					</div>
@@ -406,8 +436,17 @@ tbody tr.selected {
 				<%-- Note search --%>
 				<div class="form-group" style="grid-column: 1/-1">
 					<label>Search (Note &amp; Custom Fields)</label> <input type="text"
-						name="search" placeholder="Search in note, custom fields&#8230;"
+						name="search" placeholder="e.g. Dinner; tea"
 						value="${filter.noteSearch}">
+					<div
+						style="font-size: .7rem; color: var(--text-2); margin-top: .25rem">
+						Use
+						<code>;</code>
+						to search multiple keywords &mdash; e.g.
+						<code>Dinner; tea</code>
+						matches notes/custom fields containing &ldquo;Dinner&rdquo; OR
+						&ldquo;tea&rdquo;.
+					</div>
 				</div>
 			</div>
 
@@ -446,14 +485,14 @@ tbody tr.selected {
 				</div>
 				<div
 					style="font-size: .7rem; color: var(--text-2); margin-top: .25rem">
-					Example: &gt;=10 AND &lt;=50 â†’ amounts between 10 and 50</div>
+					Example: &gt;=10 AND &lt;=50 &rarr; amounts between 10 and 50</div>
 			</div>
 
 			<div class="flex gap-1 mt-2">
 				<button type="submit" class="btn btn-primary btn-sm">&#128269;
 					Apply</button>
 				<button type="button" class="btn btn-outline btn-sm"
-					onclick="location.href='${pageContext.request.contextPath}/transactions'">Reset</button>
+					onclick="location.href='${pageContext.request.contextPath}/home'">Reset</button>
 			</div>
 		</form>
 	</div>
@@ -624,26 +663,103 @@ document.addEventListener('click', function(e) {
   });
 });
 
-function updateMSTags(ddId, labelId, tagsId, inputName) {
-  var dd       = document.getElementById(ddId);
-  var label    = document.getElementById(labelId);
-  var tagsEl   = document.getElementById(tagsId);
-  var checked  = dd.querySelectorAll('input:checked');
-  if (checked.length === 0) {
-    label.textContent = 'All';
-    tagsEl.innerHTML  = '';
-  } else {
-    label.textContent = checked.length + ' selected';
-    tagsEl.innerHTML  = '';
-    checked.forEach(function(cb) {
-      var tag = document.createElement('span');
-      tag.className = 'ms-tag';
-      tag.innerHTML = cb.closest('.ms-option').textContent.trim()
-        + '<button type="button" onclick="uncheckTag(this,\'' + ddId + '\',\'' + labelId + '\',\'' + tagsId + '\',\'' + inputName + '\')">&#x2715;</button>';
-      tagsEl.appendChild(tag);
-    });
-  }
+// ── Filter visible options as user types, WITHOUT touching checked
+//    state — so a category picked before a search stays selected
+//    even while it's scrolled out of view / hidden by the search. ──
+function filterMSOptions(ddId, query) {
+  var dd = document.getElementById(ddId);
+  var q = query.trim().toLowerCase();
+
+  dd.querySelectorAll('.ms-option:not(.ms-select-all)').forEach(function(opt) {
+    var text = opt.textContent.trim().toLowerCase();
+    opt.style.display = (q === '' || text.indexOf(q) !== -1) ? '' : 'none';
+  });
+
+  // Hide a group header (e.g. "Income" / "Expense") if every option
+  // under it is currently filtered out.
+  dd.querySelectorAll('.ms-group-header').forEach(function(hdr) {
+    var el = hdr.nextElementSibling;
+    var anyVisible = false;
+    while (el && el.classList.contains('ms-option')) {
+      if (el.style.display !== 'none') anyVisible = true;
+      el = el.nextElementSibling;
+    }
+    hdr.style.display = anyVisible ? '' : 'none';
+  });
 }
+
+
+//── "(Select All)" — applies to whatever options are currently
+// visible (i.e. respects an active search filter). ──────────
+function toggleSelectAllMS(ddId, labelId, tagsId, inputName, checked) {
+var dd = document.getElementById(ddId);
+dd.querySelectorAll('.ms-option:not(.ms-select-all)').forEach(function(opt) {
+ if (opt.style.display !== 'none') {
+   var cb = opt.querySelector('input[type="checkbox"]');
+   if (cb) cb.checked = checked;
+ }
+});
+updateMSTags(ddId, labelId, tagsId, inputName);
+}
+
+
+//── Clear button inside the dropdown — unchecks everything
+// regardless of search filter, and resets the search box. ──
+function clearMSOptions(ddId, labelId, tagsId, inputName) {
+var dd = document.getElementById(ddId);
+dd.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
+
+var search = dd.querySelector('.ms-search');
+if (search) {
+ search.value = '';
+ filterMSOptions(ddId, '');
+}
+updateMSTags(ddId, labelId, tagsId, inputName);
+}
+
+document.addEventListener('click', function(e) {
+document.querySelectorAll('.ms-dropdown.show').forEach(function(dd) {
+ var wrap = dd.closest('.multi-select-wrap');
+ if (!wrap.contains(e.target)) {
+   dd.classList.remove('show');
+   dd.previousElementSibling.classList.remove('open');
+ }
+});
+});
+
+
+function updateMSTags(ddId, labelId, tagsId, inputName) {
+	  var dd     = document.getElementById(ddId);
+	  var label  = document.getElementById(labelId);
+	  var tagsEl = document.getElementById(tagsId);
+	  var checked = dd.querySelectorAll('input[name="' + inputName + '"]:checked');
+	  if (checked.length === 0) {
+	    label.textContent = 'All'; tagsEl.innerHTML = '';
+	  } else {
+	    label.textContent = checked.length + ' selected';
+	    tagsEl.innerHTML  = '';
+	    checked.forEach(function(cb) {
+	      var tag = document.createElement('span');
+	      tag.className = 'ms-tag';
+	      tag.innerHTML = cb.closest('.ms-option').textContent.trim()
+	        + '<button type="button" onclick="uncheckTag(this,\'' + ddId + '\',\'' + labelId + '\',\'' + tagsId + '\',\'' + inputName + '\')">&#x2715;</button>';
+	      tagsEl.appendChild(tag);
+	    });
+	  }
+
+	  // Keep the "(Select All)" checkbox in sync: checked only when every
+	  // currently visible option is checked.
+	  var selAllCb = dd.querySelector('.ms-select-all-cb');
+	  if (selAllCb) {
+	    var visibleOpts = Array.prototype.filter.call(
+	      dd.querySelectorAll('.ms-option:not(.ms-select-all)'),
+	      function(o) { return o.style.display !== 'none'; });
+	    var visibleChecked = visibleOpts.filter(function(o) {
+	      return o.querySelector('input[type="checkbox"]').checked;
+	    });
+	    selAllCb.checked = visibleOpts.length > 0 && visibleOpts.length === visibleChecked.length;
+	  }
+	}
 
 function uncheckTag(btn, ddId, labelId, tagsId, inputName) {
   var tagText = btn.previousSibling.textContent.trim();

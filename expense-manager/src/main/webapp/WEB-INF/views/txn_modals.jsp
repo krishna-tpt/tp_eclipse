@@ -159,6 +159,47 @@ if (request.getAttribute("incomeCategories") == null) {
 	border-color: var(--primary);
 }
 
+.clock-trigger-row {
+	display: flex;
+	align-items: center;
+	gap: .4rem;
+	margin-top: .3rem;
+}
+
+.clock-trigger-input {
+	flex: 1;
+	padding: .5rem .75rem;
+	border: 1px solid var(--border);
+	border-radius: 7px;
+	font-size: .9rem;
+	font-family: inherit;
+	color: var(--text);
+	background: #fff;
+}
+
+.clock-trigger-input:focus {
+	outline: none;
+	border-color: var(--primary);
+}
+
+.clock-icon-btn {
+	flex-shrink: 0;
+	width: 38px;
+	height: 38px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--border);
+	border-radius: 7px;
+	background: #fff;
+	cursor: pointer;
+	font-size: 1rem;
+}
+
+.clock-icon-btn:hover {
+	border-color: var(--primary);
+}
+
 .clock-face {
 	position: relative;
 }
@@ -265,11 +306,16 @@ if (request.getAttribute("incomeCategories") == null) {
 
 				<div class="form-group" style="position: relative">
 					<label>Date &amp; Time *</label> <input type="date" id="txnDate"
-						required style="margin-bottom: .3rem">
-					<button type="button" class="clock-trigger"
-						onclick="openClockPicker()">
-						&#128336; <span id="clockDisplayTrigger">Select time</span>
-					</button>
+						tabindex="1" required style="margin-bottom: .3rem"
+						onchange="syncDateTimeHidden()">
+
+					<div class="clock-trigger-row">
+						<input type="time" id="txnTimeInput" tabindex="3" required
+							step="60" class="clock-trigger-input"
+							oninput="onTimeInputChange(this.value)">
+						<button type="button" class="clock-icon-btn" tabindex="-1"
+							onclick="openClockPicker()" aria-label="Open clock picker">&#128336;</button>
+					</div>
 					<input type="hidden" name="dateTime" id="txnDateTimeHidden">
 
 					<div class="clock-modal-overlay" id="clockPickerModal">
@@ -307,12 +353,13 @@ if (request.getAttribute("incomeCategories") == null) {
 
 				<div class="form-group">
 					<label>Amount (&#8377;) *</label> <input type="number"
-						name="amount" min="0.01" step="0.01" placeholder="0.00" required
-						autofocus>
+						name="amount" tabindex="2" min="0.01" step="0.01"
+						placeholder="0.00" required autofocus>
 				</div>
 				<div class="form-group">
 					<label>Category *</label> <select name="categoryid"
-						id="incCategorySelect" required onchange="filterSubCat('inc')">
+						id="incCategorySelect" tabindex="4" required
+						onchange="filterSubCat('inc')">
 						<option value="">Select&#8230;</option>
 						<c:forEach var="cat" items="${incomeCategories}">
 							<option value="${cat.id}" class="cat-opt-INCOME">${cat.name}</option>
@@ -325,7 +372,7 @@ if (request.getAttribute("incomeCategories") == null) {
 				</div>
 				<div class="form-group">
 					<label>Sub Category</label> <select name="subcategory_id"
-						id="incSubCatSelect" disabled>
+						id="incSubCatSelect" tabindex="5" disabled>
 						<option value="">Select&#8230;</option>
 						<c:forEach var="sc" items="${subCategories}">
 							<option value="${sc.id}" data-cat="${sc.category_id}">
@@ -334,7 +381,7 @@ if (request.getAttribute("incomeCategories") == null) {
 					</select>
 				</div>
 				<div class="form-group" style="grid-column: 1/-1">
-					<label>Note</label> <input type="text" name="note"
+					<label>Note</label> <input type="text" name="note" tabindex="6"
 						placeholder="Optional">
 				</div>
 			</div>
@@ -379,7 +426,7 @@ if (request.getAttribute("incomeCategories") == null) {
 						style="font-size: .75rem; margin-left: .5rem">(max 5 MB
 						each)</span>
 				</div>
-				<input type="file" id="receiptFile" name="receipt"
+				<input type="file" id="receiptFile" name="receipt" tabindex="7"
 					accept="image/*,application/pdf" onchange="validateFileSize(this)"
 					style="font-size: .82rem; flex: 1"> <small id="fileError"
 					style="color: red; display: none;"> File size should not
@@ -392,9 +439,9 @@ if (request.getAttribute("incomeCategories") == null) {
 					class="btn btn-success ml-auto">Save Income</button>
 			</div> -->
 			<div class="flex gap-1 mt-2">
-				<button type="button" id="txnContinueBtn" class="btn btn-outline"
-					onclick="submitTxn('continue')">Continue</button>
-				<button type="button" id="txnSubmitBtn"
+				<button type="button" id="txnContinueBtn" tabindex="8"
+					class="btn btn-outline" onclick="submitTxn('continue')">Continue</button>
+				<button type="button" id="txnSubmitBtn" tabindex="9"
 					class="btn btn-success ml-auto" onclick="submitTxn('save')">Save
 					Income</button>
 			</div>
@@ -730,7 +777,25 @@ if (request.getAttribute("incomeCategories") == null) {
                 // back to its empty "dd/mm/yyyy" placeholder state)
                 form.querySelector('[name="dateTime"]').value = snapshot.dateTime;
                 if (snapshot.dateTime) {
-                    document.getElementById('txnDate').value = snapshot.dateTime.split('T')[0];
+                    var snapParts = snapshot.dateTime.split('T');
+                    document.getElementById('txnDate').value = snapParts[0];
+
+                    // form.reset() also blanks the visible time input back to
+                    // its "--:--:-- --" placeholder — restore it too, and
+                    // keep the analog clock picker's internal state in sync
+                    if (snapParts[1]) {
+                        document.getElementById('txnTimeInput').value = snapParts[1].slice(0, 5);
+                        var tParts = snapParts[1].split(':');
+                        var h24s = parseInt(tParts[0], 10);
+                        var mins = parseInt(tParts[1], 10);
+                        if (!isNaN(h24s) && !isNaN(mins)) {
+                            cpAmPm = h24s >= 12 ? 'PM' : 'AM';
+                            cpHour = h24s % 12 || 12;
+                            cpMin  = mins;
+                            document.getElementById('cpAM').classList.toggle('active', cpAmPm === 'AM');
+                            document.getElementById('cpPM').classList.toggle('active', cpAmPm === 'PM');
+                        }
+                    }
                 }
 
                 // Reset subcategory dropdown
@@ -758,17 +823,17 @@ if (request.getAttribute("incomeCategories") == null) {
                 // its "dd/mm/yyyy" placeholder — restore it to today
                 document.getElementById('txnDate').value = local.split('T')[0];
 
-                // Reset the clock-picker trigger label + internal state to "now"
+                // Reset the clock-picker internal state + typeable time input to "now"
                 var h24 = now.getHours();
+                var minNow = now.getMinutes();
                 cpAmPm = h24 >= 12 ? 'PM' : 'AM';
                 cpHour = h24 % 12 || 12;
-                cpMin  = Math.round(now.getMinutes() / 5) * 5;
+                cpMin  = Math.round(minNow / 5) * 5;
                 if (cpMin === 60) cpMin = 55;
                 document.getElementById('cpAM').classList.toggle('active', cpAmPm === 'AM');
                 document.getElementById('cpPM').classList.toggle('active', cpAmPm === 'PM');
-                var hh = cpHour < 10 ? '0' + cpHour : cpHour;
-                var mm = cpMin  < 10 ? '0' + cpMin  : cpMin;
-                document.getElementById('clockDisplayTrigger').textContent = hh + ':' + mm + ' ' + cpAmPm;
+                document.getElementById('txnTimeInput').value =
+                        (h24 < 10 ? '0' + h24 : h24) + ':' + (minNow < 10 ? '0' + minNow : minNow);
 
                 var subSel = document.getElementById('incSubCatSelect');
                 subSel.value = '';
@@ -837,7 +902,9 @@ if (request.getAttribute("incomeCategories") == null) {
     var openModalEl = document.querySelector('.modal-overlay.open');
     if (!openModalEl) return;
     e.preventDefault();
-    submitTxn(e.shiftKey ? 'continue' : 'save');
+    // Shift+Enter or Ctrl+Enter → Continue (save & keep modal open for another entry)
+    // Plain Enter → Save
+    submitTxn((e.shiftKey || e.ctrlKey) ? 'continue' : 'save');
 });
 
 	// ── Auto-fill datetime on load ───────────────────────────
@@ -866,6 +933,38 @@ if (request.getAttribute("incomeCategories") == null) {
 		return true;
 	}
 	var cpHour=10, cpMin=30, cpAmPm='AM', cpMode='hour', cpDragging=false;
+
+	// ── Keep hidden combined dateTime field in sync with the
+	//    typeable date + time inputs ──────────────────────────
+	function syncDateTimeHidden(){
+	    var dateVal = document.getElementById('txnDate').value;
+	    var timeVal = document.getElementById('txnTimeInput').value;
+	    if(dateVal && timeVal){
+	        document.getElementById('txnDateTimeHidden').value = dateVal + 'T' + timeVal;
+	    }
+	}
+
+	// ── Fired when the user types/changes the time input directly.
+	//    Keeps the analog clock picker's internal state in sync too,
+	//    so opening it afterwards shows the correct hands. ────────
+	function onTimeInputChange(val){
+	    if(val){
+	        var parts = val.split(':');
+	        var h24 = parseInt(parts[0], 10);
+	        var min = parseInt(parts[1], 10);
+	        if(!isNaN(h24) && !isNaN(min)){
+	            cpAmPm = h24 >= 12 ? 'PM' : 'AM';
+	            cpHour = h24 % 12 || 12;
+	            cpMin  = min;
+	            var amEl = document.getElementById('cpAM');
+	            var pmEl = document.getElementById('cpPM');
+	            if(amEl) amEl.classList.toggle('active', cpAmPm === 'AM');
+	            if(pmEl) pmEl.classList.toggle('active', cpAmPm === 'PM');
+	            cpUpdateHands();
+	        }
+	    }
+	    syncDateTimeHidden();
+	}
 
 	function openClockPicker(){
 	    document.getElementById('clockPickerModal').classList.toggle('open');
@@ -975,9 +1074,11 @@ if (request.getAttribute("incomeCategories") == null) {
 
 	function cpDone(){
 	    cpBuildDateTime();
-	    var h=cpHour<10?'0'+cpHour:cpHour;
-	    var m=cpMin<10?'0'+cpMin:cpMin;
-	    document.getElementById('clockDisplayTrigger').textContent=h+':'+m+' '+cpAmPm;
+	    var h24 = cpHour % 12;
+	    if(cpAmPm === 'PM') h24 += 12;
+	    var hh24 = h24 < 10 ? '0' + h24 : '' + h24;
+	    var mm   = cpMin < 10 ? '0' + cpMin : '' + cpMin;
+	    document.getElementById('txnTimeInput').value = hh24 + ':' + mm;
 	    document.getElementById('clockPickerModal').classList.remove('open');
 	}
 
@@ -987,16 +1088,17 @@ if (request.getAttribute("incomeCategories") == null) {
 	    var yyyy=now.getFullYear(),mo=now.getMonth()+1,dd=now.getDate();
 	    document.getElementById('txnDate').value=yyyy+'-'+(mo<10?'0'+mo:mo)+'-'+(dd<10?'0'+dd:dd);
 	    var h24=now.getHours();
+	    var minNow=now.getMinutes();
 	    cpAmPm=h24>=12?'PM':'AM';
 	    cpHour=h24%12||12;
-	    cpMin=Math.round(now.getMinutes()/5)*5;
+	    cpMin=Math.round(minNow/5)*5;
 	    if(cpMin===60){cpMin=55;}
 	    document.getElementById('cpAM').classList.toggle('active',cpAmPm==='AM');
 	    document.getElementById('cpPM').classList.toggle('active',cpAmPm==='PM');
-	    cpBuildDateTime();
-	    var h=cpHour<10?'0'+cpHour:cpHour;
-	    var m=cpMin<10?'0'+cpMin:cpMin;
-	    document.getElementById('clockDisplayTrigger').textContent=h+':'+m+' '+cpAmPm;
+	    // Typeable time input gets the exact current time (not rounded to 5 min)
+	    document.getElementById('txnTimeInput').value =
+	            (h24<10?'0'+h24:h24) + ':' + (minNow<10?'0'+minNow:minNow);
+	    syncDateTimeHidden();
 	});
 
 	// Close picker on outside click
