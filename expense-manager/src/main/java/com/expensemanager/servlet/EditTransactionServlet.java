@@ -105,7 +105,7 @@ public class EditTransactionServlet extends HttpServlet {
 					resp.setContentType("application/json");
 					resp.getWriter().write("{\"status\":\"deleted\"}");
 				} else {
-					resp.sendRedirect(req.getContextPath() + "/transactions?success=deleted");
+					resp.sendRedirect(req.getContextPath() + "/home?success=deleted");
 				}
 				return;
 			}
