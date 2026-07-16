@@ -10,6 +10,8 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="SharePointClient"/>
+			<item value="ETL_CONFIG_PATH"/>
 			<item value="setViewMode"/>
 			<item value="default"/>
 			<item value="${books}"/>
@@ -23,8 +25,6 @@
 			<item value="refreshBackgroundData"/>
 			<item value="loadSummary"/>
 			<item value="openTxnModal"/>
-			<item value="&lt;button class=&quot;btn btn-danger&quot; "/>
-			<item value="openmoda"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>
