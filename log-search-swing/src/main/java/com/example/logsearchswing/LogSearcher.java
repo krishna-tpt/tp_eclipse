@@ -68,7 +68,8 @@ public class LogSearcher {
 			for (String line : filedata) {
 				currentLineNumber++;
 				if (line.toLowerCase().contains(currentKeyword.toLowerCase())) {
-					results.add("Match at Line " + currentLineNumber + ": " + line);
+//					results.add("Match at Line " + currentLineNumber + ": " + line);
+					results.add(line);
 					matchCount++;
 				}
 			}

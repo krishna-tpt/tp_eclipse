@@ -10,6 +10,7 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="Match at Line"/>
 			<item value="SharePointClient"/>
 			<item value="ETL_CONFIG_PATH"/>
 			<item value="setViewMode"/>
@@ -24,7 +25,6 @@
 			<item value="expensemanager"/>
 			<item value="refreshBackgroundData"/>
 			<item value="loadSummary"/>
-			<item value="openTxnModal"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>
