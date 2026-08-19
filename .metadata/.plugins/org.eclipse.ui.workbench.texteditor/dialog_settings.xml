@@ -10,6 +10,9 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="statoc"/>
+			<item value="FolderConfig"/>
+			<item value="SharePointFile"/>
 			<item value="Match at Line"/>
 			<item value="SharePointClient"/>
 			<item value="ETL_CONFIG_PATH"/>
@@ -22,9 +25,6 @@
 			<item value="transaction_custom_values"/>
 			<item value="Category"/>
 			<item value="HomeServlet error"/>
-			<item value="expensemanager"/>
-			<item value="refreshBackgroundData"/>
-			<item value="loadSummary"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>
