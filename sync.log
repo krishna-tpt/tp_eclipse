@@ -10508,3 +10508,47 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main 9632ed2] Auto sync - 2026-08-25 18:00:02
+ 52 files changed, 911 insertions(+), 77 deletions(-)
+ create mode 100644 CurrencyExchange/target/classes/META-INF/MANIFEST.MF
+ create mode 100644 CurrencyExchange/target/classes/META-INF/maven/com.currencyrate/CurrencyExchange/pom.properties
+ create mode 100644 CurrencyExchange/target/classes/META-INF/maven/com.currencyrate/CurrencyExchange/pom.xml
+ delete mode 100644 ExcelToOracleInserter/target/classes/.gitignore
+ delete mode 100644 Junit/junittest/target/classes/.gitignore
+ create mode 100644 Junit/junittest/target/classes/META-INF/MANIFEST.MF
+ create mode 100644 Junit/junittest/target/classes/META-INF/maven/com./junittest/pom.properties
+ create mode 100644 Junit/junittest/target/classes/META-INF/maven/com./junittest/pom.xml
+ rename {CurrencyExchange => MovieWebsite/db}/target/classes/.gitignore (100%)
+ delete mode 100644 ReadExcel/ReadExcel/target/classes/.gitignore
+ create mode 100644 ReadExcel/ReadExcel/target/classes/META-INF/MANIFEST.MF
+ create mode 100644 ReadExcel/ReadExcel/target/classes/META-INF/maven/com/ReadExcel/pom.properties
+ create mode 100644 ReadExcel/ReadExcel/target/classes/META-INF/maven/com/ReadExcel/pom.xml
+ create mode 100644 XMLPayloadGeneration/.classpath
+ create mode 100644 XMLPayloadGeneration/.gitignore
+ create mode 100644 XMLPayloadGeneration/.project
+ create mode 100644 XMLPayloadGeneration/.settings/org.eclipse.core.resources.prefs
+ create mode 100644 XMLPayloadGeneration/.settings/org.eclipse.jdt.core.prefs
+ create mode 100644 XMLPayloadGeneration/src/xmlgenerate/XmlExternalIdUpdater.java
+ create mode 100644 XMLPayloadGeneration/src/xmlgenerate/XmlIdUtil.java
+ create mode 100644 XMLPayloadGeneration/src/xmlgenerate/XmlSequenceGenerator.java
+ delete mode 100644 demo/target/classes/.gitignore
+ create mode 100644 demo/target/classes/META-INF/MANIFEST.MF
+ create mode 100644 demo/target/classes/META-INF/maven/com.jwt/demo/pom.properties
+ create mode 100644 demo/target/classes/META-INF/maven/com.jwt/demo/pom.xml
+To https://github.com/krishna-tpt/tp_eclipse.git
+   64bf086..9632ed2  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-08-25 18:00:08[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-08-25 21:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
