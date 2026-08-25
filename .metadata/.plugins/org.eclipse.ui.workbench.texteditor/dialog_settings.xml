@@ -10,6 +10,8 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="outName"/>
+			<item value="readMapping"/>
 			<item value="statoc"/>
 			<item value="FolderConfig"/>
 			<item value="SharePointFile"/>
@@ -23,8 +25,6 @@
 			<item value="sortBy"/>
 			<item value="categ"/>
 			<item value="transaction_custom_values"/>
-			<item value="Category"/>
-			<item value="HomeServlet error"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>
