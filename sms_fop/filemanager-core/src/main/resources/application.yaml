@@ -1,0 +1,119 @@
+# Inventory Ledger — base configuration (prod-defaulting).
+#
+# Load order (last wins):
+#   1. this file                (bundled in JAR)
+#   2. application-<profile>.yaml (bundled in JAR)
+#   3. every *.yaml in $CONFIG_DIR, alphabetical
+#      (Michelin pattern: common-service-configs.yml then
+#       psql-inventory-integration-service.yml — see deploy/cicd/README.md)
+#   4. env-var placeholder substitution runs LAST
+#
+# So credentials in the mounted config-repo YAML REPLACE the ${VAR} placeholders
+# below before substitution runs — no env var needed when a mounted overlay
+# supplies the literal value.
+#
+# NEVER put secrets in THIS bundled file — they belong in the config-repo YAML.
+# Syntax ${VAR_NAME}          = required env var (unless overridden by overlay).
+# Syntax ${VAR_NAME:default}  = optional env var with documented default.
+
+profile: ${APP_PROFILE:prod}
+
+# Run mode (ADR-0014). 'oneshot' = legacy single-pass batch (exits after one
+# pipeline run); 'scheduled' = long-running JVM driven by the internal cron
+# scheduler below. Prod default is scheduled; the dev/test profile overlays
+# flip it back to oneshot so local iteration stays friction-free.
+run_mode: ${RUN_MODE:scheduled}
+
+# Internal cron scheduler — only honored when run_mode = scheduled.
+# Either expression may be empty string to disable that schedule.
+# Cron format: standard Unix 5-field (min hour day month dow).
+schedule:
+  daily_cron:  ${SCHEDULE_DAILY:0 6 * * *}
+  hourly_cron: ${SCHEDULE_HOURLY:5 * * * *}
+
+# /actuator/health HTTP endpoint — only honored when run_mode = scheduled.
+health:
+  host: ${HEALTH_HOST:0.0.0.0}
+  port: ${HEALTH_PORT:8080}
+
+db:
+  url:                  ${DB_URL}
+  user:                 ${DB_USER}
+  password:             ${DB_PASSWORD}
+  connect_timeout_s:    ${DB_CONNECT_TIMEOUT_S:10}
+  statement_timeout_ms: ${DB_STATEMENT_TIMEOUT_MS:60000}
+  application_name:     ${DB_APP_NAME:inventoryledger}
+
+flyway:
+  # FLYWAY_ENABLED=false in customer prod: schema is owned by DBServices
+  # (deploy/<tag>/customer_install.sql); the JAR must not migrate it.
+  # Default true preserves dev/CI bootstrap behavior.
+  enabled:             ${FLYWAY_ENABLED:true}
+  locations:           classpath:db/migration
+  baseline_on_migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
+  validate_on_migrate: ${FLYWAY_VALIDATE_ON_MIGRATE:true}
+
+file:
+  source:           ${FILE_SOURCE:filescom}        # filescom | sftp | local
+  name_pattern:     ${FILE_NAME_PATTERN:^MICH_INV_STOCKLEVEL_413\d{14}\.dat$}
+  sftp:
+    # Empty defaults so non-SFTP profiles don't need these env vars. When
+    # FILE_SOURCE=sftp, the SFTP connect path will fail loudly with a clear
+    # error if host/user/pickup_path are blank.
+    #
+    # Auth: set SFTP_PRIVATE_KEY_PATH for public-key auth (preferred) OR
+    # SFTP_PASSWORD for password auth. One of them must be set; if both are
+    # set, the key wins. The key file is read from the path at connect time —
+    # it must be readable by the JAR's process user (typically mode 0400 on
+    # the K8s Pod's mounted Secret).
+    host:           ${SFTP_HOST:}
+    port:           ${SFTP_PORT:22}
+    username:       ${SFTP_USER:}
+    password:       ${SFTP_PASSWORD:}
+    private_key_path:       ${SFTP_PRIVATE_KEY_PATH:}
+    private_key_passphrase: ${SFTP_PRIVATE_KEY_PASSPHRASE:}
+    # known_hosts_path: if blank, the host key is NOT verified (dev only,
+    # logs a loud warning). In prod, point at a file with the SFTP server's
+    # public host key — same format as ~/.ssh/known_hosts.
+    known_hosts_path: ${SFTP_KNOWN_HOSTS_PATH:}
+    pickup_path:    ${SFTP_PICKUP_PATH:}
+    archive_path:   ${SFTP_ARCHIVE_PATH:}
+    reject_path:    ${SFTP_REJECT_PATH:}
+    connect_timeout_ms: ${SFTP_CONNECT_TIMEOUT_MS:10000}
+  local:
+    pickup_path:    ${LOCAL_PICKUP_PATH:./inbound}
+    archive_path:   ${LOCAL_ARCHIVE_PATH:./archive}
+    reject_path:    ${LOCAL_REJECT_PATH:./rejected}
+  filescom:
+    # Files.com (HTTPS / native SDK).
+    # API key: in the standard Michelin pattern, populated from the mounted
+    # config-repo YAML (see deploy/cicd/psql-inventory-integration-service.yml);
+    # falls back to FILES_COM_API_KEY env var when no CONFIG_DIR overlay is set.
+    # base_url is optional — blank means the SDK default (https://app.files.com).
+    api_key:        ${FILES_COM_API_KEY:}
+    base_url:       ${FILES_COM_BASE_URL:}
+    pickup_path:    ${FILES_COM_PICKUP_PATH:}
+    archive_path:   ${FILES_COM_ARCHIVE_PATH:}
+    reject_path:    ${FILES_COM_REJECT_PATH:}
+    connect_timeout_ms: ${FILES_COM_CONNECT_TIMEOUT_MS:10000}
+    read_timeout_ms:    ${FILES_COM_READ_TIMEOUT_MS:60000}
+    page_size:          ${FILES_COM_PAGE_SIZE:200}
+
+notifier:
+  webhook_urls:
+    - ${WEBHOOK_URL_PRIMARY}
+  max_retries:        ${WEBHOOK_MAX_RETRIES:5}
+  timeout_ms:         ${WEBHOOK_TIMEOUT_MS:5000}
+  retry_backoff_ms:   ${WEBHOOK_RETRY_BACKOFF_MS:1000}
+  batch_size:         ${WEBHOOK_BATCH_SIZE:50}
+  connect_timeout_ms: ${WEBHOOK_CONNECT_TIMEOUT_MS:5000}
+
+job:
+  exit_on_first_failure: ${EXIT_ON_FIRST_FAILURE:false}
+  drain_outbox:          ${DRAIN_OUTBOX:true}
+  temp_file_prefix:      ${TEMP_FILE_PREFIX:ob-}
+  timestamp_pattern:     ${TIMESTAMP_PATTERN:yyyyMMdd_HHmmss}
+
+logging:
+  format: ${LOG_FORMAT:json}                       # json | text
+  level:  ${LOG_LEVEL:INFO}

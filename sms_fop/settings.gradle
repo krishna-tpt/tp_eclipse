@@ -1,0 +1,9 @@
+// Enables Gradle to auto-download the JDK declared in the toolchain block.
+// Standard convention used by the Gradle team + most opinionated setups.
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'psql-inventory-integration-service'
+include 'filemanager-core'
+include 'filemanager-data-tools'

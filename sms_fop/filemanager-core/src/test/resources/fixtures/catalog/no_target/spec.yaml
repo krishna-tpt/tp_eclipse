@@ -1,0 +1,17 @@
+interface: ACME_FEED
+variant:   V1
+version:   "1.0"
+matches:
+  filename_pattern: "^a$"
+parser:
+  delimiter: ";"
+  quote:     "\""
+  encoding:  UTF-8
+envelope:
+  - { tag: HEADER_FILE, fields: 1 }
+records:
+  - tag: ROW
+    fields: 2
+    # target_table intentionally missing
+    columns:
+      col: { field: 1 }

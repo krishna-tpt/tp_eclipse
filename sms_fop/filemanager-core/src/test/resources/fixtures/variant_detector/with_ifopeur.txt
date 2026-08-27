@@ -1,0 +1,3 @@
+"HEADER_FILE";"STOCKLEVEL";"IFOPEUR";"INVSTOCKLEVEL";"INCREMENTAL";"20260603160800";"f.cfo";"f.cfo";"20260603160800";"f.cfo";"";"MICH";"sc";"BATCH";"EN";"1.0";"";"";"";""
+"MTL_STOCKLEVEL";"408_OU";"P57";"FINISHED GOODS";"CW";"";"";"";"P57";"459473_101";"";"";"";"";"X";"X";"X";"";"X";"X";"X";"X";" ";"ONHAND";"";"";"";"";"";"";"";"2";"EA";"158";"79";"03-06-2026";"Active";"ONHAND";"X";"Frozen";"";"";"";"";"";"";"2026-06-03 16:06:29 +02:00";"";"462011024";"";"SR";"S";"";"LIBERATED";"OHT"
+"FOOTER_FILE";"2"

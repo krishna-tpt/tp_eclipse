@@ -1,0 +1,52 @@
+# Inventory Ledger v6 — scenario-driven test data engine.
+#
+# One row per test case. The engine creates a UNIQUE product per row
+# named PROD_<tc_id> so each TC is independently observable.
+#
+# REQUIRED columns:
+#   tc_id, name, tenant_code, warehouse_code, subinventory,
+#   opening_qty, order_qty, ship_qty, line_state,
+#   expected_on_hand, expected_reserved, expected_atp, expected_line_st
+#
+# OPTIONAL columns (used when non-blank):
+#   extra_txn_qty, extra_txn_link, final_line_state
+#       second txn (returns / receipts / adjustments / post-ship cancel)
+#   extra_txn_subinv, extra_txn_warehouse, extra_txn_status
+#       destination of the extra txn — for moves between subinv / warehouse /
+#       stock_status. Default = same as base.
+#   expected_dest_on_hand, expected_dest_reserved
+#       expected values on the destination stock_balance row
+#   extra_line_qty
+#       qty of a second line on the SAME order (cumulative reservation test)
+#   concurrent_count, concurrent_qty, concurrent_op
+#       race-condition tests — N threads each open their own connection and
+#       insert ONE staging row (ship or order). All target the same line /
+#       product to exercise row-level locking.
+#   recount_qty
+#       physical count override — inserts a SECOND opening_balance row dated
+#       CURRENT_DATE + 1 with qty=recount_qty. The OB apply trigger OVERWRITES
+#       on_hand (does not add). Reserved is unchanged.
+#   notes — free text (no commas)
+tc_id,name,tenant_code,warehouse_code,subinventory,opening_qty,order_qty,ship_qty,line_state,expected_on_hand,expected_reserved,expected_atp,expected_line_st,extra_txn_qty,extra_txn_link,final_line_state,extra_txn_subinv,extra_txn_warehouse,extra_txn_status,expected_dest_on_hand,expected_dest_reserved,extra_line_qty,concurrent_count,concurrent_qty,concurrent_op,recount_qty,notes
+TC01,Opening balance and order,IFOPEUR,WH-SIM,ONHAND,100,15,0,open,100,15,85,open,0,false,,,,,,,0,0,0,ship,0,Simple reservation
+TC02,Partial shipment,IFOPEUR,WH-SIM,ONHAND,100,15,5,open,95,10,85,open,0,false,,,,,,,0,0,0,ship,0,Ship 5 of 15
+TC03,Full shipment closes line,IFOPEUR,WH-SIM,ONHAND,100,15,15,open,85,0,85,closed,0,false,,,,,,,0,0,0,ship,0,Reservation cleared
+TC04,Oversell drives ATP negative,IFOPEUR,WH-SIM,ONHAND,30,50,0,open,30,50,-20,open,0,false,,,,,,,0,0,0,ship,0,Accepted; ATP negative
+TC05,ATP zero boundary,IFOPEUR,WH-SIM,ONHAND,50,50,0,open,50,50,0,open,0,false,,,,,,,0,0,0,ship,0,Reserved equals on_hand
+TC06,Cancelled line at insert,IFOPEUR,WH-SIM,ONHAND,40,10,0,cancelled,40,0,40,cancelled,0,false,,,,,,,0,0,0,ship,0,No reservation taken
+TC07,Order without opening balance,IFOPEUR,WH-SIM,ONHAND,0,20,0,open,0,20,-20,open,0,false,,,,,,,0,0,0,ship,0,stock_balance lazily created
+TC08,Overship beyond on_hand,IFOPEUR,WH-SIM,ONHAND,20,20,25,open,-5,0,-5,closed,0,false,,,,,,,0,0,0,ship,0,on_hand negative
+TC09,Empty subinventory string,IFOPEUR,WH-SIM,,70,15,0,open,70,15,55,open,0,false,,,,,,,0,0,0,ship,0,subinv=''
+TC10,Alternate subinventory STAGING,IFOPEUR,WH-SIM,STAGING,80,20,5,open,75,15,60,open,0,false,,,,,,,0,0,0,ship,0,Independent per subinv
+TC11,Full shipment then partial return,IFOPEUR,WH-SIM,ONHAND,100,15,15,open,88,0,88,closed,3,true,,,,,,,0,0,0,ship,0,Return +3 linked; line stays closed
+TC12,Partial ship then cancel order,IFOPEUR,WH-SIM,ONHAND,100,15,5,open,95,0,95,cancelled,0,false,cancelled,,,,,,0,0,0,ship,0,Residual reservation released
+TC13,Purchase receipt no order,IFOPEUR,WH-SIM,ONHAND,50,0,0,open,80,0,80,,30,false,,,,,,,0,0,0,ship,0,Receipt +30
+TC14,Inventory adjustment up,IFOPEUR,WH-SIM,ONHAND,50,0,0,open,55,0,55,,5,false,,,,,,,0,0,0,ship,0,Adjustment +5
+TC15,Inventory adjustment down,IFOPEUR,WH-SIM,ONHAND,50,0,0,open,45,0,45,,-5,false,,,,,,,0,0,0,ship,0,Adjustment -5
+TC16,Subinventory move ONHAND to STAGING,IFOPEUR,WH-SIM,ONHAND,100,0,10,open,90,0,90,,10,false,,STAGING,,,10,0,0,0,0,ship,0,Move 10 to STAGING (same warehouse)
+TC17,Inter-warehouse move WH-SIM to WH-DEST,IFOPEUR,WH-SIM,ONHAND,100,0,10,open,90,0,90,,10,false,,ONHAND,WH-DEST,,10,0,0,0,0,ship,0,Move 10 to different warehouse
+TC18,Stock status change LIBERATED to BLOCKED,IFOPEUR,WH-SIM,ONHAND,100,0,10,open,90,0,90,,10,false,,ONHAND,,BLOCKED,10,0,0,0,0,ship,0,Reclassify 10 to BLOCKED (QC hold)
+TC19,Multi-line order on same product,IFOPEUR,WH-SIM,ONHAND,100,10,0,open,100,25,75,open,0,false,,,,,,,15,0,0,ship,0,Two lines: qty=10 + qty=15
+TC20,Concurrent shipments against same line,IFOPEUR,WH-SIM,ONHAND,100,20,0,open,80,0,80,closed,0,false,,,,,,,0,5,4,ship,0,5 threads each ship -4 against same line
+TC21,Concurrent orders for same product,IFOPEUR,WH-SIM,ONHAND,100,0,0,open,100,50,50,,0,false,,,,,,,0,5,10,order,0,5 threads each order qty=10
+TC22,Physical count overrides system on_hand,IFOPEUR,WH-SIM,ONHAND,100,15,0,open,50,15,35,open,0,false,,,,,,,0,0,0,ship,50,Recount=50 overwrites on_hand; reservation preserved

@@ -1,0 +1,69 @@
+# .dockerignore - shrinks the Kaniko / docker build context.
+#
+# Only what the Dockerfile actually COPY's from is needed:
+#   build/libs/psql-inventory-integration-service.jar   (produced by the build stage)
+#
+# Everything else is either produced by Maven inside CI (target/), pulled from
+# a sibling repo (resources), or unrelated (docs, tests, deploy scripts).
+
+# --- VCS + editor -----------------------------------------------------------
+.git/
+.gitignore
+.gitattributes
+.gitlab-ci.yml
+.idea/
+.vscode/
+*.iml
+*.swp
+*~
+
+# --- Maven build output (regenerated in CI) ---------------------------------
+.gradle/
+**/.gradle/
+build/
+**/build/
+# ...but the Dockerfile MUST see build/libs/*.jar, so re-include it.
+!build/libs/
+!build/libs/*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- Docs site (Blume) ------------------------------------------------------
+docs-site/node_modules/
+docs-site/dist/
+docs-site/.astro/
+
+# --- Test fixtures + generated data -----------------------------------------
+**/src/test/
+**/*_scenarios.xlsx
+test.txt
+scripts/
+docs/
+
+# --- Deploy tag folders (SQL packages, not runtime code) --------------------
+deploy/05-06-v1-customer/
+deploy/05-06-v2-customer/
+deploy/08-06-v3-customer/
+deploy/11-06-v4-customer/
+deploy/11-06-v5-customer/
+deploy/11-06-v6-customer/
+deploy/k8s/
+deploy/cicd/
+deploy/*.md
+
+# --- Ad-hoc project docs (kept in repo, not needed in image) ---------------
+ARCHITECTURE.md
+DEPLOY-DEVOPS.md
+README.md
+SCOPE.md
+SPEC.md
+TEST-PLAN.md
+TEST-RESULTS.md
+
+# --- Data tools module (dev-only, not shipped) ------------------------------
+filemanager-data-tools/
+
+# --- Local secrets + env samples --------------------------------------------
+.env
+.env.local
+*.pem
+*.key

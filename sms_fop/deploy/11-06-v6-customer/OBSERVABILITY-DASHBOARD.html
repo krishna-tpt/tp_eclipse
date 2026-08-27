@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inventory Ledger v6 — Live Observability (Mock)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #14171c; color: #e4e6eb; min-height: 100vh; font-size: 13px;
+  }
+  /* ─── Header ─────────────────────────────────────────────── */
+  header {
+    background: #1a1d24; border-bottom: 1px solid #2d323a;
+    padding: 12px 24px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  header .title { font-size: 16px; font-weight: 600; color: #fff; }
+  header .title .v { color: #5cd886; margin-left: 8px; font-size: 11px;
+                     background: rgba(92,216,134,0.12); padding: 2px 8px; border-radius: 10px; }
+  header .controls { display: flex; gap: 10px; align-items: center; }
+  header .pill { background: #22262e; border: 1px solid #2d323a;
+                 padding: 6px 12px; border-radius: 4px; font-size: 12px;
+                 color: #8b9098; cursor: pointer; }
+  header .pill.active { color: #e4e6eb; border-color: #4a5260; }
+  header .live { color: #5cd886; font-size: 11px; display: flex; align-items: center; gap: 6px; }
+  header .live::before { content: ''; width: 8px; height: 8px; background: #5cd886;
+                         border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+  /* ─── Layout ─────────────────────────────────────────────── */
+  main { padding: 20px 24px; display: grid; gap: 16px; }
+  .row { display: grid; gap: 16px; }
+  .row-6 { grid-template-columns: repeat(6, 1fr); }
+  .row-3 { grid-template-columns: repeat(3, 1fr); }
+
+  /* ─── Panels ─────────────────────────────────────────────── */
+  .panel {
+    background: #1a1d24; border: 1px solid #2d323a; border-radius: 6px;
+    padding: 14px 16px; cursor: pointer; transition: border-color 120ms;
+  }
+  .panel:hover { border-color: #4a5260; }
+  .panel .label { color: #8b9098; font-size: 11px; text-transform: uppercase;
+                  letter-spacing: 0.6px; margin-bottom: 6px; }
+  .panel .value { font-size: 26px; font-weight: 600; color: #fff;
+                  display: flex; align-items: baseline; gap: 8px; }
+  .panel .unit { font-size: 12px; color: #8b9098; font-weight: normal; }
+  .panel .delta { font-size: 11px; margin-top: 4px; }
+  .delta.up   { color: #5cd886; }
+  .delta.down { color: #f47b7b; }
+  .delta.flat { color: #8b9098; }
+  .panel .spark { margin-top: 6px; }
+
+  /* state indicators */
+  .ok    { color: #5cd886; }
+  .warn  { color: #f1c40f; }
+  .err   { color: #f47b7b; }
+  .info  { color: #6cb1ee; }
+
+  /* ─── Chart panel ───────────────────────────────────────── */
+  .chart-panel { background: #1a1d24; border: 1px solid #2d323a; border-radius: 6px;
+                 padding: 14px 16px; cursor: pointer; transition: border-color 120ms; }
+  .chart-panel:hover { border-color: #4a5260; }
+  .chart-panel h3 { margin: 0 0 12px 0; font-size: 13px; font-weight: 600;
+                    color: #e4e6eb; display: flex; justify-content: space-between; }
+  .chart-panel h3 .legend { font-size: 11px; color: #8b9098; font-weight: normal; }
+  .chart-panel .legend span { margin-left: 12px; }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+            margin-right: 4px; vertical-align: middle; }
+
+  /* ─── Tables ─────────────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; color: #8b9098; font-weight: 500;
+       padding: 6px 4px; border-bottom: 1px solid #2d323a; font-size: 11px;
+       text-transform: uppercase; letter-spacing: 0.4px; }
+  td { padding: 7px 4px; border-bottom: 1px solid #22262e; color: #e4e6eb; }
+  td.mono { font-family: "Menlo", "Consolas", monospace; font-size: 11px; }
+  td .bar { display: inline-block; height: 4px; vertical-align: middle;
+            background: #6cb1ee; border-radius: 2px; margin-left: 6px; }
+
+  /* ─── Event feed ─────────────────────────────────────────── */
+  .feed { max-height: 280px; overflow-y: auto; font-size: 12px; }
+  .feed-row { padding: 6px 0; border-bottom: 1px solid #22262e;
+              display: grid; grid-template-columns: 60px 95px 1fr; gap: 10px; }
+  .feed-row .ts   { color: #8b9098; font-family: "Menlo", monospace; font-size: 11px; }
+  .feed-row .type { font-family: "Menlo", monospace; font-size: 11px; }
+  .feed-row .msg  { color: #e4e6eb; }
+
+  /* ─── Drill-down side panel ──────────────────────────────── */
+  #detail-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.55); display: none; z-index: 100;
+  }
+  #detail-overlay.open { display: block; }
+  #detail-panel {
+    position: fixed; top: 0; right: -560px; width: 540px; height: 100%;
+    background: #1a1d24; border-left: 1px solid #2d323a;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.4); padding: 20px 24px;
+    overflow-y: auto; transition: right 200ms ease;
+  }
+  #detail-overlay.open #detail-panel { right: 0; }
+  #detail-panel h2 { margin: 0 0 4px 0; font-size: 18px; color: #fff; }
+  #detail-panel .sub { color: #8b9098; font-size: 12px; margin-bottom: 18px; }
+  #detail-panel .close {
+    position: absolute; top: 14px; right: 20px; color: #8b9098;
+    background: none; border: none; font-size: 20px; cursor: pointer;
+  }
+  #detail-panel .close:hover { color: #fff; }
+  #detail-panel section { margin-bottom: 22px; }
+  #detail-panel section h4 {
+    margin: 0 0 8px 0; font-size: 11px; color: #8b9098; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  #detail-panel .meaning { color: #e4e6eb; line-height: 1.55; }
+  #detail-panel .why { color: #c5c8cf; line-height: 1.55; font-size: 13px; }
+  #detail-panel .sql {
+    background: #0e1014; color: #d4d4d4; padding: 12px 14px; border-radius: 4px;
+    font-family: "Menlo", monospace; font-size: 11.5px; line-height: 1.6;
+    white-space: pre-wrap; overflow-x: auto; border: 1px solid #2d323a;
+  }
+  #detail-panel .sql .k { color: #79c0ff; }
+  #detail-panel .sql .s { color: #ffa657; }
+  #detail-panel .sql .c { color: #6b7280; }
+  #detail-panel .kpi { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  #detail-panel .kpi div { background: #22262e; padding: 10px 12px; border-radius: 4px; }
+  #detail-panel .kpi .k { font-size: 10px; color: #8b9098; text-transform: uppercase; letter-spacing: 0.5px; }
+  #detail-panel .kpi .v { font-size: 18px; color: #fff; margin-top: 3px; font-weight: 600; }
+  #detail-panel table th, #detail-panel table td { border-color: #2d323a; }
+  #detail-panel .interp {
+    background: rgba(108,177,238,0.08); border-left: 3px solid #6cb1ee;
+    padding: 10px 14px; font-size: 12.5px; color: #c5c8cf; line-height: 1.5; border-radius: 0 4px 4px 0;
+  }
+  #detail-panel .interp.warn { background: rgba(241,196,15,0.08); border-color: #f1c40f; }
+  #detail-panel .interp.err  { background: rgba(244,123,123,0.08); border-color: #f47b7b; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title">Inventory Ledger v6 — Observability <span class="v">prod • IFOPEUR</span></div>
+  <div class="controls">
+    <span class="live">LIVE</span>
+    <span class="pill">last 15m</span>
+    <span class="pill active">last 1h</span>
+    <span class="pill">last 24h</span>
+    <span class="pill">7d</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ─── KPI ROW ─────────────────────────────────────────── -->
+  <div class="row row-6">
+
+    <div class="panel" data-key="files">
+      <div class="label">Files picked / hr</div>
+      <div class="value">47<span class="unit">files</span></div>
+      <div class="delta up">▲ 12% vs yesterday</div>
+      <svg class="spark" width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none">
+        <polyline fill="none" stroke="#6cb1ee" stroke-width="1.5"
+          points="0,18 10,16 20,14 30,17 40,12 50,15 60,10 70,11 80,8 90,12 100,9 110,7 120,5"/>
+      </svg>
+    </div>
+
+    <div class="panel" data-key="atp">
+      <div class="label">ATP query p95</div>
+      <div class="value ok">38<span class="unit">ms</span></div>
+      <div class="delta flat">— stable</div>
+      <svg class="spark" width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none">
+        <polyline fill="none" stroke="#5cd886" stroke-width="1.5"
+          points="0,12 10,14 20,13 30,15 40,12 50,11 60,13 70,14 80,12 90,11 100,12 110,13 120,12"/>
+      </svg>
+    </div>
+
+    <div class="panel" data-key="promotion">
+      <div class="label">Promotion success</div>
+      <div class="value ok">99.4<span class="unit">%</span></div>
+      <div class="delta down">▼ 0.3% vs yesterday</div>
+      <svg class="spark" width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none">
+        <polyline fill="none" stroke="#5cd886" stroke-width="1.5"
+          points="0,5 10,5 20,6 30,5 40,5 50,7 60,5 70,5 80,8 90,6 100,5 110,7 120,6"/>
+      </svg>
+    </div>
+
+    <div class="panel" data-key="lag">
+      <div class="label">End-to-end lag p95</div>
+      <div class="value warn">2.4<span class="unit">sec</span></div>
+      <div class="delta up">▲ 18% vs yesterday</div>
+      <svg class="spark" width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none">
+        <polyline fill="none" stroke="#f1c40f" stroke-width="1.5"
+          points="0,16 10,14 20,15 30,12 40,10 50,8 60,10 70,7 80,5 90,4 100,5 110,3 120,4"/>
+      </svg>
+    </div>
+
+    <div class="panel" data-key="tenants">
+      <div class="label">Active tenants</div>
+      <div class="value">12<span class="unit">/ 14</span></div>
+      <div class="delta flat">2 idle &gt; 1h</div>
+      <svg class="spark" width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none">
+        <polyline fill="none" stroke="#9b59b6" stroke-width="1.5"
+          points="0,10 10,9 20,10 30,9 40,8 50,9 60,8 70,9 80,8 90,9 100,8 110,9 120,8"/>
+      </svg>
+    </div>
+
+    <div class="panel" data-key="daemon">
+      <div class="label">Daemon liveness</div>
+      <div class="value ok">UP</div>
+      <div class="delta up">heartbeat 12s ago</div>
+      <svg class="spark" width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none">
+        <polyline fill="none" stroke="#5cd886" stroke-width="1.5"
+          points="0,10 10,10 20,10 30,10 40,10 50,10 60,10 70,10 80,10 90,10 100,10 110,10 120,10"/>
+      </svg>
+    </div>
+
+  </div>
+
+  <!-- ─── CHART ROW ───────────────────────────────────────── -->
+  <div class="row row-3">
+
+    <div class="chart-panel" data-key="throughput">
+      <h3>File ingest throughput
+        <span class="legend">
+          <span><span class="swatch" style="background:#6cb1ee"></span>picked</span>
+          <span><span class="swatch" style="background:#5cd886"></span>parsed</span>
+          <span><span class="swatch" style="background:#f47b7b"></span>failed</span>
+        </span>
+      </h3>
+      <svg width="100%" height="160" viewBox="0 0 320 160" preserveAspectRatio="none">
+        <g stroke="#2d323a" stroke-width="0.5">
+          <line x1="0" y1="40"  x2="320" y2="40"/>
+          <line x1="0" y1="80"  x2="320" y2="80"/>
+          <line x1="0" y1="120" x2="320" y2="120"/>
+        </g>
+        <polyline fill="none" stroke="#6cb1ee" stroke-width="1.8"
+          points="0,90 30,80 60,70 90,75 120,55 150,60 180,45 210,50 240,38 270,42 300,35 320,32"/>
+        <polyline fill="none" stroke="#5cd886" stroke-width="1.8"
+          points="0,95 30,86 60,76 90,82 120,62 150,67 180,52 210,57 240,45 270,49 300,42 320,40"/>
+        <polyline fill="none" stroke="#f47b7b" stroke-width="1.5"
+          points="0,150 30,148 60,150 90,145 120,148 150,147 180,150 210,148 240,144 270,146 300,148 320,147"/>
+        <g fill="#8b9098" font-size="9" font-family="Menlo">
+          <text x="0" y="159">10:00</text>
+          <text x="100" y="159">10:20</text>
+          <text x="200" y="159">10:40</text>
+          <text x="290" y="159">11:00</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="chart-panel" data-key="atp-latency">
+      <h3>ATP query latency
+        <span class="legend">
+          <span><span class="swatch" style="background:#6cb1ee"></span>p50</span>
+          <span><span class="swatch" style="background:#9b59b6"></span>p95</span>
+          <span><span class="swatch" style="background:#f47b7b"></span>p99</span>
+        </span>
+      </h3>
+      <svg width="100%" height="160" viewBox="0 0 320 160" preserveAspectRatio="none">
+        <g stroke="#2d323a" stroke-width="0.5">
+          <line x1="0" y1="40"  x2="320" y2="40"/>
+          <line x1="0" y1="80"  x2="320" y2="80"/>
+          <line x1="0" y1="120" x2="320" y2="120"/>
+        </g>
+        <polyline fill="none" stroke="#6cb1ee" stroke-width="1.8"
+          points="0,130 30,128 60,125 90,128 120,126 150,124 180,127 210,125 240,128 270,124 300,126 320,125"/>
+        <polyline fill="none" stroke="#9b59b6" stroke-width="1.8"
+          points="0,100 30,95 60,98 90,92 120,88 150,90 180,85 210,88 240,82 270,80 300,84 320,82"/>
+        <polyline fill="none" stroke="#f47b7b" stroke-width="1.5"
+          points="0,60 30,58 60,55 90,52 120,48 150,50 180,45 210,55 240,40 270,38 300,42 320,40"/>
+        <g fill="#8b9098" font-size="9" font-family="Menlo">
+          <text x="0" y="159">10:00</text>
+          <text x="100" y="159">10:20</text>
+          <text x="200" y="159">10:40</text>
+          <text x="290" y="159">11:00</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="chart-panel" data-key="error-rate">
+      <h3>Error rate by source
+        <span class="legend">
+          <span><span class="swatch" style="background:#f1c40f"></span>warn</span>
+          <span><span class="swatch" style="background:#f47b7b"></span>error</span>
+        </span>
+      </h3>
+      <svg width="100%" height="160" viewBox="0 0 320 160" preserveAspectRatio="none">
+        <g>
+          <rect x="10"  y="100" width="22" height="50" fill="#f1c40f"/>
+          <rect x="10"  y="135" width="22" height="15" fill="#f47b7b"/>
+          <text x="21" y="159" fill="#8b9098" font-size="9" text-anchor="middle" font-family="Menlo">files</text>
+
+          <rect x="60"  y="115" width="22" height="35" fill="#f1c40f"/>
+          <rect x="60"  y="140" width="22" height="10" fill="#f47b7b"/>
+          <text x="71" y="159" fill="#8b9098" font-size="9" text-anchor="middle" font-family="Menlo">sfdc</text>
+
+          <rect x="110" y="125" width="22" height="25" fill="#f1c40f"/>
+          <rect x="110" y="143" width="22" height="7"  fill="#f47b7b"/>
+          <text x="121" y="159" fill="#8b9098" font-size="9" text-anchor="middle" font-family="Menlo">fop</text>
+
+          <rect x="160" y="80"  width="22" height="70" fill="#f1c40f"/>
+          <rect x="160" y="138" width="22" height="12" fill="#f47b7b"/>
+          <text x="171" y="159" fill="#8b9098" font-size="9" text-anchor="middle" font-family="Menlo">trigger</text>
+
+          <rect x="210" y="135" width="22" height="15" fill="#f1c40f"/>
+          <rect x="210" y="148" width="22" height="2"  fill="#f47b7b"/>
+          <text x="221" y="159" fill="#8b9098" font-size="9" text-anchor="middle" font-family="Menlo">atp</text>
+
+          <rect x="260" y="142" width="22" height="8"  fill="#f1c40f"/>
+          <text x="271" y="159" fill="#8b9098" font-size="9" text-anchor="middle" font-family="Menlo">notify</text>
+        </g>
+      </svg>
+    </div>
+
+  </div>
+
+  <!-- ─── BOTTOM ROW ──────────────────────────────────────── -->
+  <div class="row row-3">
+
+    <div class="chart-panel" data-key="top-rejects">
+      <h3>Top reject reasons (1h)</h3>
+      <table>
+        <thead><tr><th>Reason</th><th>Count</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>unknown_product_code</td><td>14<span class="bar" style="width:46px"></span></td><td class="info">sfdc</td></tr>
+          <tr><td>back_dated_ob</td><td>9<span class="bar" style="width:30px"></span></td><td class="info">files</td></tr>
+          <tr><td>missing_warehouse</td><td>5<span class="bar" style="width:17px"></span></td><td class="info">fop</td></tr>
+          <tr><td>footer_count_mismatch</td><td>2<span class="bar" style="width:7px"></span></td><td class="info">files</td></tr>
+          <tr><td>duplicate_payload</td><td>1<span class="bar" style="width:4px"></span></td><td class="info">sfdc</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chart-panel" data-key="feed">
+      <h3>Recent events</h3>
+      <div class="feed">
+        <div class="feed-row"><span class="ts">11:02:14</span><span class="type ok">atp.queried</span><span class="msg">SFDC · IFOPEUR · 3 rows · 28ms</span></div>
+        <div class="feed-row"><span class="ts">11:02:11</span><span class="type ok">stock.changed</span><span class="msg">PROD_A · WH-LYO · −5 on_hand</span></div>
+        <div class="feed-row"><span class="ts">11:02:10</span><span class="type ok">txn.received</span><span class="msg">FOP · IFOPEUR · 1.2 KB</span></div>
+        <div class="feed-row"><span class="ts">11:01:58</span><span class="type warn">promotion.failed</span><span class="msg">unknown_product_code XJ-441</span></div>
+        <div class="feed-row"><span class="ts">11:01:42</span><span class="type ok">order.received</span><span class="msg">SFDC · IFOPEUR · 2 lines</span></div>
+        <div class="feed-row"><span class="ts">11:01:30</span><span class="type ok">file.parsed</span><span class="msg">stocklevel_20260622.csv · 1,247 rows</span></div>
+        <div class="feed-row"><span class="ts">11:01:18</span><span class="type ok">file.picked</span><span class="msg">stocklevel_20260622.csv · 412 KB</span></div>
+        <div class="feed-row"><span class="ts">11:00:50</span><span class="type warn">notify.emitted</span><span class="msg">WARN back_dated_ob · PROD_C</span></div>
+        <div class="feed-row"><span class="ts">11:00:14</span><span class="type ok">daemon.heartbeat</span><span class="msg">alive · 12 conn</span></div>
+        <div class="feed-row"><span class="ts">10:59:42</span><span class="type ok">atp.queried</span><span class="msg">SFDC · IFOPEUR · 8 rows · 42ms</span></div>
+      </div>
+    </div>
+
+    <div class="chart-panel" data-key="tenants-table">
+      <h3>Per-tenant activity (1h)</h3>
+      <table>
+        <thead><tr><th>Tenant</th><th>Orders</th><th>Txns</th><th>ATP</th><th>Errs</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">IFOPEUR</td><td>142</td><td>87</td><td>308</td><td class="warn">14</td></tr>
+          <tr><td class="mono">IFOPNA</td><td>98</td><td>54</td><td>211</td><td>3</td></tr>
+          <tr><td class="mono">IFOPAP</td><td>67</td><td>41</td><td>140</td><td>1</td></tr>
+          <tr><td class="mono">IFOPLAT</td><td>23</td><td>12</td><td>48</td><td>0</td></tr>
+          <tr><td class="mono">IFOPME</td><td>8</td><td>4</td><td>15</td><td>0</td></tr>
+          <tr><td class="mono">IFOPCN</td><td class="err">0</td><td class="err">0</td><td class="err">0</td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- ─── Drill-down side panel ─────────────────────────────── -->
+<div id="detail-overlay">
+  <div id="detail-panel">
+    <button class="close" onclick="closeDetail()">✕</button>
+    <h2 id="d-title">—</h2>
+    <div class="sub" id="d-sub">—</div>
+
+    <section>
+      <h4>What this means</h4>
+      <div class="meaning" id="d-meaning"></div>
+    </section>
+
+    <section>
+      <h4>Current state</h4>
+      <div class="kpi" id="d-kpi"></div>
+    </section>
+
+    <section>
+      <h4>Why it matters</h4>
+      <div class="why" id="d-why"></div>
+    </section>
+
+    <section>
+      <h4>Interpretation</h4>
+      <div id="d-interp"></div>
+    </section>
+
+    <section>
+      <h4>SQL behind this</h4>
+      <div class="sql" id="d-sql"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const details = {
+  files: {
+    title: 'Files picked / hr',
+    sub: 'file.picked events from files.com',
+    meaning: 'How many files the Java daemon successfully discovered on the remote source and pulled into staging within the last hour.',
+    why: 'Without this metric "no data flowing" looks identical to "no files were delivered". This is the first proof-of-life for the entire upstream pipeline.',
+    kpi: [
+      {k:'last hour',v:'47'}, {k:'avg last 24h',v:'42'}, {k:'oldest pickup age',v:'4m'}
+    ],
+    interp: {tone:'', text:'Throughput is up 12% vs the same hour yesterday — likely the morning batch from EU and APAC overlapping. No action needed.'},
+    sql: '<span class="k">SELECT</span> date_trunc(<span class="s">\'hour\'</span>, at) <span class="k">AS</span> hr,\n       count(*)\n  <span class="k">FROM</span> audit.event_log\n <span class="k">WHERE</span> event_type = <span class="s">\'file.picked\'</span>\n   <span class="k">AND</span> at &gt;= now() - <span class="s">\'24 hours\'</span>\n <span class="k">GROUP BY</span> hr <span class="k">ORDER BY</span> hr;'
+  },
+  atp: {
+    title: 'ATP query p95 latency',
+    sub: 'atp.queried events — SFDC consumes this read API',
+    meaning: '95th percentile of how long the fetch_inventory / fetch_inventory_json call takes. p95 means 95% of calls finish faster than this number.',
+    why: 'ATP is the hot path SFDC hits before quoting a customer. Slow ATP = slow quotes = lost sales. Today this metric is zero — nothing logs ATP calls.',
+    kpi: [
+      {k:'p50',v:'12 ms'}, {k:'p95',v:'38 ms'}, {k:'p99',v:'104 ms'}
+    ],
+    interp: {tone:'', text:'p95 of 38ms is well inside the 200ms SFDC SLO. The p99 spike to 104ms correlates with full-tenant scans (no warehouse filter) — worth flagging to SFDC integration team to always pass warehouse_code.'},
+    sql: '<span class="k">SELECT</span>\n  percentile_cont(0.50) <span class="k">WITHIN GROUP</span> (<span class="k">ORDER BY</span> latency_ms) <span class="k">AS</span> p50,\n  percentile_cont(0.95) <span class="k">WITHIN GROUP</span> (<span class="k">ORDER BY</span> latency_ms) <span class="k">AS</span> p95,\n  percentile_cont(0.99) <span class="k">WITHIN GROUP</span> (<span class="k">ORDER BY</span> latency_ms) <span class="k">AS</span> p99\n<span class="k">FROM</span> audit.event_log\n<span class="k">WHERE</span> event_type = <span class="s">\'atp.queried\'</span>\n  <span class="k">AND</span> at &gt;= now() - <span class="s">\'1 hour\'</span>;'
+  },
+  promotion: {
+    title: 'Promotion success rate',
+    sub: 'promotion.success vs promotion.failed',
+    meaning: 'Percentage of staging rows that promoted cleanly into processed.* without a reject. The remaining percentage landed in staging but failed the cascade.',
+    why: 'Promotion failures usually mean reference data is missing (unknown product / warehouse / tenant). 100% means everything inbound has a matching catalog entry. Drops below 99% are a leading indicator of upstream catalog drift.',
+    kpi: [
+      {k:'success',v:'4,127'}, {k:'failed',v:'24'}, {k:'rate',v:'99.4%'}
+    ],
+    interp: {tone:'warn', text:'Dropped 0.3% in the last hour — driven by 14 rejects on unknown_product_code. Likely a new SKU launched in SFDC before the catalog file landed.'},
+    sql: '<span class="k">SELECT</span>\n  count(*) <span class="k">FILTER</span> (<span class="k">WHERE</span> event_type=<span class="s">\'promotion.success\'</span>) <span class="k">AS</span> ok,\n  count(*) <span class="k">FILTER</span> (<span class="k">WHERE</span> event_type=<span class="s">\'promotion.failed\'</span>) <span class="k">AS</span> bad\n<span class="k">FROM</span> audit.event_log\n<span class="k">WHERE</span> at &gt;= now() - <span class="s">\'1 hour\'</span>;'
+  },
+  lag: {
+    title: 'End-to-end lag p95',
+    sub: 'file.picked → stock.changed via correlation_id',
+    meaning: 'How long it takes from "Java picks up a file on files.com" all the way to "stock_balance has the new on_hand value". The full pipeline latency.',
+    why: 'This is the only metric that proves the whole chain works on time. Inbox-only latency hides parse/promote bugs; ATP-only latency hides freshness issues. End-to-end lag catches both.',
+    kpi: [
+      {k:'p50',v:'820 ms'}, {k:'p95',v:'2.4 s'}, {k:'p99',v:'6.1 s'}
+    ],
+    interp: {tone:'warn', text:'p95 climbed from 2.0s to 2.4s in the last hour — correlates with a large file (412KB, 1,247 rows) hitting the parse stage. Watch for sustained growth past 5s.'},
+    sql: '<span class="k">WITH</span> picks <span class="k">AS</span> (\n  <span class="k">SELECT</span> correlation_id, at <span class="k">AS</span> picked_at\n    <span class="k">FROM</span> audit.event_log <span class="k">WHERE</span> event_type=<span class="s">\'file.picked\'</span>\n), changes <span class="k">AS</span> (\n  <span class="k">SELECT</span> correlation_id, max(at) <span class="k">AS</span> changed_at\n    <span class="k">FROM</span> audit.event_log <span class="k">WHERE</span> event_type=<span class="s">\'stock.changed\'</span>\n    <span class="k">GROUP BY</span> correlation_id\n)\n<span class="k">SELECT</span> percentile_cont(0.95) <span class="k">WITHIN GROUP</span>\n  (<span class="k">ORDER BY</span> <span class="k">EXTRACT</span>(<span class="k">EPOCH FROM</span> changed_at - picked_at) * 1000)\n<span class="k">FROM</span> picks <span class="k">JOIN</span> changes <span class="k">USING</span> (correlation_id);'
+  },
+  tenants: {
+    title: 'Active tenants',
+    sub: 'tenants with any event in the window',
+    meaning: 'How many configured tenants have produced any event in the last hour vs how many are configured in total. Catches silent tenants.',
+    why: 'A tenant configured but producing zero events for an hour usually means broken credentials, paused integration, or missing files. Silent failure is the worst failure.',
+    kpi: [
+      {k:'active',v:'12'}, {k:'configured',v:'14'}, {k:'silent',v:'2'}
+    ],
+    interp: {tone:'warn', text:'IFOPCN has been silent for 1h 47m. Last event was an auth_failure from files.com. Likely rotated credential not picked up.'},
+    sql: '<span class="k">SELECT</span> count(<span class="k">DISTINCT</span> tenant_id)\n  <span class="k">FROM</span> audit.event_log\n <span class="k">WHERE</span> at &gt;= now() - <span class="s">\'1 hour\'</span>;'
+  },
+  daemon: {
+    title: 'Daemon liveness',
+    sub: 'daemon.heartbeat — emitted every 60s by Java',
+    meaning: 'The Java daemon writes one heartbeat row per minute. If the most recent heartbeat is older than 2 minutes, the daemon is considered down.',
+    why: 'If the daemon dies, every other metric goes to zero — but zero looks the same as "quiet system". An explicit liveness signal makes "down" unambiguous.',
+    kpi: [
+      {k:'last beat',v:'12s ago'}, {k:'uptime',v:'4d 6h'}, {k:'gap p95',v:'62s'}
+    ],
+    interp: {tone:'', text:'Healthy. Heartbeat cadence is within 5 seconds of the 60s target — confirms scheduler thread is not blocked.'},
+    sql: '<span class="k">SELECT</span> now() - max(at) <span class="k">AS</span> age\n  <span class="k">FROM</span> audit.event_log\n <span class="k">WHERE</span> event_type = <span class="s">\'daemon.heartbeat\'</span>;'
+  },
+  throughput: {
+    title: 'File ingest throughput',
+    sub: 'file.picked + file.parsed + file.failed over time',
+    meaning: 'How many files moved through each pipeline stage per 5-minute bucket. Picked = arrived, parsed = accepted, failed = quarantined.',
+    why: 'Catches "files are arriving but not parsing" (gap between blue and green lines) and "files are failing in bursts" (red spikes). Both indicate upstream data issues that need product attention before they become support tickets.',
+    kpi: [
+      {k:'picked',v:'47'}, {k:'parsed',v:'45'}, {k:'failed',v:'2'}
+    ],
+    interp: {tone:'', text:'Picked-vs-parsed gap is steady at ~2 files/hour — matches the known back-dated OB warnings (parser accepts them but trigger emits a WARN). No anomaly.'},
+    sql: '<span class="k">SELECT</span> date_trunc(<span class="s">\'5 min\'</span>, at) <span class="k">AS</span> bucket,\n       event_type, count(*)\n  <span class="k">FROM</span> audit.event_log\n <span class="k">WHERE</span> event_type <span class="k">IN</span> (<span class="s">\'file.picked\'</span>,<span class="s">\'file.parsed\'</span>,<span class="s">\'file.failed\'</span>)\n   <span class="k">AND</span> at &gt;= now() - <span class="s">\'1 hour\'</span>\n <span class="k">GROUP BY</span> bucket, event_type;'
+  },
+  'atp-latency': {
+    title: 'ATP query latency over time',
+    sub: 'atp.queried.latency_ms percentiles',
+    meaning: 'p50/p95/p99 of the fetch_inventory call duration, in 5-minute buckets. Reveals slow-query patterns and time-of-day shape.',
+    why: 'A single p95 number hides regressions. Time-series percentiles show whether slowness is constant (likely indexing) or bursty (likely contention or full-tenant scans).',
+    kpi: [
+      {k:'p50 now',v:'12 ms'}, {k:'p95 now',v:'38 ms'}, {k:'p99 now',v:'104 ms'}
+    ],
+    interp: {tone:'', text:'p99 line shows brief spikes every ~10 minutes — matches the SFDC bulk-pricing job that fans out queries without warehouse filters. Pre-filter would flatten this.'},
+    sql: '<span class="k">SELECT</span> date_trunc(<span class="s">\'5 min\'</span>, at),\n       percentile_cont(0.95) <span class="k">WITHIN GROUP</span> (<span class="k">ORDER BY</span> latency_ms)\n  <span class="k">FROM</span> audit.event_log\n <span class="k">WHERE</span> event_type = <span class="s">\'atp.queried\'</span>\n <span class="k">GROUP BY</span> 1 <span class="k">ORDER BY</span> 1;'
+  },
+  'error-rate': {
+    title: 'Error rate by source',
+    sub: 'warn + error severity by event source',
+    meaning: 'Which subsystem is producing the most warnings and errors right now. files = file pipeline, sfdc = order intake, fop = transactions, trigger = cascade, atp = read API, notify = outbound.',
+    why: 'Pinpoints where to look first. "There are 47 errors this hour" is useless — "39 of them came from triggers" is actionable.',
+    kpi: [
+      {k:'top source',v:'trigger'}, {k:'top severity',v:'warn'}, {k:'total 1h',v:'53'}
+    ],
+    interp: {tone:'warn', text:'Trigger warnings dominate — almost all are "back_dated_ob" notifications from f_stock_balance_opening_apply. Expected during recount windows; suppress or downgrade severity if noisy.'},
+    sql: '<span class="k">SELECT</span> source, severity, count(*)\n  <span class="k">FROM</span> audit.event_log\n <span class="k">WHERE</span> severity <span class="k">IN</span> (<span class="s">\'warn\'</span>,<span class="s">\'error\'</span>)\n   <span class="k">AND</span> at &gt;= now() - <span class="s">\'1 hour\'</span>\n <span class="k">GROUP BY</span> source, severity;'
+  },
+  'top-rejects': {
+    title: 'Top reject reasons',
+    sub: 'promotion.failed.error_code grouped',
+    meaning: 'The most frequent reasons a staging row failed to promote into processed.*. Each row of the table is one error_code.',
+    why: 'Quality dashboard for the integration team. Top reason in a sustained window indicates the upstream system needs a fix (catalog gap, schema drift, validation regression).',
+    kpi: [
+      {k:'distinct reasons',v:'5'}, {k:'top reason count',v:'14'}, {k:'top source',v:'sfdc'}
+    ],
+    interp: {tone:'warn', text:'unknown_product_code from SFDC is the dominant reject. Action: file a ticket on the SFDC product catalog sync — they are sending orders for SKUs we have not received an opening_balance for yet.'},
+    sql: '<span class="k">SELECT</span> error_code, source, count(*)\n  <span class="k">FROM</span> audit.event_log\n <span class="k">WHERE</span> event_type = <span class="s">\'promotion.failed\'</span>\n   <span class="k">AND</span> at &gt;= now() - <span class="s">\'1 hour\'</span>\n <span class="k">GROUP BY</span> error_code, source\n <span class="k">ORDER BY</span> 3 <span class="k">DESC</span>;'
+  },
+  feed: {
+    title: 'Recent events',
+    sub: 'live tail of audit.event_log',
+    meaning: 'Last 10 rows from the event log, newest first. The same shape you would get from "tail -f" on a log file, but searchable by tenant / type / correlation.',
+    why: 'When something looks wrong on a dashboard tile, the first instinct is to see actual recent events. This is the human-readable cross-check before opening SQL.',
+    kpi: [
+      {k:'rows/sec now',v:'~3'}, {k:'tail latency',v:'&lt;1s'}, {k:'unique types',v:'9'}
+    ],
+    interp: {tone:'', text:'Mix of normal operations (atp.queried, txn.received) and one warn (promotion.failed for unknown_product_code XJ-441) — matches the top-rejects panel. Healthy.'},
+    sql: '<span class="k">SELECT</span> at, event_type, severity, source, payload\n  <span class="k">FROM</span> audit.event_log\n <span class="k">ORDER BY</span> at <span class="k">DESC</span> <span class="k">LIMIT</span> 50;'
+  },
+  'tenants-table': {
+    title: 'Per-tenant activity',
+    sub: 'event count grouped by tenant_id',
+    meaning: 'For each tenant, how many orders / transactions / ATP queries / errors hit the system in the last hour. The "zero row" is the most important — it surfaces silent tenants.',
+    why: 'Customer-facing SLO conversation lives at the tenant level, not the system level. "Our system processed 1M events" is meaningless to a single customer who saw zero.',
+    kpi: [
+      {k:'active',v:'12'}, {k:'silent',v:'2'}, {k:'top tenant',v:'IFOPEUR'}
+    ],
+    interp: {tone:'err', text:'IFOPCN shows zero across all activity columns. Combined with the auth_failure events from files.com earlier, this is a real outage for that tenant. Escalate.'},
+    sql: '<span class="k">SELECT</span> tenant_id,\n  count(*) <span class="k">FILTER</span> (<span class="k">WHERE</span> event_type=<span class="s">\'order.received\'</span>) <span class="k">AS</span> orders,\n  count(*) <span class="k">FILTER</span> (<span class="k">WHERE</span> event_type=<span class="s">\'txn.received\'</span>)   <span class="k">AS</span> txns,\n  count(*) <span class="k">FILTER</span> (<span class="k">WHERE</span> event_type=<span class="s">\'atp.queried\'</span>)   <span class="k">AS</span> atp,\n  count(*) <span class="k">FILTER</span> (<span class="k">WHERE</span> severity <span class="k">IN</span> (<span class="s">\'warn\'</span>,<span class="s">\'error\'</span>)) <span class="k">AS</span> errs\n<span class="k">FROM</span> audit.event_log\n<span class="k">WHERE</span> at &gt;= now() - <span class="s">\'1 hour\'</span>\n<span class="k">GROUP BY</span> tenant_id;'
+  }
+};
+
+function openDetail(key) {
+  const d = details[key];
+  if (!d) return;
+  document.getElementById('d-title').textContent = d.title;
+  document.getElementById('d-sub').textContent   = d.sub;
+  document.getElementById('d-meaning').textContent = d.meaning;
+  document.getElementById('d-why').textContent     = d.why;
+
+  const kpiHtml = d.kpi.map(x => `<div><div class="k">${x.k}</div><div class="v">${x.v}</div></div>`).join('');
+  document.getElementById('d-kpi').innerHTML = kpiHtml;
+
+  const interp = document.getElementById('d-interp');
+  interp.className = 'interp' + (d.interp.tone ? ' ' + d.interp.tone : '');
+  interp.innerHTML = d.interp.text;
+
+  document.getElementById('d-sql').innerHTML = d.sql;
+
+  document.getElementById('detail-overlay').classList.add('open');
+}
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+}
+
+document.querySelectorAll('[data-key]').forEach(el => {
+  el.addEventListener('click', () => openDetail(el.dataset.key));
+});
+document.getElementById('detail-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'detail-overlay') closeDetail();
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDetail(); });
+</script>
+
+</body>
+</html>

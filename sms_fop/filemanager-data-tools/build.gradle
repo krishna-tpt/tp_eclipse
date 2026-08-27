@@ -1,0 +1,66 @@
+// =============================================================================
+//  filemanager-data-tools - dev-only synthetic data + InventorySimulator.
+//
+//  NEVER shipped to production. Not consumed by the Dockerfile.
+//  Kept as a subproject so the TC1..TC22 simulator harness stays wired to core.
+//
+//  Run examples:
+//    ./gradlew :filemanager-data-tools:runSimulator
+//    ./gradlew :filemanager-data-tools:run --args="scenarios.csv"
+// =============================================================================
+
+plugins {
+    id 'application'
+}
+
+dependencies {
+    implementation project(':filemanager-core')
+
+    implementation "org.postgresql:postgresql:${postgresVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
+    implementation "org.yaml:snakeyaml:${snakeyamlVersion}"
+    implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+    implementation "ch.qos.logback:logback-classic:${logbackVersion}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
+    testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
+    testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+    testRuntimeOnly    "org.junit.platform:junit-platform-launcher"
+}
+
+application {
+    // Default main - override with -PmainClass=... to run other tools.
+    mainClass = 'org.michelin.filemanager.tools.InventorySimulator'
+}
+
+// Integration tests (LoadOrdersIT, LoadTransactionsIT) require a private
+// Postgres container image (ghcr.io/tenthplanet/inventoryledger-pg:test) that
+// needs ghcr auth to pull. Exclude from default `build` and expose them via
+// a dedicated task instead.
+test {
+    exclude '**/integration/**'
+}
+
+tasks.register('integrationTest', Test) {
+    group       = 'verification'
+    description = 'Runs data-tools integration tests (needs ghcr login for tenthplanet/inventoryledger-pg image)'
+    include '**/integration/**'
+    useJUnitPlatform()
+    shouldRunAfter test
+}
+
+tasks.register('runSimulator', JavaExec) {
+    group       = 'application'
+    description = 'Runs the inventory simulator scenarios against the configured DB'
+    mainClass   = 'org.michelin.filemanager.tools.InventorySimulator'
+    classpath   = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('generateOpeningBalance', JavaExec) {
+    group       = 'application'
+    description = 'Generates a synthetic MICH_INV_STOCKLEVEL opening-balance file'
+    mainClass   = 'org.michelin.filemanager.tools.GenerateOpeningBalance'
+    classpath   = sourceSets.main.runtimeClasspath
+}

@@ -1,0 +1,38 @@
+# Synthetic data generator config.
+# Deterministic when `seed` is set; randomized when seed is null.
+# All values overridable via env vars.
+
+seed: ${TOOLS_SEED:42}
+
+db:
+  url:      ${DB_URL:jdbc:postgresql://localhost:5432/inventoryledger?sslmode=disable}
+  user:     ${DB_USER:postgres}
+  password: ${DB_PASSWORD:postgres}
+
+tenants:
+  count: ${TOOLS_TENANT_COUNT:2}
+
+master_data:
+  products_per_tenant:   ${TOOLS_PRODUCTS_PER_TENANT:20}
+  warehouses_per_tenant: ${TOOLS_WAREHOUSES_PER_TENANT:3}
+  lots_per_product:      ${TOOLS_LOTS_PER_PRODUCT:2}
+  uoms_per_tenant:       ${TOOLS_UOMS_PER_TENANT:3}
+
+opening_balance:
+  rows:           ${TOOLS_OB_ROWS:100}
+  output_dir:     ${TOOLS_OB_OUTPUT_DIR:./generated/opening_balance}
+  file_name:      ${TOOLS_OB_FILE_NAME:opening_balance_synthetic.csv}
+  csv_delimiter:  ${TOOLS_CSV_DELIMITER:;}
+  date:           ${TOOLS_OB_DATE:today}            # ISO date or 'today'
+
+transactions:
+  count:                ${TOOLS_TXN_COUNT:50}
+  inbound_ratio:        ${TOOLS_TXN_INBOUND_RATIO:0.6}
+  transfer_pair_ratio:  ${TOOLS_TXN_TRANSFER_RATIO:0.1}
+  via_function:         ${TOOLS_TXN_VIA_FUNCTION:true}     # true: call post_transaction; false: INSERT into staging.txn_inbox
+
+orders:
+  count:           ${TOOLS_ORDER_COUNT:20}
+  min_lines:      ${TOOLS_ORDER_MIN_LINES:1}
+  max_lines:      ${TOOLS_ORDER_MAX_LINES:5}
+  initial_state:  ${TOOLS_ORDER_STATE:open}

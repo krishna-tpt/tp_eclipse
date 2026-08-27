@@ -1,0 +1,9 @@
+# Sample parameters CSV for the test data generator.
+# Required columns: tenant_code, product_code, warehouse_code, subinventory, quantity
+# Lines starting with # and blank lines are ignored.
+tenant_code,product_code,warehouse_code,subinventory,quantity
+IFOPEUR,SIM-TYRE-A,WH-SIM,ONHAND,100
+IFOPEUR,SIM-TYRE-A,WH-SIM,STAGING,40
+IFOPEUR,SIM-TYRE-B,WH-SIM,ONHAND,50
+IFOPEUR,SIM-VALVE-1,WH-SIM,ONHAND,200
+IFOPEUR,SIM-VALVE-2,WH-SIM,ONHAND,30

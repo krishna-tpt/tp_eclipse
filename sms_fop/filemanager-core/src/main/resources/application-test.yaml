@@ -1,0 +1,54 @@
+# Test profile — defaults so Testcontainers-driven tests work via env overrides.
+profile: test
+
+# Tests run the pipeline once and assert; never start the scheduler.
+run_mode: ${RUN_MODE:oneshot}
+
+db:
+  url:      ${DB_URL:}
+  user:     ${DB_USER:postgres}
+  password: ${DB_PASSWORD:postgres}
+  connect_timeout_s:    ${DB_CONNECT_TIMEOUT_S:5}
+  statement_timeout_ms: ${DB_STATEMENT_TIMEOUT_MS:30000}
+  application_name:     ${DB_APP_NAME:inventoryledger-test}
+
+flyway:
+  locations:           classpath:db/migration
+  baseline_on_migrate: false
+  validate_on_migrate: true
+
+file:
+  source:        ${FILE_SOURCE:local}
+  name_pattern:  ${FILE_NAME_PATTERN:^MICH_INV_STOCKLEVEL_413\d{14}\.dat$}
+  sftp:
+    host:           ${SFTP_HOST:}
+    port:           ${SFTP_PORT:22}
+    username:       ${SFTP_USER:}
+    password:       ${SFTP_PASSWORD:}
+    pickup_path:    ${SFTP_PICKUP_PATH:}
+    archive_path:   ${SFTP_ARCHIVE_PATH:}
+    reject_path:    ${SFTP_REJECT_PATH:}
+    connect_timeout_ms: ${SFTP_CONNECT_TIMEOUT_MS:5000}
+  local:
+    pickup_path:  ${LOCAL_PICKUP_PATH:./inbound}
+    archive_path: ${LOCAL_ARCHIVE_PATH:./archive}
+    reject_path:  ${LOCAL_REJECT_PATH:./rejected}
+
+notifier:
+  webhook_urls:
+    - ${WEBHOOK_URL_PRIMARY:http://localhost:8080/webhook}
+  max_retries:        ${WEBHOOK_MAX_RETRIES:1}
+  timeout_ms:         ${WEBHOOK_TIMEOUT_MS:1000}
+  retry_backoff_ms:   ${WEBHOOK_RETRY_BACKOFF_MS:100}
+  batch_size:         ${WEBHOOK_BATCH_SIZE:50}
+  connect_timeout_ms: ${WEBHOOK_CONNECT_TIMEOUT_MS:1000}
+
+job:
+  exit_on_first_failure: ${EXIT_ON_FIRST_FAILURE:false}
+  drain_outbox:          ${DRAIN_OUTBOX:true}
+  temp_file_prefix:      ${TEMP_FILE_PREFIX:ob-}
+  timestamp_pattern:     ${TIMESTAMP_PATTERN:yyyyMMdd_HHmmss}
+
+logging:
+  format: ${LOG_FORMAT:text}
+  level:  ${LOG_LEVEL:DEBUG}

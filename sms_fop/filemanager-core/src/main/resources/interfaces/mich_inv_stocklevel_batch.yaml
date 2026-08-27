@@ -1,0 +1,134 @@
+interface: MICH_INV_STOCKLEVEL
+variant:   "413"
+version:   "1.0"
+
+# Aligned to Michelin "Extract Phase - Structure" specification.
+# The file is semicolon-delimited with double-quoted values; each MTL_STOCKLEVEL
+# record carries the tag at field 1 followed by 54 CFO data fields (fields 2..55).
+# AME_QUANTITY was removed per JIRA FOP_AGL-63630 — total stays at 55 file fields.
+
+matches:
+  # Michelin's CFO-format stock files have two naming conventions in the wild:
+  #   MICH_INV_STOCKLEVEL_SMS_413.1010.A003IIST.20260715.LSF.cfo
+  #   MICH_INV_STOCKLEVEL_DMC_408.20260603064315.cfo.PFDMU005.MC93.260603_064409
+  # Match on the stable prefix + numeric 3-digit tenant code; extension varies.
+  filename_pattern: "^MICH_INV_STOCKLEVEL_(SMS|DMC|BATCH)_\\d{3}[._].+$"
+  header_confirms:
+    record: HEADER_FILE
+    field:  3
+    equals: MNA
+
+parser:
+  delimiter: ";"
+  quote:     "\""
+  encoding:  UTF-8
+  trim:      true
+  empty_is_null: true
+  decimal_separator: "."
+
+envelope:
+  - tag: HEADER_FILE
+    fields: 20
+    capture:
+      source_system:  { field: 3 }
+      generated_at:   { field: 6, type: timestamp, format: yyyyMMddHHmmss }
+      batch_filename: { field: 7 }
+  - tag: HEADER_BLOCK
+    fields: 3
+  - tag: FOOTER_BLOCK
+    fields: 3
+    validates:
+      data_row_count: { field: 3 }
+  - tag: FOOTER_FILE
+    fields: 2
+    validates:
+      total_row_count: { field: 2 }
+
+records:
+  - tag: MTL_STOCKLEVEL
+    # Michelin's SMS_413 / DMC_408 delimited CFO extracts emit 51 CFO fields + 1
+    # record tag = 52 total. The FD spec (FD_MICH_INV_IC227_STOCKLEVEL_CFO) lists
+    # 54 CFO fields, but the trailing three (receiving_location_type, stock_status,
+    # business_line) are omitted in the delimited variant. AME_QUANTITY was already
+    # removed per JIRA FOP_AGL-63630. See the three columns below flagged as
+    # `literal: NP` (Not Present in file) — they are placeholders until Michelin
+    # confirms whether the delimited variant will start carrying them.
+    fields: 52
+    target_table: staging.stocklevel_inbox
+    # Natural key for a stock position in this file. Two rows that agree on every
+    # column below are a Michelin exporter bug; the file is rejected before staging
+    # INSERTs run. Adjust here if Michelin confirms a different granularity (e.g.
+    # add `serial` for serialised items, or drop `locator` if always blank).
+    dedupe_keys:
+      - organization_code
+      - item_segment1
+      - warehouse
+      - subinventory
+      - locator
+      - lot
+      - material_location
+    columns:
+      # Pipeline-injected metadata (envelope captures + literal)
+      tenant_code:                 { from_envelope: HEADER_FILE, captured_as: source_system }
+      file_batch_id:               { from_envelope: HEADER_FILE, captured_as: batch_filename }
+      source_marker:               { literal: MICHELIN }
+
+      # CFO position 1..54 → file fields 2..55 (field 1 is the record tag)
+      company_code:                { field: 2 }    # COMPANY CODE (Operating Unit, e.g. 408_OU)
+      organization_code:           { field: 3 }    # Organization Code (e.g. P57)
+      organization_type:           { field: 4 }    # Organization Type (FINISHED GOODS, MANUFACTURING, PDR)
+      finished_good_org_type:      { field: 5 }    # Finished Goods Org Type (e.g. CW)
+      oc_companycode:              { field: 6 }    # OC_CompanyCode — not used today
+      od_countrycode:              { field: 7 }    # OD_CountryCode — not used today
+      or_countrycode:              { field: 8 }    # OR_CountryCode — not used today
+      site:                        { field: 9 }    # Plant/site code
+      item_segment1:               { field: 10, required: true }   # Item code (e.g. 459473_101)
+      parent_item:                 { field: 11 }   # Not used today
+      item_segment2:               { field: 12 }   # Not used today
+      cci:                         { field: 13 }   # Not used today
+      cad:                         { field: 14 }   # Not used today
+      item_category:               { field: 15 }   # PDR Reporting category
+      fg_category:                 { field: 16 }   # Finished Goods Category
+      purchasing_category:         { field: 17 }   # PURCHASE category
+      mfg_category:                { field: 18 }   # Manufacturing Category
+      product_family:              { field: 19 }   # Product family
+      om_category:                 { field: 20 }   # Order Management / Product Line
+      warehouse:                   { field: 21 }   # Organization full name (e.g. 408_ES_P57_..._CO)
+      item_description:            { field: 22 }   # Item description
+      revision:                    { field: 23 }   # Revision — not currently used
+      subinventory:                { field: 24 }   # Subinventory code (ONHAND, US01, …)
+      locator:                     { field: 25 }   # Locator — optional
+      lot:                         { field: 26 }   # Lot number
+      lpn:                         { field: 27 }   # License plate — not currently used
+      parent_lpn:                  { field: 28 }   # Parent LPN — not currently used
+      serial:                      { field: 29 }   # Serial — not currently used
+      containerized_flag:          { field: 30 }   # Not currently used
+      receiving_location:          { field: 31 }   # Only when MATERIAL_LOCATION = RECEIVING
+      primary_quantity:            { field: 32, type: numeric, required: true }   # Primary qty (can be negative)
+      primary_uom:                 { field: 33 }   # Primary unit of measure
+      primary_quantity_value:      { field: 34, type: numeric, default: "0" }     # Item cost × qty (null→0)
+      unit_cost:                   { field: 35, type: numeric }                   # Item cost
+      snapshot_date:               { field: 36, type: date, format: dd-MM-yyyy }
+      subinventory_status:         { field: 37 }   # ACTIVE, No ATP, …
+      material_location:           { field: 38, allowed_values: [ONHAND, RECEIVING] }
+      owning_party:                { field: 39 }   # Stock owner (consigned stock)
+      cost_type:                   { field: 40 }   # Item cost type (e.g. Frozen)
+      customer_country_code:       { field: 41 }
+      market_code:                 { field: 42 }
+      client_code:                 { field: 43 }
+      nip_imp:                     { field: 44 }
+      matnom:                      { field: 45 }
+      matref:                      { field: 46 }
+      snapshot_date_with_timezone: { field: 47, type: timestamptz, format: "yyyy-MM-dd HH:mm:ss xxx" }
+      duns_code:                   { field: 48 }
+      mich_duns:                   { field: 49 }
+      intended_market:             { field: 50 }
+      item_product_line:           { field: 51 }   # Costing Product Nature
+      stock_type:                  { field: 52 }   # COMMERCIAL / INDUSTRIAL / Other
+      # Fields 53–55 of the FD spec are not carried in the delimited CFO variant
+      # today. Stamp a literal marker so downstream reports can distinguish
+      # "the file was silent on this" from "the file said NULL". Change back to
+      # `{ field: 53 }` etc. once Michelin extends the delimited exporter.
+      receiving_location_type:     { literal: NP }
+      stock_status:                { literal: NP }
+      business_line:               { literal: NP }

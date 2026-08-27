@@ -1,0 +1,107 @@
+---
+title: Inventory Ledger
+description: Solution documentation for the Michelin psql-inventory-integration-service.
+---
+
+Solution documentation for **`psql-inventory-integration-service`** — the Michelin on-premises inventory ledger.
+
+A long-running Java 21 process that polls files.com or SFTP for `MICH_INV_STOCKLEVEL_*` files, decodes them against a YAML interface catalog, loads them into a Postgres 16 schema (`staging → processed`), and emits an audit trail plus webhook notifications. A companion PostgreSQL database owns the live ledger, the ATP calculation, the reservation cascade, and the read API.
+
+---
+
+## Documentation map
+
+### Overview
+
+Purpose, scope, and the vocabulary of the ledger.
+
+- [What is this?](/overview/what-is-this) — one-page plain-English answer
+- [Spec](/overview/spec) — F-IDs, NFRs, definition of done
+- [Scope](/overview/scope) — the two-project boundary (Java MicroService + DBServices)
+
+### Architecture
+
+How the pieces fit together, in text and in diagrams.
+
+- [Architecture overview](/architecture/overview) — pod topology, packages, libraries
+- [Flow diagrams](/architecture/flow-diagrams) — file ingest, reservation cascade, ATP calc
+- [Ingest pipeline](/architecture/ingest-pipeline) — variant detection → parse → map → staging
+- [Catalog-driven decoding](/architecture/catalog-driven) — the YAML contract
+- [Scheduler and lifecycle](/architecture/scheduler-lifecycle) — RUN_MODE, cron, graceful shutdown
+- [File sources](/architecture/file-sources) — files.com, SFTP, local folder
+- [Observability](/architecture/observability) — event log, outbox, health
+
+### Database
+
+Schemas, tables, ER, functions, views, and the tag-by-tag evolution.
+
+- [Database overview](/database/overview) — three schemas + the trust boundary
+- [ER diagram](/database/er-diagram) — Mermaid ER of `processed`
+- [Schemas](/database/schemas) — `staging`, `processed`, `audit`
+- [Table reference](/database/tables-reference) — every table, every column
+- [Functions](/database/functions) — promote, load, fetch, notify
+- [Views](/database/views) — audit views and Grafana endpoint
+- [Evolution log](/database/evolution) — v1 → v6 rationale trail
+
+### Operations
+
+Build, deploy, configure, run, troubleshoot.
+
+- [Deployment](/operations/deployment) — the DevOps runbook
+- [Configuration](/operations/configuration) — env vars and CONFIG_DIR overlay
+- [Run modes](/operations/run-modes) — `oneshot` vs `scheduled`
+- [Health & monitoring](/operations/health-monitoring) — `/actuator/health`, event log, dashboards
+- [Customer installs](/operations/customer-installs) — v1..v6 tag packages
+- [Troubleshooting](/operations/troubleshooting) — common failures and their remedies
+
+### Support
+
+Runbook for the support team, on-call, and the customer's operators.
+
+- [Overview](/support/overview) — when to reach for what
+- [FAQ](/support/faq) — quick answers to common questions
+- [Manual operations](/support/manual-operations) — every operator-runnable action
+- [Failure scenarios](/support/failure-scenarios) — recovery walkthroughs
+- [Configuration updates](/support/config-updates) — rotating creds, changing URLs
+- [Log inspection](/support/log-inspection) — where logs live, what to look for
+- [Audit review](/support/audit-review) — SQL patterns for compliance + drift checks
+
+### Quality
+
+What we test, how it did, how we write code.
+
+- [Test plan](/quality/test-plan) — 100+ test cases mapped to F-IDs and NFRs
+- [Test inventory](/quality/test-inventory) — the actual test classes in the repo
+- [Test results](/quality/test-results) — latest execution + bugs surfaced
+- [Coding guidelines](/quality/coding-guidelines) — from ADRs + repo conventions
+- [Vulnerability assessment](/quality/vulnerability-assessment) — dependency + container posture
+- [Performance](/quality/performance) — targets and observed numbers
+
+### Delivery
+
+Where we are, what changed, what's next.
+
+- [Changelog](/delivery/changelog) — commit-by-commit from `git log`
+- [Task board](/delivery/tasks) — completed and open work items
+- [Status](/delivery/status) — the current-state snapshot
+- [Customer releases](/delivery/customer-releases) — v1 through v6
+- [ADR index](/delivery/adr-index) — all 14 architecture decisions
+
+### Reference
+
+Contracts callers depend on.
+
+- [Interface catalog](/reference/interface-catalog) — the `mich_inv_stocklevel_batch.yaml` breakdown
+- [File formats](/reference/file-formats) — fixed-width `.dat` vs delimited `.cfo`
+- [`fetch_inventory_json` API](/reference/fetch-inventory-api) — JSON read contract for SFDC
+- [Event log schema](/reference/event-log-schema) — every event type
+- [Environment variables](/reference/environment-variables) — every var the JAR reads
+
+---
+
+## Current state (2026-07-20)
+
+- Sandbox HEAD: `c769341` on branch `sandbox`
+- Frozen customer DB baseline: `deploy/11-06-v6-customer/` + `alter_04` observability layer
+- Verified end-to-end via SFTP: parse → 284-row staging insert → promote to `processed.opening_balance` → archive move → `audit.event_log`
+- Handoff bundle: `inventoryledger-devops-2026-07-16/` (bundle + JAR + runbook + SFTP smoke kit)

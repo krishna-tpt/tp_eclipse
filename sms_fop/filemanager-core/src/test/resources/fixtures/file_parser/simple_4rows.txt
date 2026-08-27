@@ -1,0 +1,4 @@
+"HEADER_FILE";"acme";"v1";"20260604";"batch01"
+"DATA_A";"item-001";"100"
+"DATA_B";"item-002";"200"
+"FOOTER_FILE";"3"

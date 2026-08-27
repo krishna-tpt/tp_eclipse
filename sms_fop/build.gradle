@@ -1,0 +1,66 @@
+// =============================================================================
+//  psql-inventory-integration-service - root build script.
+//
+//  Two subprojects:
+//    - filemanager-core        production JAR (fat, mainClass App)
+//    - filemanager-data-tools  dev-only synthetic data + InventorySimulator
+//
+//  Package layout follows the sample account-integration-service convention
+//  minus the common-configs/common-integration submodules (we're not Spring
+//  Boot and we don't need Avro/Kafka/Lombok).
+// =============================================================================
+
+allprojects {
+    group   = 'org.michelin'
+    version = '1.0.0'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    java {
+        // Match Michelin pipeline: build image is gradle:9.2.0-jdk25,
+        // runtime image is eclipse-temurin25-jre-alpine.
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-parameters'
+        // Emit JDK 21 bytecode (LTS) even when compiled on JDK 25.
+        // Cheap safety net if any future runtime image drops back to 21.
+        options.release = 21
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+            showStandardStreams = false
+        }
+    }
+}
+
+ext {
+    postgresVersion         = '42.7.4'
+    flywayVersion           = '10.20.1'
+    jacksonVersion          = '2.17.2'
+    snakeyamlVersion        = '2.3'
+    slf4jVersion            = '2.0.16'
+    logbackVersion          = '1.5.12'
+    logstashEncoderVersion  = '7.4'
+    sshdVersion             = '2.13.2'
+    filesSdkVersion         = '1.6.24'
+    cronUtilsVersion        = '9.2.1'
+
+    junitVersion            = '5.11.3'
+    testcontainersVersion   = '1.20.3'
+    assertjVersion          = '3.26.3'
+    mockitoVersion          = '5.20.0'   // 5.14 ships ByteBuddy that rejects JDK 25 bytecode
+}
