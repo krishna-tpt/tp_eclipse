@@ -11,6 +11,7 @@
             <entry path="null"/>
         </endorsedDirs>
     </libraryInfo>
+    <libraryInfo home="/usr/lib/jvm/java-25-openjdk-amd64" version="25.0.4"/>
     <libraryInfo home="/usr/lib/jvm/jdk1.6.0_45" version="1.6.0_45">
         <bootpath>
             <entry path="/usr/lib/jvm/jdk1.6.0_45/jre/lib/resources.jar"/>
