@@ -21,7 +21,6 @@
     <fullyQualifiedTypeName name="java.lang.Long"/>
     <fullyQualifiedTypeName name="java.util.Collection"/>
     <fullyQualifiedTypeName name="java.util.Collections"/>
-    <fullyQualifiedTypeName name="java.io.File"/>
     <fullyQualifiedTypeName name="com.expensemanager.service.UploadFileService"/>
     <fullyQualifiedTypeName name="java.time.Duration"/>
     <fullyQualifiedTypeName name="java.net.URI"/>
@@ -29,4 +28,5 @@
     <fullyQualifiedTypeName name="com.expensemanager.service.FilesApiService.DownloadResult"/>
     <fullyQualifiedTypeName name="com.expensemanager.model.BackupMetadata.BackupMode"/>
     <fullyQualifiedTypeName name="com.expensemanager.model.SchedulerConfig"/>
+    <fullyQualifiedTypeName name="java.io.File"/>
 </qualifiedTypeNameHistroy>

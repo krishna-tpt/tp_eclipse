@@ -10,6 +10,7 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="CREATEDON"/>
 			<item value="outName"/>
 			<item value="readMapping"/>
 			<item value="statoc"/>
@@ -24,7 +25,6 @@
 			<item value="flex gap-1 ml-auto"/>
 			<item value="sortBy"/>
 			<item value="categ"/>
-			<item value="transaction_custom_values"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>
