@@ -1,8 +1,0 @@
-variables:
-  DEPLOY_COUNTRY: "nl-integration-services" # values: nl-integration-services, fr-integration-services, pol-integration-services
-  SERVICE: "psql-inventory"                 # without the '-integration-service' suffix
-
-include:
-  - project: 'BS_BR/c10/MICHCA/cicd-templates'
-    file: '/microservice-pipeline-template.yml'
-    ref: main

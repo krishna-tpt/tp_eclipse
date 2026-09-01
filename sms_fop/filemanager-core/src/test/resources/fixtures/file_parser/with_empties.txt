@@ -1,2 +1,0 @@
-"DATA";"alpha";"";"bravo";"";"charlie"
-"DATA";"only-first";;;

@@ -1,2 +1,0 @@
-﻿"HEADER_FILE";"acme";"v1"
-"DATA";"x";"y"
