@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="NewWizardAction">
-		<item key="NewWizardSelectionPage.STORE_SELECTED_ID" value="org.eclipse.jdt.ui.wizards.NewPackageCreationWizard"/>
+		<item key="NewWizardSelectionPage.STORE_SELECTED_ID" value="org.eclipse.jdt.ui.wizards.NewClassCreationWizard"/>
 		<list key="NewWizardSelectionPage.STORE_EXPANDED_CATEGORIES_ID">
 			<item value="org.eclipse.jdt.ui.java"/>
+			<item value="org.eclipse.jpt.jaxb"/>
 		</list>
 		<section name="NewWizard.dialogBounds">
 			<item key="DIALOG_X_ORIGIN" value="622"/>
@@ -36,9 +37,15 @@
 	</section>
 	<section name="ImportExportAction">
 		<item key="ImportExportPage.STORE_SELECTED_IMPORT_WIZARD_ID" value="org.eclipse.buildship.ui.wizards.project.import"/>
+		<item key="ImportExportPage.STORE_SELECTED_EXPORT_WIZARD_ID" value="org.eclipse.jdt.internal.ui.jarpackager.JarPackageWizard"/>
 		<list key="ImportExportPage.STORE_EXPANDED_IMPORT_CATEGORIES">
 			<item value="org.eclipse.buildship.ui.importwizards"/>
 			<item value="org.eclipse.tm4e.ui.wizards"/>
+		</list>
+		<list key="ImportExportPage.STORE_EXPANDED_EXPORT_CATEGORIES">
+			<item value="org.eclipse.jst.ejb.ui"/>
+			<item value="org.eclipse.jdt.ui.Java"/>
+			<item value="org.eclipse.jst.j2ee.internal"/>
 		</list>
 		<section name="ImportExportWizard.dialogBounds">
 		</section>

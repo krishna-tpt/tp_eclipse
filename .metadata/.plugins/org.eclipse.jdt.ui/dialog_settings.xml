@@ -38,8 +38,8 @@
 	<section name="NewClassCreationWizard.dialogBounds">
 		<item key="DIALOG_X_ORIGIN" value="622"/>
 		<item key="DIALOG_Y_ORIGIN" value="208"/>
-		<item key="DIALOG_WIDTH" value="672"/>
-		<item key="DIALOG_HEIGHT" value="751"/>
+		<item key="DIALOG_WIDTH" value="652"/>
+		<item key="DIALOG_HEIGHT" value="729"/>
 		<item key="DIALOG_FONT_NAME" value="1|Ubuntu|11.0|0|GTK|1|"/>
 	</section>
 	<section name="completion_proposal_size">
@@ -47,7 +47,7 @@
 	<section name="quick_assist_proposal_size">
 	</section>
 	<section name="BuildPathsPropertyPage">
-		<item key="pageIndex" value="0"/>
+		<item key="pageIndex" value="2"/>
 	</section>
 	<section name="RefactoringWizard.preview">
 		<item key="width" value="600"/>
@@ -86,15 +86,16 @@
 		<item key="JarManifestWizardPage.SAVE_MANIFEST" value="false"/>
 		<item key="JarManifestWizardPage.REUSE_MANIFEST" value="false"/>
 		<item key="JarManifestWizardPage.MANIFEST_LOCATION" value=""/>
-		<item key="JarManifestWizardPage.SEAL_JAR" value="false"/>
+		<item key="JarManifestWizardPage.SEAL_JAR" value="true"/>
 		<list key="JarPackageWizardPage.DESTINATION_NAMES_ID">
+			<item value="/home/dev021/Downloads/qrutil.jar"/>
 			<item value="/home/dev168/Downloads/sodtest.jar"/>
 		</list>
 		<section name="JarPackageWizard.dialogBounds">
-			<item key="DIALOG_X_ORIGIN" value="381"/>
-			<item key="DIALOG_Y_ORIGIN" value="87"/>
+			<item key="DIALOG_X_ORIGIN" value="872"/>
+			<item key="DIALOG_Y_ORIGIN" value="164"/>
 			<item key="DIALOG_WIDTH" value="613"/>
-			<item key="DIALOG_HEIGHT" value="701"/>
+			<item key="DIALOG_HEIGHT" value="705"/>
 			<item key="DIALOG_FONT_NAME" value="1|Ubuntu|11.0|0|GTK|1|"/>
 		</section>
 	</section>
