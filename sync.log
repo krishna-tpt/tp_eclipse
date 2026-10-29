@@ -15231,3 +15231,35 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main ada8efe] Auto sync - 2026-10-29 12:00:02
+ 29 files changed, 4913 insertions(+), 3273 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/2669985819.index (98%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/2982094558.index (69%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/externalLibsTimeStamps (98%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/variablesAndContainers.dat (62%)
+ rewrite .metadata/.plugins/org.eclipse.m2e.core/workspaceState.ser (90%)
+ rewrite .metadata/.plugins/org.eclipse.m2e.jdt/ExcelToOracleInserter.container (69%)
+ create mode 100644 ExcelToOracleInserter/app.log
+ create mode 100644 ExcelToOracleInserter/hs_err_pid605973.log
+ rewrite ExcelToOracleInserter/pom.xml (60%)
+ create mode 100644 ExcelToOracleInserter/src/main/java/test/PdfToExcel.java
+ create mode 100644 ExcelToOracleInserter/target/classes/.gitignore
+ rewrite ExcelToOracleInserter/target/classes/META-INF/maven/com/ExcelToOracleInserter/pom.xml (60%)
+ create mode 100644 SOD/src/test/PdfToExcel.java
+To https://github.com/krishna-tpt/tp_eclipse.git
+   d4f3b56..ada8efe  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-10-29 12:00:09[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-10-29 15:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
