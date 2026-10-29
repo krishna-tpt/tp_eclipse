@@ -10,21 +10,21 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
-			<item value="CREATEDON"/>
-			<item value="outName"/>
-			<item value="readMapping"/>
-			<item value="statoc"/>
-			<item value="FolderConfig"/>
-			<item value="SharePointFile"/>
-			<item value="Match at Line"/>
-			<item value="SharePointClient"/>
-			<item value="ETL_CONFIG_PATH"/>
-			<item value="setViewMode"/>
-			<item value="default"/>
-			<item value="${books}"/>
-			<item value="flex gap-1 ml-auto"/>
-			<item value="sortBy"/>
-			<item value="categ"/>
+			<item value="                    String text = stripper.getTextForRegion(&quot;col&quot; + c);"/>
+			<item value="                    Matcher m = CARD.matcher(text);"/>
+			<item value="    static final Pattern CARD = Pattern.compile(&#x0A;        &quot;(?:(S\\d?)\\s+)?(\\d{1,4})\\s+([A-Z]{3}\\d{7})\\s*&quot;&#x0A;      + &quot;Name\\s*:\\s*(.*?)\\s*&quot;&#x0A;      + &quot;(Father|Husband|Mother|Other)\\s*Name\\s*:\\s*(.*?)\\s*&quot;&#x0A;      + &quot;House\\s*Number\\s*:\\s*(.*?)\\s*&quot;&#x0A;      + &quot;Age\\s*:\\s*(\\d+)\\s*Gender\\s*:\\s*(\\w+)&quot;,&#x0A;        Pattern.DOTALL);"/>
+			<item value="                BufferedImage img = renderer.renderImageWithDPI(p - 1, DPI);&#x0A;"/>
+			<item value="                BufferedImage img = renderer.renderImageWithDPI(p - 1, DPI);&#x0A;                int w = img.getWidth();&#x0A;                int h = img.getHeight();&#x0A;                int top = (int) (h * HEADER_RATIO);&#x0A;                int height = (int) (h - top - h * FOOTER_RATIO);&#x0A;                int colW = w / 3;&#x0A;&#x0A;                for (int c = 0; c &lt; 3; c++) {&#x0A;                    BufferedImage colImg = img.getSubimage(c * colW, top, colW, height);&#x0A;                    String text = tess.doOCR(colImg);"/>
+			<item value="            PDFRenderer renderer = new PDFRenderer(doc);&#x0A;"/>
+			<item value="            PDFRenderer renderer = new PDFRenderer(doc);&#x0A;            Tesseract tess = new Tesseract();&#x0A;            tess.setDatapath(TESSDATA);&#x0A;            tess.setLanguage(&quot;eng&quot;);&#x0A;            tess.setPageSegMode(6);   // uniform block of text, card-ku nalladhu"/>
+			<item value="        System.setProperty(&quot;jna.library.path&quot;, &quot;/usr/lib/x86_64-linux-gnu&quot;);"/>
+			<item value="    static final String PDF_PATH   = &quot;/home/dev021/Downloads/files/F851763_Email PDF_test.pdf&quot;;"/>
+			<item value="            tess.setLanguage(&quot;eng&quot;);"/>
+			<item value="                    String text = tess.doOCR(colImg);"/>
+			<item value="    static final String TESSDATA = &quot;/usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata&quot;;"/>
+			<item value="        List&lt;Voter&gt; voters = new ArrayList&lt;&gt;()"/>
+			<item value="import org.apache.pdfbox.pdmodel.PDDocument;"/>
+			<item value="                PDPage page = doc.getPage(p - 1);&#x0A;                float w = page.getMediaBox().getWidth();&#x0A;                float h = page.getMediaBox().getHeight();&#x0A;                float top = (float) (h * HEADER_RATIO);&#x0A;                float height = (float) (h - top - h * FOOTER_RATIO);&#x0A;                float colW = w / 3f;&#x0A;&#x0A;                PDFTextStripperByArea stripper = new PDFTextStripperByArea();&#x0A;                stripper.setSortByPosition(true);&#x0A;                for (int c = 0; c &lt; 3; c++) {&#x0A;                    stripper.addRegion(&quot;col&quot; + c, new Rectangle2D.Float(c * colW, top, colW, height));&#x0A;                }&#x0A;                stripper.extractRegions(page);&#x0A;&#x0A;                for (int c = 0; c &lt; 3; c++) {&#x0A;                    String text = stripper.getTextForRegion(&quot;col&quot; + c);&#x0A;                    if (p == START_PAGE) {&#x0A;                        System.out.println(&quot;--- Page &quot; + p + &quot; col&quot; + c + &quot; RAW (len=&quot; + text.length() + &quot;) ---&quot;);&#x0A;                        System.out.println(text);&#x0A;                    }"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>
