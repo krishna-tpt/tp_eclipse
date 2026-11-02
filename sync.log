@@ -15481,3 +15481,47 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main e4012d9] Auto sync - 2026-11-02 18:00:02
+ 56 files changed, 3780 insertions(+), 2433 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/2669985819.index (99%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/externalFilesCache (98%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/nonChainingJarsCache (100%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/variablesAndContainers.dat (67%)
+ rewrite .metadata/.plugins/org.eclipse.m2e.core/workspaceState.ser (78%)
+ create mode 100644 ExcelToOracleInserter/src/main/java/odoo/OdooApiServlet.java
+ create mode 100644 ExcelToOracleInserter/src/main/java/odoo/OdooClient.java
+ create mode 100644 ExcelToOracleInserter/src/main/java/test/FindActivityField2.java
+ create mode 100644 ExcelToOracleInserter/src/main/java/test/InsertTS.java
+ create mode 100644 ExcelToOracleInserter/src/main/java/test/ListActivityTypes.java
+ create mode 100644 ExcelToOracleInserter/src/main/java/test/ReadTS.java
+ create mode 100644 ExcelToOracleInserter/src/main/resources/odoo.properties
+ delete mode 100644 ExcelToOracleInserter/target/classes/.gitignore
+ create mode 100644 ExcelToOracleInserter/target/classes/odoo/OdooApiServlet.class
+ create mode 100644 ExcelToOracleInserter/target/classes/odoo/OdooClient.class
+ create mode 100644 ExcelToOracleInserter/target/classes/test/FindActivityField2.class
+ create mode 100644 ExcelToOracleInserter/target/classes/test/InsertTS.class
+ create mode 100644 ExcelToOracleInserter/target/classes/test/ListActivityTypes.class
+ create mode 100644 ExcelToOracleInserter/target/classes/test/ListProjects.class
+ create mode 100644 ExcelToOracleInserter/target/classes/test/ListTasks.class
+ create mode 100644 ExcelToOracleInserter/target/classes/test/PdfToExcel$Voter.class
+ create mode 100644 ExcelToOracleInserter/target/classes/test/PdfToExcel.class
+ create mode 100644 ExcelToOracleInserter/target/classes/test/ReadTS.class
+ create mode 100644 ExcelToOracleInserter/target/classes/test/Util.class
+ delete mode 100644 log-search-swing/target/classes/.gitignore
+To https://github.com/krishna-tpt/tp_eclipse.git
+   a07c11b..e4012d9  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-11-02 18:00:07[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-11-02 21:00:01[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m
