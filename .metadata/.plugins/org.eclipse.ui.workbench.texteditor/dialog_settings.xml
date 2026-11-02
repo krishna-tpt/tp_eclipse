@@ -10,6 +10,8 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="default:&#x0A;    // Java 8: Map.of() replaced with Collections.singletonMap()&#x0A;    send(resp, 404, Collections.singletonMap(&quot;error&quot;, &quot;Not found&quot;));"/>
+			<item value="odoo"/>
 			<item value="                    String text = stripper.getTextForRegion(&quot;col&quot; + c);"/>
 			<item value="                    Matcher m = CARD.matcher(text);"/>
 			<item value="    static final Pattern CARD = Pattern.compile(&#x0A;        &quot;(?:(S\\d?)\\s+)?(\\d{1,4})\\s+([A-Z]{3}\\d{7})\\s*&quot;&#x0A;      + &quot;Name\\s*:\\s*(.*?)\\s*&quot;&#x0A;      + &quot;(Father|Husband|Mother|Other)\\s*Name\\s*:\\s*(.*?)\\s*&quot;&#x0A;      + &quot;House\\s*Number\\s*:\\s*(.*?)\\s*&quot;&#x0A;      + &quot;Age\\s*:\\s*(\\d+)\\s*Gender\\s*:\\s*(\\w+)&quot;,&#x0A;        Pattern.DOTALL);"/>
@@ -23,8 +25,6 @@
 			<item value="                    String text = tess.doOCR(colImg);"/>
 			<item value="    static final String TESSDATA = &quot;/usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata&quot;;"/>
 			<item value="        List&lt;Voter&gt; voters = new ArrayList&lt;&gt;()"/>
-			<item value="import org.apache.pdfbox.pdmodel.PDDocument;"/>
-			<item value="                PDPage page = doc.getPage(p - 1);&#x0A;                float w = page.getMediaBox().getWidth();&#x0A;                float h = page.getMediaBox().getHeight();&#x0A;                float top = (float) (h * HEADER_RATIO);&#x0A;                float height = (float) (h - top - h * FOOTER_RATIO);&#x0A;                float colW = w / 3f;&#x0A;&#x0A;                PDFTextStripperByArea stripper = new PDFTextStripperByArea();&#x0A;                stripper.setSortByPosition(true);&#x0A;                for (int c = 0; c &lt; 3; c++) {&#x0A;                    stripper.addRegion(&quot;col&quot; + c, new Rectangle2D.Float(c * colW, top, colW, height));&#x0A;                }&#x0A;                stripper.extractRegions(page);&#x0A;&#x0A;                for (int c = 0; c &lt; 3; c++) {&#x0A;                    String text = stripper.getTextForRegion(&quot;col&quot; + c);&#x0A;                    if (p == START_PAGE) {&#x0A;                        System.out.println(&quot;--- Page &quot; + p + &quot; col&quot; + c + &quot; RAW (len=&quot; + text.length() + &quot;) ---&quot;);&#x0A;                        System.out.println(text);&#x0A;                    }"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>
