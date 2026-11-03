@@ -1,19 +1,17 @@
 package odoo;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/api/*")
 public class OdooApiServlet extends HttpServlet {
 
-    // GET /api/projects, /api/activities, /api/tasks?projectId=27
+    // GET /api/projects, /api/activities, /api/tasks?projectId=27, /api/day?date=YYYY-MM-DD
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = req.getPathInfo() == null ? "" : req.getPathInfo();
@@ -28,15 +26,19 @@ public class OdooApiServlet extends HttpServlet {
                 case "/tasks":
                     send(resp, 200, OdooClient.listTasks(Integer.parseInt(req.getParameter("projectId"))));
                     break;
+                case "/day":
+                    // Existing timesheets + attendance for the selected date
+                    send(resp, 200, OdooClient.dayInfo(req.getParameter("date")));
+                    break;
                 default:
-                    send(resp, 404, Map.of("error", "Not found"));
+                    send(resp, 404, Collections.singletonMap("error", "Not found"));
             }
         } catch (Exception e) {
             sendError(resp, e);
         }
     }
 
- // POST /api/timesheet (form encoded)
+    // POST /api/timesheet (form encoded)
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (!"/timesheet".equals(req.getPathInfo())) {
@@ -47,7 +49,6 @@ public class OdooApiServlet extends HttpServlet {
             int projectId = Integer.parseInt(req.getParameter("projectId"));
             int taskId = Integer.parseInt(req.getParameter("taskId"));
             String act = req.getParameter("activityId");
-            // Java 8: isBlank() replaced with trim().isEmpty()
             Integer activityId = (act == null || act.trim().isEmpty()) ? null : Integer.valueOf(act);
             String date = req.getParameter("date");
             double hours = Double.parseDouble(req.getParameter("hours"));
@@ -65,7 +66,7 @@ public class OdooApiServlet extends HttpServlet {
             sendError(resp, e);
         }
     }
-    
+
     private void sendError(HttpServletResponse resp, Exception e) throws IOException {
         String msg = String.valueOf(e.getMessage());
         // Odoo faults contain a long traceback, keep only the start

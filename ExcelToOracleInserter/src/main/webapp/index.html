@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timesheet Entry</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #f4f5f7; margin: 0; padding: 24px; }
+  .card { max-width: 760px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 10px;
+          box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+  h2 { margin-top: 0; }
+  h3 { margin: 24px 0 8px; font-size: 16px; }
+  label { display: block; margin: 14px 0 4px; font-weight: 600; font-size: 14px; }
+  select, input[type=text], textarea { width: 100%; padding: 8px; border: 1px solid #bbb;
+          border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; }
+  .datebox { position: relative; display: flex; gap: 6px; }
+  .datebox button { margin: 0; width: 44px; padding: 0; background: #eee; color: #333; border: 1px solid #bbb; }
+  #datePicker { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  button { margin-top: 20px; width: 100%; padding: 10px; background: #714b67; color: #fff; border: 0;
+           border-radius: 6px; font-size: 15px; cursor: pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  #msg { margin-top: 14px; padding: 10px; border-radius: 6px; display: none; font-size: 14px; }
+  .ok { background: #e3f6e8; color: #1b6b32; }
+  .err { background: #fde8e8; color: #9b1c1c; }
+  .hint { font-size: 12px; color: #555; margin-top: 4px; min-height: 16px; }
+  .hint.bad { color: #9b1c1c; }
+
+  /* Day summary */
+  .summary { display: flex; gap: 12px; flex-wrap: wrap; }
+  .box { flex: 1; min-width: 220px; background: #f7f3f6; border: 1px solid #e3d6df; border-radius: 8px; padding: 10px 12px; }
+  .box .t { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: .03em; }
+  .box .v { font-size: 22px; font-weight: 700; margin: 2px 0; }
+  .box .s { font-size: 13px; color: #555; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+  th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eee; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  tfoot td { font-weight: 700; background: #f7f7f7; }
+  .muted { color: #777; font-size: 13px; }
+  .refresh { width: auto; margin: 0 0 0 8px; padding: 2px 10px; font-size: 12px; background: #eee; color: #333; border: 1px solid #bbb; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>Timesheet Entry</h2>
+
+  <label for="project">Project</label>
+  <select id="project"><option>Loading...</option></select>
+
+  <label for="task">Task</label>
+  <select id="task" disabled><option>Select a project first</option></select>
+
+  <label for="activity">Activity</label>
+  <select id="activity"><option>Loading...</option></select>
+
+  <div class="row">
+    <div>
+      <label for="date">Date (DD/MM/YYYY)</label>
+      <div class="datebox">
+        <input type="text" id="date" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off">
+        <button type="button" id="calBtn" title="Pick a date">&#128197;</button>
+        <input type="date" id="datePicker" tabindex="-1">
+      </div>
+    </div>
+    <div>
+      <label for="hours">Hours (H.MM)</label>
+      <input type="text" id="hours" inputmode="decimal" placeholder="2.30" autocomplete="off">
+      <div class="hint" id="hoursHint"></div>
+    </div>
+  </div>
+
+  <label for="desc">Description</label>
+  <textarea id="desc" rows="3" placeholder="What did you work on?"></textarea>
+
+  <button id="save">Save Timesheet</button>
+  <div id="msg"></div>
+
+  <h3>Day summary <button type="button" class="refresh" id="refresh">Refresh</button></h3>
+  <div class="summary">
+    <div class="box">
+      <div class="t">Attendance (after 30 min break)</div>
+      <div class="v" id="attNet">-</div>
+      <div class="s" id="attInfo">Loading...</div>
+    </div>
+    <div class="box">
+      <div class="t">Timesheet logged</div>
+      <div class="v" id="tsTotal">-</div>
+      <div class="s" id="tsInfo">Loading...</div>
+    </div>
+  </div>
+
+  <h3>Timesheets on this date</h3>
+  <div id="tableWrap"><div class="muted">Loading...</div></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// ---------- helpers ----------
+
+// Fetch JSON and throw the server error message on failure
+async function getJson(url, opts) {
+  const r = await fetch(url, opts);
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || r.statusText);
+  return d;
+}
+
+// Fill a dropdown with items, label comes from labelFn
+function fill(select, items, labelFn, placeholder) {
+  select.innerHTML = "";
+  const first = document.createElement("option");
+  first.value = "";
+  first.textContent = placeholder;
+  select.appendChild(first);
+  items.forEach(it => {
+    const o = document.createElement("option");
+    o.value = it.id;
+    o.textContent = labelFn(it);   // textContent avoids HTML injection
+    select.appendChild(o);
+  });
+}
+
+function show(text, ok) {
+  const m = $("msg");
+  m.textContent = text;
+  m.className = ok ? "ok" : "err";
+  m.style.display = "block";
+}
+
+const pad = n => String(n).padStart(2, "0");
+
+// DD/MM/YYYY -> YYYY-MM-DD (null when invalid)
+function dmyToIso(s) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s.trim());
+  if (!m) return null;
+  const d = +m[1], mo = +m[2], y = +m[3];
+  const dt = new Date(y, mo - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+  return y + "-" + pad(mo) + "-" + pad(d);
+}
+
+// YYYY-MM-DD -> DD/MM/YYYY
+function isoToDmy(s) {
+  const p = s.split("-");
+  return p[2] + "/" + p[1] + "/" + p[0];
+}
+
+// ---------- ONE time format everywhere: H.MM (8.30 = 8 hours 30 minutes) ----------
+
+// Total minutes -> "8.30"
+function fmtHM(totalMin) {
+  return Math.floor(totalMin / 60) + "." + pad(totalMin % 60);
+}
+
+// Decimal hours coming from Odoo (8.5) -> total minutes (510)
+function decToMin(h) {
+  return Math.round(h * 60);
+}
+
+// Parse the typed value "2.30" (or "2.3", "2") -> { minutes, decimal } or null when invalid
+function parseHM(s) {
+  s = s.trim().replace(",", ".");
+  const m = /^(\d{1,2})(?:\.(\d{1,2}))?$/.exec(s);
+  if (!m) return null;
+  const h = +m[1];
+  // "2.3" means 2.30, so the minutes are padded to two digits on the right
+  const mm = m[2] === undefined ? 0 : +(m[2].padEnd(2, "0"));
+  if (mm > 59) return null;
+  const total = h * 60 + mm;
+  if (total <= 0) return null;
+  return { minutes: total, decimal: total / 60 };
+}
+
+// Live hint under the hours field
+$("hours").addEventListener("input", () => {
+  const hint = $("hoursHint");
+  const v = $("hours").value;
+  if (!v.trim()) { hint.textContent = ""; hint.className = "hint"; return; }
+  const p = parseHM(v);
+  if (p) {
+    hint.textContent = "= " + Math.floor(p.minutes / 60) + "h " + pad(p.minutes % 60) + "m";
+    hint.className = "hint";
+  } else {
+    hint.textContent = "Use H.MM, minutes 00-59 (example 2.30 = 2h 30m)";
+    hint.className = "hint bad";
+  }
+});
+
+// ---------- date field ----------
+
+const dateEl = $("date");
+const t = new Date();
+dateEl.value = pad(t.getDate()) + "/" + pad(t.getMonth() + 1) + "/" + t.getFullYear();
+
+// Auto insert the slashes while typing
+dateEl.addEventListener("input", () => {
+  let v = dateEl.value.replace(/\D/g, "").slice(0, 8);
+  if (v.length > 4) v = v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4);
+  else if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
+  dateEl.value = v;
+  if (v.length === 10) loadDay();
+});
+
+// Calendar button opens the native picker, the value is shown as DD/MM/YYYY
+$("calBtn").addEventListener("click", () => {
+  const p = $("datePicker");
+  p.value = dmyToIso(dateEl.value) || "";
+  if (p.showPicker) p.showPicker(); else p.click();
+});
+$("datePicker").addEventListener("change", () => {
+  if ($("datePicker").value) {
+    dateEl.value = isoToDmy($("datePicker").value);
+    loadDay();
+  }
+});
+
+// ---------- day summary ----------
+
+let dayToken = 0;   // ignore stale responses when the date changes quickly
+
+async function loadDay() {
+  const iso = dmyToIso(dateEl.value);
+  if (!iso) return;
+  const token = ++dayToken;
+  try {
+    const d = await getJson("api/day?date=" + iso);
+    if (token !== dayToken) return;
+    renderDay(d);
+  } catch (e) {
+    if (token !== dayToken) return;
+    show(e.message, false);
+  }
+}
+
+function renderDay(d) {
+  // Attendance box (H.MM)
+  const a = d.attendance || {};
+  if (a.found) {
+    const incompleteOnly = a.incomplete && a.grossMinutes === 0;
+    $("attNet").textContent = incompleteOnly ? "-" : fmtHM(a.netMinutes) + " Hrs";
+    let info = "In " + a.firstIn;
+    if (a.open) info += " | Out: not yet (now " + a.nowTime + ")";
+    else if (a.lastOut) info += " | Out " + a.lastOut;
+    if (a.incomplete) info += " | Out time missing in some entries";
+    if (!incompleteOnly) info += " | Gross " + fmtHM(a.grossMinutes) + " - " + fmtHM(a.breakMinutes) + " break";
+    $("attInfo").textContent = info;
+  } else {
+    $("attNet").textContent = "-";
+    $("attInfo").textContent = a.note || "No attendance record for this date";
+  }
+
+  // Timesheet rows in minutes, so the table total and the box total always match
+  const rows = d.timesheets || [];
+  const mins = rows.map(r => decToMin(r.hours));
+  const totalMin = mins.reduce((s, m) => s + m, 0);
+
+  $("tsTotal").textContent = rows.length ? fmtHM(totalMin) + " Hrs" : "0.00 Hrs";
+  $("tsInfo").textContent = rows.length + (rows.length === 1 ? " entry" : " entries");
+
+  // Table of existing timesheets
+  const wrap = $("tableWrap");
+  wrap.innerHTML = "";
+  if (!rows.length) {
+    const p = document.createElement("div");
+    p.className = "muted";
+    p.textContent = "No timesheet entries for this date.";
+    wrap.appendChild(p);
+    return;
+  }
+  const table = document.createElement("table");
+  const head = table.createTHead().insertRow();
+  ["Project", "Task", "Activity", "Description", "Hrs (H.MM)"].forEach((h, i) => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    if (i === 4) th.className = "num";
+    head.appendChild(th);
+  });
+  const body = table.createTBody();
+  rows.forEach((r, i) => {
+    const tr = body.insertRow();
+    [r.project, r.task, r.activity, r.description].forEach(v => {
+      tr.insertCell().textContent = v;
+    });
+    const c = tr.insertCell();
+    c.className = "num";
+    c.textContent = fmtHM(mins[i]);
+  });
+  const foot = table.createTFoot().insertRow();
+  const label = foot.insertCell();
+  label.colSpan = 4;
+  label.textContent = "Total";
+  const tot = foot.insertCell();
+  tot.className = "num";
+  tot.textContent = fmtHM(totalMin);
+  wrap.appendChild(table);
+}
+
+$("refresh").addEventListener("click", loadDay);
+
+// ---------- initial load ----------
+
+(async () => {
+  try {
+    const [projects, activities] = await Promise.all([getJson("api/projects"), getJson("api/activities")]);
+    fill($("project"), projects, p => p.name, "-- Select project --");
+    fill($("activity"), activities, a => a.name, "-- Select activity --");
+  } catch (e) { show(e.message, false); }
+})();
+loadDay();
+
+// When the project changes, load its open tasks
+$("project").addEventListener("change", async () => {
+  const pid = $("project").value;
+  const taskSel = $("task");
+  if (!pid) {
+    fill(taskSel, [], x => x, "Select a project first");
+    taskSel.disabled = true;
+    return;
+  }
+  taskSel.disabled = true;
+  fill(taskSel, [], x => x, "Loading tasks...");
+  try {
+    const tasks = await getJson("api/tasks?projectId=" + pid);
+    fill(taskSel, tasks, k => k.name + (k.stage ? "  [" + k.stage + "]" : ""), "-- Select task --");
+    taskSel.disabled = false;
+  } catch (e) { show(e.message, false); }
+});
+
+// ---------- save ----------
+
+$("save").addEventListener("click", async () => {
+  const iso = dmyToIso(dateEl.value);
+  if (!iso) {
+    show("Enter a valid date as DD/MM/YYYY", false);
+    return;
+  }
+  const hm = parseHM($("hours").value);
+  if (!hm) {
+    show("Enter hours as H.MM, minutes 00-59 (example 2.30 = 2h 30m)", false);
+    return;
+  }
+  const body = new URLSearchParams({
+    projectId: $("project").value,
+    taskId: $("task").value,
+    activityId: $("activity").value,
+    date: iso,
+    // Odoo expects decimal hours, so H.MM is converted here (2.30 -> 2.5)
+    hours: String(Math.round(hm.decimal * 1e6) / 1e6),
+    description: $("desc").value
+  });
+  if (!body.get("projectId") || !body.get("taskId") || !body.get("description").trim()) {
+    show("Project, task, hours and description are required", false);
+    return;
+  }
+  $("save").disabled = true;
+  try {
+    const r = await getJson("api/timesheet", { method: "POST", body });
+    show("Timesheet saved (" + fmtHM(hm.minutes) + " Hrs). Odoo id = " + r.id, true);
+    // Keep project/task/activity for the next entry, clear the rest
+    $("hours").value = "";
+    $("hoursHint").textContent = "";
+    $("desc").value = "";
+    loadDay();   // refresh the table and totals
+  } catch (e) { show(e.message, false); }
+  $("save").disabled = false;
+});
+</script>
+</body>
+</html>

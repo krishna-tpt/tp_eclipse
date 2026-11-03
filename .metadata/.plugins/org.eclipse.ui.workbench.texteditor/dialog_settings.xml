@@ -10,6 +10,7 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="war"/>
 			<item value="default:&#x0A;    // Java 8: Map.of() replaced with Collections.singletonMap()&#x0A;    send(resp, 404, Collections.singletonMap(&quot;error&quot;, &quot;Not found&quot;));"/>
 			<item value="odoo"/>
 			<item value="                    String text = stripper.getTextForRegion(&quot;col&quot; + c);"/>
@@ -24,7 +25,6 @@
 			<item value="            tess.setLanguage(&quot;eng&quot;);"/>
 			<item value="                    String text = tess.doOCR(colImg);"/>
 			<item value="    static final String TESSDATA = &quot;/usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata&quot;;"/>
-			<item value="        List&lt;Voter&gt; voters = new ArrayList&lt;&gt;()"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>

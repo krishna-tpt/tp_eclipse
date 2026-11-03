@@ -6,14 +6,15 @@
 	<groupId>com</groupId>
 	<artifactId>ExcelToOracleInserter</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 
 	<name>ExcelToOracleInserter</name>
 
 	<properties>
-		<!-- Compile with Java 11 -->
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
+		<!-- Java 8 compile level -->
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<failOnMissingWebXml>false</failOnMissingWebXml>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -70,7 +71,7 @@
 			<version>19.3.0.0</version>
 		</dependency>
 
-		<!-- Servlet API, provided by Tomcat -->
+		<!-- Servlet API for Tomcat 9, provided by the server -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
