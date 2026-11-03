@@ -10,6 +10,12 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="timesheetsOf"/>
+			<item value="listTasks"/>
+			<item value="listProjects"/>
+			<item value="Tasks"/>
+			<item value="tasks"/>
+			<item value="import jakarta.servlet.annotation.WebServlet;"/>
 			<item value="war"/>
 			<item value="default:&#x0A;    // Java 8: Map.of() replaced with Collections.singletonMap()&#x0A;    send(resp, 404, Collections.singletonMap(&quot;error&quot;, &quot;Not found&quot;));"/>
 			<item value="odoo"/>
@@ -19,12 +25,6 @@
 			<item value="                BufferedImage img = renderer.renderImageWithDPI(p - 1, DPI);&#x0A;"/>
 			<item value="                BufferedImage img = renderer.renderImageWithDPI(p - 1, DPI);&#x0A;                int w = img.getWidth();&#x0A;                int h = img.getHeight();&#x0A;                int top = (int) (h * HEADER_RATIO);&#x0A;                int height = (int) (h - top - h * FOOTER_RATIO);&#x0A;                int colW = w / 3;&#x0A;&#x0A;                for (int c = 0; c &lt; 3; c++) {&#x0A;                    BufferedImage colImg = img.getSubimage(c * colW, top, colW, height);&#x0A;                    String text = tess.doOCR(colImg);"/>
 			<item value="            PDFRenderer renderer = new PDFRenderer(doc);&#x0A;"/>
-			<item value="            PDFRenderer renderer = new PDFRenderer(doc);&#x0A;            Tesseract tess = new Tesseract();&#x0A;            tess.setDatapath(TESSDATA);&#x0A;            tess.setLanguage(&quot;eng&quot;);&#x0A;            tess.setPageSegMode(6);   // uniform block of text, card-ku nalladhu"/>
-			<item value="        System.setProperty(&quot;jna.library.path&quot;, &quot;/usr/lib/x86_64-linux-gnu&quot;);"/>
-			<item value="    static final String PDF_PATH   = &quot;/home/dev021/Downloads/files/F851763_Email PDF_test.pdf&quot;;"/>
-			<item value="            tess.setLanguage(&quot;eng&quot;);"/>
-			<item value="                    String text = tess.doOCR(colImg);"/>
-			<item value="    static final String TESSDATA = &quot;/usr/share/tesseract-ocr/4.00/tessdata/eng.traineddata&quot;;"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>

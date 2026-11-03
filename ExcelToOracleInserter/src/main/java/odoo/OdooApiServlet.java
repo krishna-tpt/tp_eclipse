@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/api/*")
 public class OdooApiServlet extends HttpServlet {
 
-    // GET /api/projects, /api/activities, /api/tasks?projectId=27, /api/day?date=YYYY-MM-DD
+    // GET /api/projects, /api/activities, /api/tasks?projectId=27&includeDone=true, /api/day?date=YYYY-MM-DD
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = req.getPathInfo() == null ? "" : req.getPathInfo();
@@ -23,9 +23,12 @@ public class OdooApiServlet extends HttpServlet {
                 case "/activities":
                     send(resp, 200, OdooClient.listActivities());
                     break;
-                case "/tasks":
-                    send(resp, 200, OdooClient.listTasks(Integer.parseInt(req.getParameter("projectId"))));
+                case "/tasks": {
+                    // includeDone=true also returns the tasks of the Done stage
+                    boolean includeDone = "true".equals(req.getParameter("includeDone"));
+                    send(resp, 200, OdooClient.listTasks(Integer.parseInt(req.getParameter("projectId")), includeDone));
                     break;
+                }
                 case "/day":
                     // Existing timesheets + attendance for the selected date
                     send(resp, 200, OdooClient.dayInfo(req.getParameter("date")));
@@ -38,33 +41,56 @@ public class OdooApiServlet extends HttpServlet {
         }
     }
 
-    // POST /api/timesheet (form encoded)
+    // POST /api/timesheet (create) and POST /api/timesheet/update (edit), form encoded
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (!"/timesheet".equals(req.getPathInfo())) {
-            send(resp, 404, Collections.singletonMap("error", "Not found"));
-            return;
-        }
+        // Read form values as UTF-8 so special characters in the description stay intact
+        req.setCharacterEncoding("UTF-8");
+        String path = req.getPathInfo() == null ? "" : req.getPathInfo();
         try {
-            int projectId = Integer.parseInt(req.getParameter("projectId"));
-            int taskId = Integer.parseInt(req.getParameter("taskId"));
-            String act = req.getParameter("activityId");
-            Integer activityId = (act == null || act.trim().isEmpty()) ? null : Integer.valueOf(act);
-            String date = req.getParameter("date");
-            double hours = Double.parseDouble(req.getParameter("hours"));
-            String description = req.getParameter("description");
+            if ("/timesheet".equals(path)) {
+                int projectId = Integer.parseInt(req.getParameter("projectId"));
+                int taskId = Integer.parseInt(req.getParameter("taskId"));
+                Integer activityId = parseOptionalInt(req.getParameter("activityId"));
+                String date = req.getParameter("date");
+                double hours = Double.parseDouble(req.getParameter("hours"));
+                String description = req.getParameter("description");
 
-            // Basic validation
-            if (date == null || date.trim().isEmpty()
-                    || description == null || description.trim().isEmpty() || hours <= 0) {
-                send(resp, 400, Collections.singletonMap("error", "Date, hours and description are required"));
-                return;
+                // Basic validation
+                if (date == null || date.trim().isEmpty()
+                        || description == null || description.trim().isEmpty() || hours <= 0) {
+                    send(resp, 400, Collections.singletonMap("error", "Date, hours and description are required"));
+                    return;
+                }
+                Object id = OdooClient.createTimesheet(projectId, taskId, activityId, date, hours, description.trim());
+                send(resp, 200, Collections.singletonMap("id", id));
+
+            } else if ("/timesheet/update".equals(path)) {
+                int id = Integer.parseInt(req.getParameter("id"));
+                int taskId = Integer.parseInt(req.getParameter("taskId"));
+                Integer activityId = parseOptionalInt(req.getParameter("activityId"));
+                double hours = Double.parseDouble(req.getParameter("hours"));
+                String description = req.getParameter("description");
+
+                // Basic validation
+                if (description == null || description.trim().isEmpty() || hours <= 0) {
+                    send(resp, 400, Collections.singletonMap("error", "Hours and description are required"));
+                    return;
+                }
+                OdooClient.updateTimesheet(id, taskId, activityId, hours, description.trim());
+                send(resp, 200, Collections.singletonMap("ok", true));
+
+            } else {
+                send(resp, 404, Collections.singletonMap("error", "Not found"));
             }
-            Object id = OdooClient.createTimesheet(projectId, taskId, activityId, date, hours, description.trim());
-            send(resp, 200, Collections.singletonMap("id", id));
         } catch (Exception e) {
             sendError(resp, e);
         }
+    }
+
+    // Blank or missing value becomes null
+    private static Integer parseOptionalInt(String s) {
+        return (s == null || s.trim().isEmpty()) ? null : Integer.valueOf(s.trim());
     }
 
     private void sendError(HttpServletResponse resp, Exception e) throws IOException {

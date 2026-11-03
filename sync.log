@@ -15601,3 +15601,67 @@ Branch 'main' set up to track remote branch 'main' from 'origin'.
 [0;32m✓ Already up to date. No need Pull.[0m
 
 [0;32m[PUSH] Checking Local changes...[0m
+[1;33mChanges available. Will Commit & Push...[0m
+[main ec575f4] Auto sync - 2026-11-03 18:00:02
+ 104 files changed, 9750 insertions(+), 2623 deletions(-)
+ rewrite .metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.launching.prefs (87%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/2669985819.index (93%)
+ rewrite .metadata/.plugins/org.eclipse.jdt.core/variablesAndContainers.dat (85%)
+ rewrite .metadata/.plugins/org.eclipse.m2e.core/workspaceState.ser (92%)
+ rewrite .metadata/.plugins/org.eclipse.m2e.jdt/ExcelToOracleInserter.container (92%)
+ rewrite .metadata/.plugins/org.eclipse.wst.jsdt.core/variablesAndContainers.dat (100%)
+ create mode 100644 CurrencyExchange/target/classes/.gitignore
+ create mode 100644 CurrencyExchange/target/test-classes/.gitignore
+ create mode 100644 ExcelToOracleInserter/.gitignore
+ create mode 100644 ExcelToOracleInserter/.settings/.jsdtscope
+ create mode 100644 ExcelToOracleInserter/.settings/org.eclipse.wst.common.component
+ create mode 100644 ExcelToOracleInserter/.settings/org.eclipse.wst.common.project.facet.core.xml
+ create mode 100644 ExcelToOracleInserter/.settings/org.eclipse.wst.jsdt.ui.superType.container
+ create mode 100644 ExcelToOracleInserter/.settings/org.eclipse.wst.jsdt.ui.superType.name
+ create mode 100644 ExcelToOracleInserter/.settings/org.eclipse.wst.validation.prefs
+ create mode 100644 ExcelToOracleInserter/src/main/java/test/ListDb.java
+ create mode 100644 ExcelToOracleInserter/src/main/webapp/index.html
+ create mode 100644 ExcelToOracleInserter/src/main/webapp/web.xml
+ delete mode 100644 ExcelToOracleInserter/target/classes/META-INF/MANIFEST.MF
+ delete mode 100644 ExcelToOracleInserter/target/classes/META-INF/maven/com/ExcelToOracleInserter/pom.properties
+ delete mode 100644 ExcelToOracleInserter/target/classes/META-INF/maven/com/ExcelToOracleInserter/pom.xml
+ rewrite ExcelToOracleInserter/target/classes/odoo/OdooApiServlet.class (96%)
+ rewrite ExcelToOracleInserter/target/classes/odoo/OdooClient.class (87%)
+ rewrite ExcelToOracleInserter/target/classes/test/PdfToExcel.class (78%)
+ rewrite ExcelToOracleInserter/target/classes/test/ReadTS.class (62%)
+ rewrite ExcelToOracleInserter/target/classes/test/Util.class (72%)
+ create mode 100644 Junit/junittest/target/classes/.gitignore
+ create mode 100644 Junit/junittest/target/test-classes/.gitignore
+ create mode 100644 LLDPrograms/bin/.gitignore
+ create mode 100644 MovieWebsite/db/target/classes/.gitignore
+ create mode 100644 ReadExcel/ReadExcel/target/classes/.gitignore
+ create mode 100644 ReadExcel/ReadExcel/target/test-classes/.gitignore
+ create mode 100644 Servers/Tomcat v9.0 Server at localhost-config/catalina.policy
+ create mode 100644 Servers/Tomcat v9.0 Server at localhost-config/catalina.properties
+ create mode 100644 Servers/Tomcat v9.0 Server at localhost-config/context.xml
+ create mode 100644 Servers/Tomcat v9.0 Server at localhost-config/server.xml
+ create mode 100644 Servers/Tomcat v9.0 Server at localhost-config/tomcat-users.xml
+ create mode 100644 Servers/Tomcat v9.0 Server at localhost-config/web.xml
+ create mode 100644 demo/target/classes/.gitignore
+ create mode 100644 demo/target/test-classes/.gitignore
+ create mode 100644 log-search-swing/target/classes/.gitignore
+ create mode 100644 workdrive-organizer/workdrive-organizer/target/classes/.gitignore
+ create mode 100644 workdrive-organizer/workdrive-organizer/target/test-classes/.gitignore
+ create mode 100644 workdrive-organizer2/target/classes/.gitignore
+ create mode 100644 workdrive-organizer2/target/test-classes/.gitignore
+To https://github.com/krishna-tpt/tp_eclipse.git
+   06b3e29..ec575f4  main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+[0;32m✓ Push success![0m
+
+[1;33m========================================[0m
+[0;32m  Sync Complete! - 2026-11-03 18:00:08[0m
+[1;33m========================================[0m
+[1;33m========================================[0m
+[1;33m  Git Sync Started - 2026-11-03 21:00:02[0m
+[1;33m========================================[0m
+
+[0;32m[PULL] Remote changes checking...[0m
+[0;32m✓ Already up to date. No need Pull.[0m
+
+[0;32m[PUSH] Checking Local changes...[0m

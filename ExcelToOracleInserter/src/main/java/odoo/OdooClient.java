@@ -101,31 +101,35 @@ public class OdooClient {
         return out;
     }
 
-    // Open tasks of one project (not Done / Canceled), with the stage name
+ // Task stages shown by default (compared case-insensitively); Done is added only on request
+    private static final Set<String> ACTIVE_STAGES =
+            new HashSet<>(Arrays.asList("new", "ra", "da", "qa", "devops", "cs"));
+    private static final String DONE_STAGE = "done";
+
+    // Tasks of one project filtered by stage name, ordered by the Kanban stage order
     @SuppressWarnings("unchecked")
-    public static List<Map<String, Object>> listTasks(int projectId) throws Exception {
+    public static List<Map<String, Object>> listTasks(int projectId, boolean includeDone) throws Exception {
         Map<String, Object> opts = new HashMap<>();
         opts.put("fields", Arrays.asList("id", "name", "stage_id"));
-        opts.put("order", "name asc");
+        opts.put("order", "stage_id asc, name asc");
 
-        Object[] rows;
-        try {
-            rows = search("project.task", Arrays.asList(
-                    Arrays.asList("project_id", "=", projectId),
-                    Arrays.asList("state", "not in", Arrays.asList("1_done", "1_canceled"))), opts);
-        } catch (Exception e) {
-            // Older Odoo versions have no "state" field: fall back to all tasks
-            rows = search("project.task",
-                    Arrays.asList(Arrays.asList("project_id", "=", projectId)), opts);
-        }
+        Object[] rows = search("project.task",
+                Arrays.asList(Arrays.asList("project_id", "=", projectId)), opts);
 
         List<Map<String, Object>> out = new ArrayList<>();
         for (Object o : rows) {
             Map<String, Object> m = (Map<String, Object>) o;
+            String stage = m2oName(m.get("stage_id"));
+            String key = stage.trim().toLowerCase(Locale.ROOT);
+
+            // Keep only the allowed stages, plus Done when the checkbox is ticked
+            boolean show = ACTIVE_STAGES.contains(key) || (includeDone && DONE_STAGE.equals(key));
+            if (!show) continue;
+
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("id", m.get("id"));
             item.put("name", m.get("name"));
-            item.put("stage", m2oName(m.get("stage_id")));
+            item.put("stage", stage);
             out.add(item);
         }
         return out;
@@ -191,7 +195,7 @@ public class OdooClient {
         return out;
     }
 
-    // My timesheets of one date
+ // My timesheets of one date (ids are included so the page can edit an entry)
     @SuppressWarnings("unchecked")
     private static List<Map<String, Object>> timesheetsOf(String date) throws Exception {
         Map<String, Object> opts = new HashMap<>();
@@ -208,14 +212,49 @@ public class OdooClient {
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("id", m.get("id"));
             item.put("project", m2oName(m.get("project_id")));
+            item.put("projectId", m2oId(m.get("project_id")));
             item.put("task", m2oName(m.get("task_id")));
+            item.put("taskId", m2oId(m.get("task_id")));
             item.put("activity", m2oName(m.get("activity_id")));
+            item.put("activityId", m2oId(m.get("activity_id")));
             item.put("description", m.get("name") == null ? "" : String.valueOf(m.get("name")));
             Object h = m.get("unit_amount");
             item.put("hours", (h instanceof Number) ? h : Double.valueOf(0));
             out.add(item);
         }
         return out;
+    }
+    
+ // Return only the id part of a many2one value ([id, name] or false)
+    private static Object m2oId(Object v) {
+        return (v instanceof Object[] && ((Object[]) v).length > 0) ? ((Object[]) v)[0] : null;
+    }
+
+    // Update task, activity, hours and description of one of MY timesheet lines (project is never changed)
+    public static void updateTimesheet(int id, int taskId, Integer activityId,
+                                       double hours, String description) throws Exception {
+        init();
+
+        // Only my own timesheet lines can be edited from this page
+        Map<String, Object> opts = new HashMap<>();
+        opts.put("fields", Arrays.asList("id"));
+        opts.put("limit", 1);
+        Object[] own = search("account.analytic.line", Arrays.asList(
+                Arrays.asList("id", "=", id),
+                Arrays.asList("user_id", "=", uid)), opts);
+        if (own.length == 0) {
+            throw new RuntimeException("Timesheet not found or it does not belong to you");
+        }
+
+        Map<String, Object> vals = new HashMap<>();
+        vals.put("name", description);
+        vals.put("unit_amount", hours);
+        vals.put("task_id", taskId);
+        // false clears the activity when none is selected
+        vals.put("activity_id", activityId == null ? (Object) Boolean.FALSE : (Object) activityId);
+
+        call("account.analytic.line", "write",
+                Arrays.asList(Collections.singletonList(id), vals), new HashMap<String, Object>());
     }
 
     // Timezone of the Odoo user (attendance is stored in UTC)

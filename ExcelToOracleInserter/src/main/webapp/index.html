@@ -6,7 +6,7 @@
 <title>Timesheet Entry</title>
 <style>
   body { font-family: system-ui, sans-serif; background: #f4f5f7; margin: 0; padding: 24px; }
-  .card { max-width: 760px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 10px;
+  .card { max-width: 900px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 10px;
           box-shadow: 0 2px 8px rgba(0,0,0,.1); }
   h2 { margin-top: 0; }
   h3 { margin: 24px 0 8px; font-size: 16px; }
@@ -15,6 +15,9 @@
           border-radius: 6px; font-size: 14px; box-sizing: border-box; }
   .row { display: flex; gap: 12px; }
   .row > div { flex: 1; }
+  .labelrow { display: flex; justify-content: space-between; align-items: flex-end; }
+  .labelrow label.chk { font-weight: 400; font-size: 13px; color: #444; cursor: pointer; margin-bottom: 4px; }
+  .labelrow label.chk input { margin-right: 4px; vertical-align: middle; }
   .datebox { position: relative; display: flex; gap: 6px; }
   .datebox button { margin: 0; width: 44px; padding: 0; background: #eee; color: #333; border: 1px solid #bbb; }
   #datePicker { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
@@ -26,6 +29,7 @@
   .err { background: #fde8e8; color: #9b1c1c; }
   .hint { font-size: 12px; color: #555; margin-top: 4px; min-height: 16px; }
   .hint.bad { color: #9b1c1c; }
+  .hint.good { color: #1b6b32; }
 
   /* Day summary */
   .summary { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -37,9 +41,16 @@
   th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; }
   th { background: #eee; }
   td.num, th.num { text-align: right; white-space: nowrap; }
+  td.act { white-space: nowrap; }
   tfoot td { font-weight: 700; background: #f7f7f7; }
+  tr.editing td { background: #fffbe6; }
+  td select, td textarea, td input[type=text] { font-size: 13px; padding: 5px; }
+  td textarea { min-width: 220px; }
+  td input.hrs { width: 70px; text-align: right; }
   .muted { color: #777; font-size: 13px; }
   .refresh { width: auto; margin: 0 0 0 8px; padding: 2px 10px; font-size: 12px; background: #eee; color: #333; border: 1px solid #bbb; }
+  .mini { width: auto; margin: 0 4px 0 0; padding: 4px 10px; font-size: 12px; }
+  .mini.cancel { background: #eee; color: #333; border: 1px solid #bbb; }
 </style>
 </head>
 <body>
@@ -49,7 +60,10 @@
   <label for="project">Project</label>
   <select id="project"><option>Loading...</option></select>
 
-  <label for="task">Task</label>
+  <div class="labelrow">
+    <label for="task">Task</label>
+    <label class="chk"><input type="checkbox" id="showDone"> Show Done tasks</label>
+  </div>
   <select id="task" disabled><option>Select a project first</option></select>
 
   <label for="activity">Activity</label>
@@ -92,11 +106,20 @@
   </div>
 
   <h3>Timesheets on this date</h3>
+  <div class="hint" id="editMsg"></div>
   <div id="tableWrap"><div class="muted">Loading...</div></div>
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
+
+// Defaults preselected on page load (you can change them in the dropdowns)
+const DEFAULT_PROJECT_ID = "27";    // Michelin Camso Support
+const DEFAULT_ACTIVITY_ID = "29";   // Implementation
+
+let activitiesCache = [];   // activity list, reused by the inline edit rows
+let lastRows = [];          // timesheet rows of the selected date
+let editingId = null;       // id of the row that is currently in edit mode
 
 // ---------- helpers ----------
 
@@ -123,11 +146,26 @@ function fill(select, items, labelFn, placeholder) {
   });
 }
 
+// Select a value only when that option exists in the dropdown
+function selectIfExists(select, value) {
+  if (value !== null && value !== undefined && value !== "" &&
+      Array.prototype.some.call(select.options, o => o.value === String(value))) {
+    select.value = String(value);
+  }
+}
+
 function show(text, ok) {
   const m = $("msg");
   m.textContent = text;
   m.className = ok ? "ok" : "err";
   m.style.display = "block";
+}
+
+// Message line above the table (used by the inline edit)
+function setEditMsg(text, ok) {
+  const el = $("editMsg");
+  el.textContent = text;
+  el.className = "hint" + (text ? (ok ? " good" : " bad") : "");
 }
 
 const pad = n => String(n).padStart(2, "0");
@@ -174,6 +212,11 @@ function parseHM(s) {
   return { minutes: total, decimal: total / 60 };
 }
 
+// Decimal hours sent to Odoo (2.30 typed -> 2.5)
+function toOdooHours(hm) {
+  return String(Math.round(hm.decimal * 1e6) / 1e6);
+}
+
 // Live hint under the hours field
 $("hours").addEventListener("input", () => {
   const hint = $("hoursHint");
@@ -201,7 +244,7 @@ dateEl.addEventListener("input", () => {
   if (v.length > 4) v = v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4);
   else if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
   dateEl.value = v;
-  if (v.length === 10) loadDay();
+  if (v.length === 10) { setEditMsg("", true); loadDay(); }
 });
 
 // Calendar button opens the native picker, the value is shown as DD/MM/YYYY
@@ -213,6 +256,7 @@ $("calBtn").addEventListener("click", () => {
 $("datePicker").addEventListener("change", () => {
   if ($("datePicker").value) {
     dateEl.value = isoToDmy($("datePicker").value);
+    setEditMsg("", true);
     loadDay();
   }
 });
@@ -253,41 +297,53 @@ function renderDay(d) {
   }
 
   // Timesheet rows in minutes, so the table total and the box total always match
-  const rows = d.timesheets || [];
-  const mins = rows.map(r => decToMin(r.hours));
-  const totalMin = mins.reduce((s, m) => s + m, 0);
+  lastRows = d.timesheets || [];
+  const totalMin = lastRows.reduce((s, r) => s + decToMin(r.hours), 0);
+  $("tsTotal").textContent = lastRows.length ? fmtHM(totalMin) + " Hrs" : "0.00 Hrs";
+  $("tsInfo").textContent = lastRows.length + (lastRows.length === 1 ? " entry" : " entries");
 
-  $("tsTotal").textContent = rows.length ? fmtHM(totalMin) + " Hrs" : "0.00 Hrs";
-  $("tsInfo").textContent = rows.length + (rows.length === 1 ? " entry" : " entries");
+  editingId = null;   // a fresh load always leaves edit mode
+  renderTable();
+}
 
-  // Table of existing timesheets
+$("refresh").addEventListener("click", () => { setEditMsg("", true); loadDay(); });
+
+// ---------- timesheet table with inline edit ----------
+
+function renderTable() {
   const wrap = $("tableWrap");
   wrap.innerHTML = "";
-  if (!rows.length) {
+  if (!lastRows.length) {
     const p = document.createElement("div");
     p.className = "muted";
     p.textContent = "No timesheet entries for this date.";
     wrap.appendChild(p);
     return;
   }
+
   const table = document.createElement("table");
   const head = table.createTHead().insertRow();
-  ["Project", "Task", "Activity", "Description", "Hrs (H.MM)"].forEach((h, i) => {
+  ["Project", "Task", "Activity", "Description", "Hrs (H.MM)", ""].forEach((h, i) => {
     const th = document.createElement("th");
     th.textContent = h;
     if (i === 4) th.className = "num";
     head.appendChild(th);
   });
+
   const body = table.createTBody();
-  rows.forEach((r, i) => {
+  let totalMin = 0;
+  lastRows.forEach(r => {
+    const min = decToMin(r.hours);
+    totalMin += min;
     const tr = body.insertRow();
-    [r.project, r.task, r.activity, r.description].forEach(v => {
-      tr.insertCell().textContent = v;
-    });
-    const c = tr.insertCell();
-    c.className = "num";
-    c.textContent = fmtHM(mins[i]);
+    if (r.id === editingId) {
+      tr.className = "editing";
+      buildEditRow(tr, r, min);
+    } else {
+      buildViewRow(tr, r, min);
+    }
   });
+
   const foot = table.createTFoot().insertRow();
   const label = foot.insertCell();
   label.colSpan = 4;
@@ -295,24 +351,136 @@ function renderDay(d) {
   const tot = foot.insertCell();
   tot.className = "num";
   tot.textContent = fmtHM(totalMin);
+  foot.insertCell();
   wrap.appendChild(table);
 }
 
-$("refresh").addEventListener("click", loadDay);
+// Normal (read only) row with an Edit button
+function buildViewRow(tr, r, min) {
+  [r.project, r.task, r.activity, r.description].forEach(v => {
+    tr.insertCell().textContent = v;
+  });
+  const hc = tr.insertCell();
+  hc.className = "num";
+  hc.textContent = fmtHM(min);
 
-// ---------- initial load ----------
+  const ac = tr.insertCell();
+  ac.className = "act";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "mini";
+  btn.textContent = "Edit";
+  btn.addEventListener("click", () => {
+    editingId = r.id;     // only one row is edited at a time
+    setEditMsg("", true);
+    renderTable();
+  });
+  ac.appendChild(btn);
+}
 
-(async () => {
+// Editable row: project stays read only, the rest can be changed
+function buildEditRow(tr, r, min) {
+  tr.insertCell().textContent = r.project;   // project cannot be changed
+
+  const taskSel = document.createElement("select");
+  fill(taskSel, [], x => x, "Loading tasks...");
+  tr.insertCell().appendChild(taskSel);
+
+  const actSel = document.createElement("select");
+  fill(actSel, activitiesCache, a => a.name, "-- none --");
+  selectIfExists(actSel, r.activityId);
+  tr.insertCell().appendChild(actSel);
+
+  const descEl = document.createElement("textarea");
+  descEl.rows = 3;
+  descEl.value = r.description;
+  tr.insertCell().appendChild(descEl);
+
+  const hrsEl = document.createElement("input");
+  hrsEl.type = "text";
+  hrsEl.className = "hrs";
+  hrsEl.value = fmtHM(min);
+  const hc = tr.insertCell();
+  hc.className = "num";
+  hc.appendChild(hrsEl);
+
+  const ac = tr.insertCell();
+  ac.className = "act";
+  const saveBtn = document.createElement("button");
+  saveBtn.type = "button";
+  saveBtn.className = "mini";
+  saveBtn.textContent = "Save";
+  const cancelBtn = document.createElement("button");
+  cancelBtn.type = "button";
+  cancelBtn.className = "mini cancel";
+  cancelBtn.textContent = "Cancel";
+  ac.appendChild(saveBtn);
+  ac.appendChild(cancelBtn);
+
+  cancelBtn.addEventListener("click", () => {
+    editingId = null;
+    setEditMsg("", true);
+    renderTable();
+  });
+  saveBtn.addEventListener("click", () => saveEdit(r, taskSel, actSel, descEl, hrsEl, saveBtn));
+
+  loadEditTasks(taskSel, r);
+}
+
+// Tasks of the entry's project for the edit dropdown
+async function loadEditTasks(sel, r) {
   try {
-    const [projects, activities] = await Promise.all([getJson("api/projects"), getJson("api/activities")]);
-    fill($("project"), projects, p => p.name, "-- Select project --");
-    fill($("activity"), activities, a => a.name, "-- Select activity --");
-  } catch (e) { show(e.message, false); }
-})();
-loadDay();
+    // includeDone=true so a task that is already in the Done stage stays selectable
+    const tasks = await getJson("api/tasks?projectId=" + r.projectId + "&includeDone=true");
+    fill(sel, tasks, k => k.name + (k.stage ? "  [" + k.stage + "]" : ""), "-- Select task --");
+    // The current task may be in a stage that is not listed: keep it as an option
+    if (r.taskId !== null && !Array.prototype.some.call(sel.options, o => o.value === String(r.taskId))) {
+      const o = document.createElement("option");
+      o.value = r.taskId;
+      o.textContent = r.task;
+      sel.appendChild(o);
+    }
+    selectIfExists(sel, r.taskId);
+  } catch (e) { setEditMsg(e.message, false); }
+}
 
-// When the project changes, load its open tasks
-$("project").addEventListener("change", async () => {
+// Save the edited row to Odoo
+async function saveEdit(r, taskSel, actSel, descEl, hrsEl, btn) {
+  const hm = parseHM(hrsEl.value);
+  if (!hm) {
+    setEditMsg("Enter hours as H.MM, minutes 00-59 (example 2.30 = 2h 30m)", false);
+    return;
+  }
+  if (!taskSel.value) {
+    setEditMsg("Select a task", false);
+    return;
+  }
+  if (!descEl.value.trim()) {
+    setEditMsg("Description is required", false);
+    return;
+  }
+  const body = new URLSearchParams({
+    id: r.id,
+    taskId: taskSel.value,
+    activityId: actSel.value,
+    hours: toOdooHours(hm),
+    description: descEl.value
+  });
+  btn.disabled = true;
+  try {
+    await getJson("api/timesheet/update", { method: "POST", body });
+    setEditMsg("Timesheet entry updated (" + fmtHM(hm.minutes) + " Hrs)", true);
+    await loadDay();   // refresh the table and totals
+  } catch (e) {
+    setEditMsg(e.message, false);
+    btn.disabled = false;
+  }
+}
+
+// ---------- tasks (entry form) ----------
+
+// Load the tasks of the selected project; "Show Done tasks" adds the Done stage
+async function loadTasks() {
   const pid = $("project").value;
   const taskSel = $("task");
   if (!pid) {
@@ -320,16 +488,39 @@ $("project").addEventListener("change", async () => {
     taskSel.disabled = true;
     return;
   }
+  const prev = taskSel.value;   // keep the selected task when only the checkbox changes
   taskSel.disabled = true;
   fill(taskSel, [], x => x, "Loading tasks...");
   try {
-    const tasks = await getJson("api/tasks?projectId=" + pid);
-    fill(taskSel, tasks, k => k.name + (k.stage ? "  [" + k.stage + "]" : ""), "-- Select task --");
+    const tasks = await getJson("api/tasks?projectId=" + pid + "&includeDone=" + $("showDone").checked);
+    fill(taskSel, tasks, k => k.name + (k.stage ? "  [" + k.stage + "]" : ""),
+         tasks.length ? "-- Select task --" : "-- No tasks found --");
+    selectIfExists(taskSel, prev);
     taskSel.disabled = false;
   } catch (e) { show(e.message, false); }
-});
+}
 
-// ---------- save ----------
+$("project").addEventListener("change", loadTasks);
+$("showDone").addEventListener("change", loadTasks);
+
+// ---------- initial load ----------
+
+(async () => {
+  try {
+    const [projects, activities] = await Promise.all([getJson("api/projects"), getJson("api/activities")]);
+    activitiesCache = activities;
+    fill($("project"), projects, p => p.name, "-- Select project --");
+    fill($("activity"), activities, a => a.name, "-- Select activity --");
+
+    // Preselect the default project and activity, then load the tasks of that project
+    selectIfExists($("project"), DEFAULT_PROJECT_ID);
+    selectIfExists($("activity"), DEFAULT_ACTIVITY_ID);
+    await loadTasks();
+  } catch (e) { show(e.message, false); }
+})();
+loadDay();
+
+// ---------- save (new entry) ----------
 
 $("save").addEventListener("click", async () => {
   const iso = dmyToIso(dateEl.value);
@@ -347,8 +538,7 @@ $("save").addEventListener("click", async () => {
     taskId: $("task").value,
     activityId: $("activity").value,
     date: iso,
-    // Odoo expects decimal hours, so H.MM is converted here (2.30 -> 2.5)
-    hours: String(Math.round(hm.decimal * 1e6) / 1e6),
+    hours: toOdooHours(hm),   // Odoo expects decimal hours (2.30 -> 2.5)
     description: $("desc").value
   });
   if (!body.get("projectId") || !body.get("taskId") || !body.get("description").trim()) {
@@ -363,6 +553,7 @@ $("save").addEventListener("click", async () => {
     $("hours").value = "";
     $("hoursHint").textContent = "";
     $("desc").value = "";
+    setEditMsg("", true);
     loadDay();   // refresh the table and totals
   } catch (e) { show(e.message, false); }
   $("save").disabled = false;
