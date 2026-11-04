@@ -16,10 +16,10 @@ public class ReadTS {
 	static final String BASE_URL = "https://ten10.in";
     static final String DB       = "intra3live";
     static final String USERNAME = "krishnakumar.rangasamy@tenthplanet.co";
-    static final String API_KEY  = "64e66714c5cd69cdbfee2c635f1cbd0b3de99112";
+    static final String API_KEY  = "a3ffd1a87b59845f84d73f62d34c3863fa64b5ed";
 
-    static final String FROM_DATE   = "2026-10-27";  // Read timesheets from this date onwards
-    static final int    DETAIL_ROWS = 3;             // How many entries to dump with all fields
+    static final String FROM_DATE   = "2026-11-01";  // Read timesheets from this date onwards
+    static final int    DETAIL_ROWS = 10;             // How many entries to dump with all fields
 
     // Convert any Odoo value into readable text
     static String show(Object v) {

@@ -6,10 +6,22 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
@@ -154,14 +166,32 @@ public class OdooClient {
         }
         return out;
     }
+    
+    // Sets date_time / date_time_end (UTC) on the chosen date.
+    // Keeps the existing time of day when there is one, else uses the current time.
+    private static void putDateTimes(Map<String, Object> vals, String date, double hours, Object oldStart) {
+        ZoneId zone = userZone();
+        LocalDate d = LocalDate.parse(date.trim());
+        LocalTime t = LocalTime.now(zone).withNano(0);
+        if (oldStart instanceof String && !((String) oldStart).trim().isEmpty()) {
+            t = LocalDateTime.parse((String) oldStart, ODOO_DT)
+                    .atZone(ZoneOffset.UTC).withZoneSameInstant(zone).toLocalTime();
+        }
+        ZonedDateTime start = LocalDateTime.of(d, t).atZone(zone);
+        ZonedDateTime end = start.plusSeconds(Math.round(hours * 3600));
+        vals.put("date_time", start.withZoneSameInstant(ZoneOffset.UTC).format(ODOO_DT));
+        vals.put("date_time_end", end.withZoneSameInstant(ZoneOffset.UTC).format(ODOO_DT));
+    }
 
     // Create one timesheet line and return its id
     public static Object createTimesheet(int projectId, int taskId, Integer activityId,
                                          String date, double hours, String description) throws Exception {
+        init();
         Map<String, Object> vals = new HashMap<>();
         vals.put("name", description);
         vals.put("date", date);              // YYYY-MM-DD
         vals.put("unit_amount", hours);      // Decimal hours
+        putDateTimes(vals, date, hours, null);
         vals.put("project_id", projectId);
         vals.put("task_id", taskId);
         if (activityId != null) {
@@ -195,11 +225,11 @@ public class OdooClient {
         return out;
     }
 
- // My timesheets of one date (ids are included so the page can edit an entry)
+ // My timesheets of one date (ids and date are included so the page can edit an entry)
     @SuppressWarnings("unchecked")
     private static List<Map<String, Object>> timesheetsOf(String date) throws Exception {
         Map<String, Object> opts = new HashMap<>();
-        opts.put("fields", Arrays.asList("id", "name", "unit_amount", "project_id", "task_id", "activity_id"));
+        opts.put("fields", Arrays.asList("id", "date", "name", "unit_amount", "project_id", "task_id", "activity_id"));
         opts.put("order", "id asc");
 
         Object[] rows = search("account.analytic.line", Arrays.asList(
@@ -211,6 +241,7 @@ public class OdooClient {
             Map<String, Object> m = (Map<String, Object>) o;
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("id", m.get("id"));
+            item.put("date", String.valueOf(m.get("date")));   // YYYY-MM-DD
             item.put("project", m2oName(m.get("project_id")));
             item.put("projectId", m2oId(m.get("project_id")));
             item.put("task", m2oName(m.get("task_id")));
@@ -230,14 +261,15 @@ public class OdooClient {
         return (v instanceof Object[] && ((Object[]) v).length > 0) ? ((Object[]) v)[0] : null;
     }
 
-    // Update task, activity, hours and description of one of MY timesheet lines (project is never changed)
-    public static void updateTimesheet(int id, int taskId, Integer activityId,
+ // Update date, task, activity, hours and description of one of MY timesheet lines (project is never changed)
+    @SuppressWarnings("unchecked")
+    public static void updateTimesheet(int id, String date, int taskId, Integer activityId,
                                        double hours, String description) throws Exception {
         init();
 
         // Only my own timesheet lines can be edited from this page
         Map<String, Object> opts = new HashMap<>();
-        opts.put("fields", Arrays.asList("id"));
+        opts.put("fields", Arrays.asList("id", "date_time"));
         opts.put("limit", 1);
         Object[] own = search("account.analytic.line", Arrays.asList(
                 Arrays.asList("id", "=", id),
@@ -252,6 +284,13 @@ public class OdooClient {
         vals.put("task_id", taskId);
         // false clears the activity when none is selected
         vals.put("activity_id", activityId == null ? (Object) Boolean.FALSE : (Object) activityId);
+
+        // Validate the format (YYYY-MM-DD) before sending it to Odoo
+        if (date != null && !date.trim().isEmpty()) {
+            vals.put("date", LocalDate.parse(date.trim()).toString());
+            Object oldStart = ((Map<String, Object>) own[0]).get("date_time");
+            putDateTimes(vals, date, hours, oldStart);
+        }
 
         call("account.analytic.line", "write",
                 Arrays.asList(Collections.singletonList(id), vals), new HashMap<String, Object>());

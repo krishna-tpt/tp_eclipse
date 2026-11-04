@@ -67,17 +67,19 @@ public class OdooApiServlet extends HttpServlet {
 
             } else if ("/timesheet/update".equals(path)) {
                 int id = Integer.parseInt(req.getParameter("id"));
+                String date = req.getParameter("date");   // YYYY-MM-DD, the entry is moved when it changes
                 int taskId = Integer.parseInt(req.getParameter("taskId"));
                 Integer activityId = parseOptionalInt(req.getParameter("activityId"));
                 double hours = Double.parseDouble(req.getParameter("hours"));
                 String description = req.getParameter("description");
 
                 // Basic validation
-                if (description == null || description.trim().isEmpty() || hours <= 0) {
-                    send(resp, 400, Collections.singletonMap("error", "Hours and description are required"));
+                if (date == null || date.trim().isEmpty()
+                        || description == null || description.trim().isEmpty() || hours <= 0) {
+                    send(resp, 400, Collections.singletonMap("error", "Date, hours and description are required"));
                     return;
                 }
-                OdooClient.updateTimesheet(id, taskId, activityId, hours, description.trim());
+                OdooClient.updateTimesheet(id, date, taskId, activityId, hours, description.trim());
                 send(resp, 200, Collections.singletonMap("ok", true));
 
             } else {

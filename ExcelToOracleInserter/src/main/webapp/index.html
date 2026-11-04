@@ -6,7 +6,7 @@
 <title>Timesheet Entry</title>
 <style>
   body { font-family: system-ui, sans-serif; background: #f4f5f7; margin: 0; padding: 24px; }
-  .card { max-width: 900px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 10px;
+  .card { max-width: 960px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 10px;
           box-shadow: 0 2px 8px rgba(0,0,0,.1); }
   h2 { margin-top: 0; }
   h3 { margin: 24px 0 8px; font-size: 16px; }
@@ -21,6 +21,7 @@
   .datebox { position: relative; display: flex; gap: 6px; }
   .datebox button { margin: 0; width: 44px; padding: 0; background: #eee; color: #333; border: 1px solid #bbb; }
   #datePicker { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .baddate { border-color: #c62828 !important; background: #fdecec; }   /* complete but impossible date, example 30/02/2026 */
   button { margin-top: 20px; width: 100%; padding: 10px; background: #714b67; color: #fff; border: 0;
            border-radius: 6px; font-size: 15px; cursor: pointer; }
   button:disabled { opacity: .6; cursor: wait; }
@@ -59,8 +60,17 @@
   table.sheet .bad { outline: 2px solid #c62828; outline-offset: -2px; background: #fdecec; }
   table.sheet tr.dirty td { background: #fffbe6; }
   table.sheet tr.dirty td.ro { background: #fff6cc; }
+  table.sheet tr.moving td { background: #e3efff; }          /* date changed: the entry moves to another date */
+  table.sheet tr.moving td.ro { background: #d6e6fb; }
   table.sheet tfoot td { font-weight: 700; background: #f7f7f7; padding: 6px 8px; }
   table.sheet td.num { text-align: right; }
+
+  /* Date cell of the table: read only text, the calendar is the only way to change it */
+  table.sheet td.dtcell { position: relative; }
+  table.sheet input.dt { cursor: pointer; padding-right: 26px; }
+  table.sheet .calico { position: absolute; right: 7px; top: 6px; font-size: 12px; pointer-events: none; opacity: .7; }
+  table.sheet .dtpick { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0;
+                        pointer-events: none; border: 0; padding: 0; }
 
   /* Save bar: visible only when something is changed */
   .savebar { display: none; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px;
@@ -122,7 +132,7 @@
   </div>
 
   <h3>Timesheets on this date</h3>
-  <div class="muted">Click any cell to edit it. Project cannot be changed. A Save button appears when something is changed.</div>
+  <div class="muted">Click any cell to edit it (project cannot be changed). Click the Date cell to pick another date from the calendar, the entry then moves to that date. A Save button appears when something is changed.</div>
   <div class="hint" id="editMsg"></div>
   <div id="tableWrap"><div class="muted">Loading...</div></div>
 
@@ -143,7 +153,7 @@ const DEFAULT_ACTIVITY_ID = "29";   // Implementation
 let activitiesCache = [];   // activity list, reused by the table rows
 let lastRows = [];          // timesheet rows of the loaded date (the saved values)
 let loadedIso = null;       // date (YYYY-MM-DD) currently shown in the table
-let rowStates = [];         // one entry per table row: { r, idx, tr, taskSel, actSel, descEl, hrsEl }
+let rowStates = [];         // one entry per table row: { r, idx, tr, dateEl, datePick, taskSel, actSel, descEl, hrsEl }
 const editTaskCache = {};   // projectId -> Promise of tasks, shared by all rows of that project
 
 // ---------- helpers ----------
@@ -198,7 +208,7 @@ function setEditMsg(text, ok) {
 
 const pad = n => String(n).padStart(2, "0");
 
-// DD/MM/YYYY -> YYYY-MM-DD (null when invalid)
+// DD/MM/YYYY -> YYYY-MM-DD (null when invalid, example 30/02/2026)
 function dmyToIso(s) {
   const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s.trim());
   if (!m) return null;
@@ -210,8 +220,22 @@ function dmyToIso(s) {
 
 // YYYY-MM-DD -> DD/MM/YYYY
 function isoToDmy(s) {
+  if (!s) return "";
   const p = s.split("-");
   return p[2] + "/" + p[1] + "/" + p[0];
+}
+
+// While typing a date: keep only digits and insert the slashes (05112026 -> 05/11/2026)
+function fmtTyping(s) {
+  const v = s.replace(/\D/g, "").slice(0, 8);
+  if (v.length > 4) return v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4);
+  if (v.length > 2) return v.slice(0, 2) + "/" + v.slice(2);
+  return v;
+}
+
+// Open the native calendar of a hidden date input (falls back to a click on older browsers)
+function openCalendar(input) {
+  try { input.showPicker(); } catch (err) { input.click(); }
 }
 
 // ---------- ONE time format everywhere: H.MM (8.30 = 8 hours 30 minutes) ----------
@@ -283,7 +307,7 @@ document.addEventListener("keydown", e => {
   }
 });
 
-// ---------- date field ----------
+// ---------- date field (entry form) ----------
 
 const dateEl = $("date");
 const t = new Date();
@@ -304,22 +328,22 @@ function changeDate() {
 
 // Auto insert the slashes while typing
 dateEl.addEventListener("input", () => {
-  let v = dateEl.value.replace(/\D/g, "").slice(0, 8);
-  if (v.length > 4) v = v.slice(0, 2) + "/" + v.slice(2, 4) + "/" + v.slice(4);
-  else if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
-  dateEl.value = v;
-  if (v.length === 10) changeDate();
+  dateEl.value = fmtTyping(dateEl.value);
+  // Red box while a complete date is not a real date (example 30/02/2026)
+  dateEl.classList.toggle("baddate", dateEl.value.length === 10 && !dmyToIso(dateEl.value));
+  if (dateEl.value.length === 10) changeDate();
 });
 
 // Calendar button opens the native picker, the value is shown as DD/MM/YYYY
 $("calBtn").addEventListener("click", () => {
   const p = $("datePicker");
   p.value = dmyToIso(dateEl.value) || "";
-  if (p.showPicker) p.showPicker(); else p.click();
+  openCalendar(p);
 });
 $("datePicker").addEventListener("change", () => {
   if ($("datePicker").value) {
     dateEl.value = isoToDmy($("datePicker").value);
+    dateEl.classList.remove("baddate");
     changeDate();
   }
 });
@@ -416,7 +440,7 @@ function renderTable() {
 
   // Fixed column widths so long task names do not stretch the table
   const cg = document.createElement("colgroup");
-  ["14%", "21%", "14%", "39%", "12%"].forEach(w => {
+  ["13%", "12%", "19%", "13%", "35%", "8%"].forEach(w => {
     const c = document.createElement("col");
     c.style.width = w;
     cg.appendChild(c);
@@ -424,10 +448,10 @@ function renderTable() {
   table.appendChild(cg);
 
   const head = table.createTHead().insertRow();
-  ["Project", "Task", "Activity", "Description", "Hrs (H.MM)"].forEach((h, i) => {
+  ["Date", "Project", "Task", "Activity", "Description", "Hrs (H.MM)"].forEach((h, i) => {
     const th = document.createElement("th");
     th.textContent = h;
-    if (i === 4) th.className = "num";
+    if (i === 5) th.className = "num";
     head.appendChild(th);
   });
 
@@ -436,7 +460,7 @@ function renderTable() {
 
   const foot = table.createTFoot().insertRow();
   const label = foot.insertCell();
-  label.colSpan = 4;
+  label.colSpan = 5;
   label.textContent = "Total";
   const tot = foot.insertCell();
   tot.className = "num";
@@ -451,6 +475,45 @@ function renderTable() {
 function buildRow(body, r, idx) {
   const tr = body.insertRow();
   const st = { r, idx, tr };
+
+  // Date: read only text (DD/MM/YYYY). Only the calendar can change it, so a wrong date like 30 Feb is impossible
+  st.dateEl = document.createElement("input");
+  st.dateEl.type = "text";
+  st.dateEl.className = "dt";
+  st.dateEl.readOnly = true;
+  st.dateEl.title = "Click to pick a date";
+  st.dateEl.value = isoToDmy(r.date);
+
+  st.datePick = document.createElement("input");   // hidden native calendar
+  st.datePick.type = "date";
+  st.datePick.className = "dtpick";
+  st.datePick.tabIndex = -1;
+
+  const ico = document.createElement("span");
+  ico.className = "calico";
+  ico.textContent = "\u{1F4C5}";
+
+  const dc = tr.insertCell();
+  dc.className = "dtcell";
+  dc.appendChild(st.dateEl);
+  dc.appendChild(ico);
+  dc.appendChild(st.datePick);
+
+  const openPicker = () => {
+    st.datePick.value = dmyToIso(st.dateEl.value) || "";
+    openCalendar(st.datePick);
+  };
+  st.dateEl.addEventListener("click", openPicker);
+  st.dateEl.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPicker(); }
+  });
+  st.datePick.addEventListener("change", () => {
+    if (st.datePick.value) {
+      st.dateEl.value = isoToDmy(st.datePick.value);
+      st.dateEl.classList.remove("bad");
+      updateDirty();
+    }
+  });
 
   // Project is read only
   const pc = tr.insertCell();
@@ -522,6 +585,7 @@ function buildRow(body, r, idx) {
 // A row is changed when any of its cells differs from the saved value
 function isDirty(st) {
   const r = st.r;
+  if (st.dateEl.value.trim() !== isoToDmy(r.date)) return true;
   if (st.taskSel.value !== (r.taskId === null ? "" : String(r.taskId))) return true;
   if (st.actSel.value !== (r.activityId === null ? "" : String(r.activityId))) return true;
   if (st.descEl.value !== r.description) return true;
@@ -535,20 +599,32 @@ function isDirty(st) {
 // Refresh the highlights, the live total and the save bar
 function updateDirty() {
   let changed = 0;
+  let moving = 0;
   let totalMin = 0;
   rowStates.forEach(st => {
     const d = isDirty(st);
-    st.tr.classList.toggle("dirty", d);
+    // A valid date different from the loaded date means the entry will move away from this table
+    const iso = dmyToIso(st.dateEl.value);
+    const leaves = d && iso !== null && iso !== loadedIso;
+
+    st.tr.classList.toggle("dirty", d && !leaves);
+    st.tr.classList.toggle("moving", leaves);
     if (d) changed++;
-    const hm = parseHM(st.hrsEl.value);
-    totalMin += hm ? hm.minutes : decToMin(st.r.hours);   // invalid hours keep the saved value in the total
+    if (leaves) moving++;
+
+    // Moved rows no longer belong to this date, so they are left out of the total
+    if (!leaves) {
+      const hm = parseHM(st.hrsEl.value);
+      totalMin += hm ? hm.minutes : decToMin(st.r.hours);   // invalid hours keep the saved value in the total
+    }
   });
 
   const lt = $("liveTotal");
   if (lt) lt.textContent = fmtHM(totalMin);
 
   $("saveBar").classList.toggle("show", changed > 0);
-  $("dirtyCount").textContent = changed + (changed === 1 ? " row changed" : " rows changed");
+  $("dirtyCount").textContent = changed + (changed === 1 ? " row changed" : " rows changed")
+          + (moving ? " (" + moving + " will move to another date)" : "");
 }
 
 // Save every changed row to Odoo
@@ -558,9 +634,13 @@ async function saveChanges() {
 
   // Validate all changed rows first, nothing is sent when something is wrong
   let error = null;
-  dirty.forEach(st => [st.taskSel, st.actSel, st.descEl, st.hrsEl].forEach(el => el.classList.remove("bad")));
+  dirty.forEach(st => [st.dateEl, st.taskSel, st.actSel, st.descEl, st.hrsEl].forEach(el => el.classList.remove("bad")));
   for (const st of dirty) {
     const n = st.idx + 1;
+    if (!dmyToIso(st.dateEl.value)) {
+      st.dateEl.classList.add("bad");
+      error = error || "Row " + n + ": pick a valid date";
+    }
     if (!parseHM(st.hrsEl.value)) {
       st.hrsEl.classList.add("bad");
       error = error || "Row " + n + ": enter hours as H.MM, minutes 00-59 (example 2.30 = 2h 30m)";
@@ -582,16 +662,19 @@ async function saveChanges() {
   $("saveAll").disabled = true;
   $("discardAll").disabled = true;
   let done = 0;
+  let moved = 0;
   let failure = null;
 
   for (const st of dirty) {
     const hm = parseHM(st.hrsEl.value);
     const desc = st.descEl.value.trim();
+    const newIso = dmyToIso(st.dateEl.value);
     try {
       await getJson("api/timesheet/update", {
         method: "POST",
         body: new URLSearchParams({
           id: st.r.id,
+          date: newIso,
           taskId: st.taskSel.value,
           activityId: st.actSel.value,
           hours: toOdooHours(hm),
@@ -601,12 +684,15 @@ async function saveChanges() {
 
       // The saved values become the new baseline of this row
       const r = st.r;
+      if (newIso !== loadedIso) moved++;
+      r.date = newIso;
       r.taskId = Number(st.taskSel.value);
       r.task = st.taskSel.options[st.taskSel.selectedIndex].textContent;
       r.activityId = st.actSel.value === "" ? null : Number(st.actSel.value);
       r.activity = st.actSel.value === "" ? "" : st.actSel.options[st.actSel.selectedIndex].textContent;
       r.description = desc;
       r.hours = hm.decimal;
+      st.dateEl.value = isoToDmy(newIso);
       st.descEl.value = desc;
       st.hrsEl.value = fmtHM(hm.minutes);
       done++;
@@ -620,12 +706,12 @@ async function saveChanges() {
   $("discardAll").disabled = false;
 
   if (!failure) {
-    setEditMsg(done + (done === 1 ? " entry" : " entries") + " updated", true);
+    setEditMsg(done + (done === 1 ? " entry" : " entries") + " updated"
+            + (moved ? " (" + moved + " moved to another date)" : ""), true);
     await loadDay();   // refresh the boxes and the table
   } else {
     // Saved rows are no longer changed, the failed row keeps the edits
     setEditMsg("Saved " + done + " of " + dirty.length + ". " + failure, false);
-    renderTsBox();
     updateDirty();
   }
 }

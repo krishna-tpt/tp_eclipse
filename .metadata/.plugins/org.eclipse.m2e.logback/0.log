@@ -10287,3 +10287,30 @@ Caused by: org.eclipse.core.runtime.CoreException: One or more constraints have 
 2026-11-04 13:33:36,910 [Worker-8: Building] INFO  o.e.m.c.i.p.WorkspaceClassifierResolverManager - Resolving P/expense-manager: com.expensemanager:expense-manager:1.0.0 with classifier  to /expense-manager/target/classes
 2026-11-04 13:51:16,813 [Worker-3: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
 2026-11-04 13:51:16,818 [Worker-3: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:40:25,192 [Worker-20: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-11-04 15:40:25,197 [Worker-20: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:40:38,322 [Worker-10: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-11-04 15:40:38,324 [Worker-10: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:41:02,859 [Worker-10: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-11-04 15:41:02,861 [Worker-10: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:41:10,388 [Worker-10: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/main/resources to target/classes
+2026-11-04 15:41:10,389 [Worker-10: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:44:51,264 [Worker-19: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/main/resources to target/classes
+2026-11-04 15:44:51,266 [Worker-19: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:47:20,851 [Worker-1: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-11-04 15:47:20,855 [Worker-1: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:47:30,334 [Worker-17: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-11-04 15:47:30,335 [Worker-17: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:47:31,879 [Worker-5: Launching ReadTS] INFO  o.e.m.c.i.p.WorkspaceClassifierResolverManager - Resolving P/expense-manager: com.expensemanager:expense-manager:1.0.0 with classifier null to /expense-manager/target/classes
+2026-11-04 15:47:34,964 [Worker-16: Launching ReadTS] INFO  o.e.m.c.i.p.WorkspaceClassifierResolverManager - Resolving P/expense-manager: com.expensemanager:expense-manager:1.0.0 with classifier null to /expense-manager/target/classes
+2026-11-04 15:47:42,837 [Worker-5: Launching ReadTS] INFO  o.e.m.c.i.p.WorkspaceClassifierResolverManager - Resolving P/expense-manager: com.expensemanager:expense-manager:1.0.0 with classifier null to /expense-manager/target/classes
+2026-11-04 15:52:50,794 [Worker-7: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-11-04 15:52:50,796 [Worker-7: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:52:54,906 [Worker-1: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-11-04 15:52:54,907 [Worker-1: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:53:08,413 [Worker-1: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-11-04 15:53:08,414 [Worker-1: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:53:30,389 [Worker-17: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-11-04 15:53:30,392 [Worker-17: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
+2026-11-04 15:53:39,614 [Worker-3: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src/main/resources to target/classes
+2026-11-04 15:53:39,615 [Worker-3: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src/test/resources to target/test-classes
