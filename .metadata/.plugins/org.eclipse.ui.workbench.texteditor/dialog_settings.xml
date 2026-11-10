@@ -10,6 +10,8 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="---------- tasks (entry form) ----------"/>
+			<item value="&lt;h3&gt;Timesheets on this date&lt;/h3&gt;"/>
 			<item value="timesheetsOf"/>
 			<item value="listTasks"/>
 			<item value="listProjects"/>
@@ -23,8 +25,6 @@
 			<item value="                    Matcher m = CARD.matcher(text);"/>
 			<item value="    static final Pattern CARD = Pattern.compile(&#x0A;        &quot;(?:(S\\d?)\\s+)?(\\d{1,4})\\s+([A-Z]{3}\\d{7})\\s*&quot;&#x0A;      + &quot;Name\\s*:\\s*(.*?)\\s*&quot;&#x0A;      + &quot;(Father|Husband|Mother|Other)\\s*Name\\s*:\\s*(.*?)\\s*&quot;&#x0A;      + &quot;House\\s*Number\\s*:\\s*(.*?)\\s*&quot;&#x0A;      + &quot;Age\\s*:\\s*(\\d+)\\s*Gender\\s*:\\s*(\\w+)&quot;,&#x0A;        Pattern.DOTALL);"/>
 			<item value="                BufferedImage img = renderer.renderImageWithDPI(p - 1, DPI);&#x0A;"/>
-			<item value="                BufferedImage img = renderer.renderImageWithDPI(p - 1, DPI);&#x0A;                int w = img.getWidth();&#x0A;                int h = img.getHeight();&#x0A;                int top = (int) (h * HEADER_RATIO);&#x0A;                int height = (int) (h - top - h * FOOTER_RATIO);&#x0A;                int colW = w / 3;&#x0A;&#x0A;                for (int c = 0; c &lt; 3; c++) {&#x0A;                    BufferedImage colImg = img.getSubimage(c * colW, top, colW, height);&#x0A;                    String text = tess.doOCR(colImg);"/>
-			<item value="            PDFRenderer renderer = new PDFRenderer(doc);&#x0A;"/>
 		</list>
 		<list key="replacehistory">
 			<item value="updated_at&gt;= ? "/>

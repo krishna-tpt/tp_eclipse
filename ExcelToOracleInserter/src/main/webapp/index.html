@@ -5,145 +5,437 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Timesheet Entry</title>
 <style>
-  body { font-family: system-ui, sans-serif; background: #f4f5f7; margin: 0; padding: 24px; }
-  .card { max-width: 960px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 10px;
-          box-shadow: 0 2px 8px rgba(0,0,0,.1); }
-  h2 { margin-top: 0; }
-  h3 { margin: 24px 0 8px; font-size: 16px; }
-  label { display: block; margin: 14px 0 4px; font-weight: 600; font-size: 14px; }
-  select, input[type=text], textarea { width: 100%; padding: 8px; border: 1px solid #bbb;
-          border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-  .row { display: flex; gap: 12px; }
-  .row > div { flex: 1; }
-  .labelrow { display: flex; justify-content: space-between; align-items: flex-end; }
-  .labelrow label.chk { font-weight: 400; font-size: 13px; color: #444; cursor: pointer; margin-bottom: 4px; }
-  .labelrow label.chk input { margin-right: 4px; vertical-align: middle; }
-  .datebox { position: relative; display: flex; gap: 6px; }
-  .datebox button { margin: 0; width: 44px; padding: 0; background: #eee; color: #333; border: 1px solid #bbb; }
-  #datePicker { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-  .baddate { border-color: #c62828 !important; background: #fdecec; }   /* complete but impossible date, example 30/02/2026 */
-  button { margin-top: 20px; width: 100%; padding: 10px; background: #714b67; color: #fff; border: 0;
-           border-radius: 6px; font-size: 15px; cursor: pointer; }
-  button:disabled { opacity: .6; cursor: wait; }
-  #msg { margin-top: 14px; padding: 10px; border-radius: 6px; display: none; font-size: 14px; }
-  .ok { background: #e3f6e8; color: #1b6b32; }
-  .err { background: #fde8e8; color: #9b1c1c; }
-  .hint { font-size: 12px; color: #555; margin-top: 4px; min-height: 16px; }
-  .hint.bad { color: #9b1c1c; }
-  .hint.good { color: #1b6b32; }
+body {
+	font-family: system-ui, sans-serif;
+	background: #f4f5f7;
+	margin: 0;
+	padding: 24px;
+}
 
-  /* Day summary */
-  .summary { display: flex; gap: 12px; flex-wrap: wrap; }
-  .box { flex: 1; min-width: 220px; background: #f7f3f6; border: 1px solid #e3d6df; border-radius: 8px; padding: 10px 12px; }
-  .box .t { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: .03em; }
-  .box .v { font-size: 22px; font-weight: 700; margin: 2px 0; }
-  .box .s { font-size: 13px; color: #555; }
-  .muted { color: #777; font-size: 13px; }
-  .refresh { width: auto; margin: 0 0 0 8px; padding: 2px 10px; font-size: 12px; background: #eee; color: #333; border: 1px solid #bbb; }
-  .mini { width: auto; margin: 0 4px 0 0; padding: 4px 10px; font-size: 12px; }
-  .mini.cancel { background: #eee; color: #333; border: 1px solid #bbb; }
+.card {
+	max-width: 960px;
+	margin: 0 auto;
+	background: #fff;
+	padding: 24px;
+	border-radius: 10px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+}
 
-  /* Sheet style table: every cell is editable */
-  table.sheet { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; margin-top: 6px; }
-  table.sheet th, table.sheet td { border: 1px solid #ccc; padding: 0; text-align: left; vertical-align: top; }
-  table.sheet th { background: #eee; padding: 6px 8px; }
-  table.sheet th.num { text-align: right; }
-  table.sheet td.ro { padding: 6px 8px; background: #fafafa; color: #444; }
-  table.sheet select, table.sheet textarea, table.sheet input[type=text] {
-    width: 100%; box-sizing: border-box; border: 0; border-radius: 0; background: transparent;
-    padding: 6px 8px; font: inherit; font-size: 13px; display: block; margin: 0; }
-  table.sheet textarea { resize: none; overflow: hidden; }
-  table.sheet input.hrs { text-align: right; }
-  table.sheet select:hover, table.sheet textarea:hover, table.sheet input[type=text]:hover { background: #f3eef2; }
-  table.sheet select:focus, table.sheet textarea:focus, table.sheet input[type=text]:focus {
-    outline: 2px solid #714b67; outline-offset: -2px; background: #fff; }
-  table.sheet .bad { outline: 2px solid #c62828; outline-offset: -2px; background: #fdecec; }
-  table.sheet tr.dirty td { background: #fffbe6; }
-  table.sheet tr.dirty td.ro { background: #fff6cc; }
-  table.sheet tr.moving td { background: #e3efff; }          /* date changed: the entry moves to another date */
-  table.sheet tr.moving td.ro { background: #d6e6fb; }
-  table.sheet tfoot td { font-weight: 700; background: #f7f7f7; padding: 6px 8px; }
-  table.sheet td.num { text-align: right; }
+h2 {
+	margin-top: 0;
+}
 
-  /* Date cell of the table: read only text, the calendar is the only way to change it */
-  table.sheet td.dtcell { position: relative; }
-  table.sheet input.dt { cursor: pointer; padding-right: 26px; }
-  table.sheet .calico { position: absolute; right: 7px; top: 6px; font-size: 12px; pointer-events: none; opacity: .7; }
-  table.sheet .dtpick { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0;
-                        pointer-events: none; border: 0; padding: 0; }
+h3 {
+	margin: 24px 0 8px;
+	font-size: 16px;
+}
 
-  /* Save bar: visible only when something is changed */
-  .savebar { display: none; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px;
-             background: #fffbe6; border: 1px solid #e6d98a; border-radius: 6px; font-size: 13px; }
-  .savebar.show { display: flex; }
-  .savebar .mini { margin: 0; }
+label {
+	display: block;
+	margin: 14px 0 4px;
+	font-weight: 600;
+	font-size: 14px;
+}
+
+select, input[type=text], textarea {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid #bbb;
+	border-radius: 6px;
+	font-size: 14px;
+	box-sizing: border-box;
+}
+
+.row {
+	display: flex;
+	gap: 12px;
+}
+
+.row>div {
+	flex: 1;
+}
+
+.labelrow {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+}
+
+.labelrow label.chk {
+	font-weight: 400;
+	font-size: 13px;
+	color: #444;
+	cursor: pointer;
+	margin-bottom: 4px;
+}
+
+.labelrow label.chk input {
+	margin-right: 4px;
+	vertical-align: middle;
+}
+
+.datebox {
+	position: relative;
+	display: flex;
+	gap: 6px;
+}
+
+.datebox button {
+	margin: 0;
+	width: 44px;
+	padding: 0;
+	background: #eee;
+	color: #333;
+	border: 1px solid #bbb;
+}
+
+#datePicker {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.baddate {
+	border-color: #c62828 !important;
+	background: #fdecec;
+} /* complete but impossible date, example 30/02/2026 */
+button {
+	margin-top: 20px;
+	width: 100%;
+	padding: 10px;
+	background: #714b67;
+	color: #fff;
+	border: 0;
+	border-radius: 6px;
+	font-size: 15px;
+	cursor: pointer;
+}
+
+button:disabled {
+	opacity: .6;
+	cursor: wait;
+}
+
+#msg {
+	margin-top: 14px;
+	padding: 10px;
+	border-radius: 6px;
+	display: none;
+	font-size: 14px;
+}
+
+.ok {
+	background: #e3f6e8;
+	color: #1b6b32;
+}
+
+.err {
+	background: #fde8e8;
+	color: #9b1c1c;
+}
+
+.hint {
+	font-size: 12px;
+	color: #555;
+	margin-top: 4px;
+	min-height: 16px;
+}
+
+.hint.bad {
+	color: #9b1c1c;
+}
+
+.hint.good {
+	color: #1b6b32;
+}
+
+/* Day summary */
+.summary {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.box {
+	flex: 1;
+	min-width: 220px;
+	background: #f7f3f6;
+	border: 1px solid #e3d6df;
+	border-radius: 8px;
+	padding: 10px 12px;
+}
+
+.box .t {
+	font-size: 12px;
+	color: #666;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+}
+
+.box .v {
+	font-size: 22px;
+	font-weight: 700;
+	margin: 2px 0;
+}
+
+.box .s {
+	font-size: 13px;
+	color: #555;
+}
+
+.muted {
+	color: #777;
+	font-size: 13px;
+}
+
+.refresh {
+	width: auto;
+	margin: 0 0 0 8px;
+	padding: 2px 10px;
+	font-size: 12px;
+	background: #eee;
+	color: #333;
+	border: 1px solid #bbb;
+}
+
+.mini {
+	width: auto;
+	margin: 0 4px 0 0;
+	padding: 4px 10px;
+	font-size: 12px;
+}
+
+.mini.cancel {
+	background: #eee;
+	color: #333;
+	border: 1px solid #bbb;
+}
+
+/* Sheet style table: every cell is editable */
+table.sheet {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
+	font-size: 13px;
+	margin-top: 6px;
+}
+
+table.sheet th, table.sheet td {
+	border: 1px solid #ccc;
+	padding: 0;
+	text-align: left;
+	vertical-align: top;
+}
+
+table.sheet th {
+	background: #eee;
+	padding: 6px 8px;
+}
+
+table.sheet th.num {
+	text-align: right;
+}
+
+table.sheet td.ro {
+	padding: 6px 8px;
+	background: #fafafa;
+	color: #444;
+}
+
+table.sheet select, table.sheet textarea, table.sheet input[type=text] {
+	width: 100%;
+	box-sizing: border-box;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	padding: 6px 8px;
+	font: inherit;
+	font-size: 13px;
+	display: block;
+	margin: 0;
+}
+
+table.sheet textarea {
+	resize: none;
+	overflow: hidden;
+}
+
+table.sheet input.hrs {
+	text-align: right;
+}
+
+table.sheet select:hover, table.sheet textarea:hover, table.sheet input[type=text]:hover
+	{
+	background: #f3eef2;
+}
+
+table.sheet select:focus, table.sheet textarea:focus, table.sheet input[type=text]:focus
+	{
+	outline: 2px solid #714b67;
+	outline-offset: -2px;
+	background: #fff;
+}
+
+table.sheet .bad {
+	outline: 2px solid #c62828;
+	outline-offset: -2px;
+	background: #fdecec;
+}
+
+table.sheet tr.dirty td {
+	background: #fffbe6;
+}
+
+table.sheet tr.dirty td.ro {
+	background: #fff6cc;
+}
+
+table.sheet tr.moving td {
+	background: #e3efff;
+} /* date changed: the entry moves to another date */
+table.sheet tr.moving td.ro {
+	background: #d6e6fb;
+}
+
+table.sheet tfoot td {
+	font-weight: 700;
+	background: #f7f7f7;
+	padding: 6px 8px;
+}
+
+table.sheet td.num {
+	text-align: right;
+}
+
+/* Date cell of the table: read only text, the calendar is the only way to change it */
+table.sheet td.dtcell {
+	position: relative;
+}
+
+table.sheet input.dt {
+	cursor: pointer;
+	padding-right: 26px;
+}
+
+table.sheet .calico {
+	position: absolute;
+	right: 7px;
+	top: 6px;
+	font-size: 12px;
+	pointer-events: none;
+	opacity: .7;
+}
+
+table.sheet .dtpick {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	pointer-events: none;
+	border: 0;
+	padding: 0;
+}
+
+/* Save bar: visible only when something is changed */
+.savebar {
+	display: none;
+	align-items: center;
+	gap: 8px;
+	margin-top: 10px;
+	padding: 8px 10px;
+	background: #fffbe6;
+	border: 1px solid #e6d98a;
+	border-radius: 6px;
+	font-size: 13px;
+}
+
+.savebar.show {
+	display: flex;
+}
+
+.savebar .mini {
+	margin: 0;
+}
 </style>
 </head>
 <body>
-<div class="card">
-  <h2>Timesheet Entry</h2>
+	<div class="card">
+		<h2>Timesheet Entry</h2>
 
-  <label for="project">Project</label>
-  <select id="project"><option>Loading...</option></select>
+		<label for="project">Project</label> <select id="project"><option>Loading...</option></select>
 
-  <div class="labelrow">
-    <label for="task">Task</label>
-    <label class="chk"><input type="checkbox" id="showDone"> Show Done tasks</label>
-  </div>
-  <select id="task" disabled><option>Select a project first</option></select>
+		<div class="labelrow">
+			<label for="task">Task</label> <label class="chk"><input
+				type="checkbox" id="showDone"> Show Done tasks</label>
+		</div>
+		<select id="task" disabled><option>Select a project
+				first</option></select> <label for="activity">Activity</label> <select id="activity"><option>Loading...</option></select>
 
-  <label for="activity">Activity</label>
-  <select id="activity"><option>Loading...</option></select>
+		<div class="row">
+			<div>
+				<label for="date">Date (DD/MM/YYYY)</label>
+				<div class="datebox">
+					<input type="text" id="date" placeholder="DD/MM/YYYY"
+						maxlength="10" autocomplete="off">
+					<button type="button" id="calBtn" title="Pick a date">&#128197;</button>
+					<input type="date" id="datePicker" tabindex="-1">
+				</div>
+			</div>
+			<div>
+				<label for="hours">Hours (H.MM)</label> <input type="text"
+					id="hours" inputmode="decimal" placeholder="2.30"
+					autocomplete="off">
+				<div class="hint" id="hoursHint"></div>
+			</div>
+		</div>
 
-  <div class="row">
-    <div>
-      <label for="date">Date (DD/MM/YYYY)</label>
-      <div class="datebox">
-        <input type="text" id="date" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off">
-        <button type="button" id="calBtn" title="Pick a date">&#128197;</button>
-        <input type="date" id="datePicker" tabindex="-1">
-      </div>
-    </div>
-    <div>
-      <label for="hours">Hours (H.MM)</label>
-      <input type="text" id="hours" inputmode="decimal" placeholder="2.30" autocomplete="off">
-      <div class="hint" id="hoursHint"></div>
-    </div>
-  </div>
+		<label for="desc">Description</label>
+		<textarea id="desc" rows="3" placeholder="What did you work on?"></textarea>
 
-  <label for="desc">Description</label>
-  <textarea id="desc" rows="3" placeholder="What did you work on?"></textarea>
+		<button id="save">Save Timesheet</button>
+		<div id="msg"></div>
 
-  <button id="save">Save Timesheet</button>
-  <div id="msg"></div>
+		<h3>
+			Day summary
+			<button type="button" class="refresh" id="refresh">Refresh</button>
+		</h3>
+		<div class="summary">
+			<div class="box">
+				<div class="t">Attendance (after 30 min break)</div>
+				<div class="v" id="attNet">-</div>
+				<div class="s" id="attInfo">Loading...</div>
+			</div>
+			<div class="box">
+				<div class="t">Timesheet logged</div>
+				<div class="v" id="tsTotal">-</div>
+				<div class="s" id="tsInfo">Loading...</div>
+			</div>
+		</div>
 
-  <h3>Day summary <button type="button" class="refresh" id="refresh">Refresh</button></h3>
-  <div class="summary">
-    <div class="box">
-      <div class="t">Attendance (after 30 min break)</div>
-      <div class="v" id="attNet">-</div>
-      <div class="s" id="attInfo">Loading...</div>
-    </div>
-    <div class="box">
-      <div class="t">Timesheet logged</div>
-      <div class="v" id="tsTotal">-</div>
-      <div class="s" id="tsInfo">Loading...</div>
-    </div>
-  </div>
+		<h3>Timesheets on this date <button type="button" class="refresh" id="copyBtn">Copy</button></h3>
+		<div class="muted">Click any cell to edit it (project cannot be
+			changed). Click the Date cell to pick another date from the calendar,
+			the entry then moves to that date. A Save button appears when
+			something is changed.</div>
+		<div class="hint" id="editMsg"></div>
+		<div id="tableWrap">
+			<div class="muted">Loading...</div>
+		</div>
 
-  <h3>Timesheets on this date</h3>
-  <div class="muted">Click any cell to edit it (project cannot be changed). Click the Date cell to pick another date from the calendar, the entry then moves to that date. A Save button appears when something is changed.</div>
-  <div class="hint" id="editMsg"></div>
-  <div id="tableWrap"><div class="muted">Loading...</div></div>
+		<div class="savebar" id="saveBar">
+			<span id="dirtyCount"></span>
+			<button type="button" class="mini" id="saveAll">Save changes</button>
+			<button type="button" class="mini cancel" id="discardAll">Discard</button>
+		</div>
+	</div>
 
-  <div class="savebar" id="saveBar">
-    <span id="dirtyCount"></span>
-    <button type="button" class="mini" id="saveAll">Save changes</button>
-    <button type="button" class="mini cancel" id="discardAll">Discard</button>
-  </div>
-</div>
-
-<script>
+	<script>
 const $ = id => document.getElementById(id);
 
 // Defaults preselected on page load (you can change them in the dropdowns)
@@ -722,6 +1014,50 @@ $("discardAll").addEventListener("click", () => {
   renderTable();   // rebuild from the saved values
 });
 window.addEventListener("resize", () => rowStates.forEach(st => autosize(st.descEl)));
+
+//---------- copy the saved timesheets of the loaded date ----------
+
+//true adds the hours after each line, example: 1. Description (2.30 Hrs)
+const COPY_WITH_HOURS = false;
+
+//Copy text to the clipboard (the clipboard API needs https or localhost, so http:// pages use the fallback)
+async function copyText(text) {
+if (navigator.clipboard && window.isSecureContext) {
+ await navigator.clipboard.writeText(text);
+ return;
+}
+// Fallback for http:// pages
+const ta = document.createElement("textarea");
+ta.value = text;
+ta.style.position = "fixed";
+ta.style.left = "-9999px";
+ta.style.top = "0";
+document.body.appendChild(ta);
+ta.focus();
+ta.select();
+let ok = false;
+try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+document.body.removeChild(ta);
+if (!ok) throw new Error("The browser did not allow copying");
+}
+
+$("copyBtn").addEventListener("click", async () => {
+if (!lastRows.length) {
+ setEditMsg("No timesheet entries to copy for this date", false);
+ return;
+}
+// One numbered line per entry: 1. description (line breaks inside a description become spaces)
+const text = lastRows.map((r, i) => {
+ const line = r.description.replace(/\s*[\r\n]+\s*/g, " ").trim();
+ return (i + 1) + ". " + line + (COPY_WITH_HOURS ? " (" + fmtHM(decToMin(r.hours)) + " Hrs)" : "");
+}).join("\n");
+
+try {
+ await copyText(text);
+ setEditMsg("Copied " + lastRows.length + (lastRows.length === 1 ? " entry" : " entries")
+         + (hasUnsaved() ? " (saved values only, unsaved changes are not included)" : ""), true);
+} catch (e) { setEditMsg(e.message, false); }
+});
 
 // ---------- tasks (entry form) ----------
 
